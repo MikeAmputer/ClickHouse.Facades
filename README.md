@@ -1,2 +1,2 @@
 # ClickHouse.Facades
-Migrations and contexts for ClickHouse
+Raw SQL migrations and contexts for ClickHouse
