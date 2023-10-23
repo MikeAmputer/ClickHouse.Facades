@@ -16,7 +16,7 @@ public sealed class ClickHouseContextServiceBuilder<TContext>
 	}
 
 	public ClickHouseContextServiceBuilder<TContext> AddFacade<TFacade>()
-		where TFacade : ClickHouseFacade<TContext>, new()
+		where TFacade : ClickHouseFacade<TContext>
 	{
 		_facadeRegistry.AddFacade<TFacade>();
 

@@ -6,7 +6,7 @@ public sealed class ClickHouseContextOptions<TContext>
 	internal string ConnectionString { get; set; } = "";
 	internal bool AllowDatabaseChanges { get; set; } = false;
 
-	internal ClickHouseFacadeRegistry<TContext> FacadeRegistry { get; set; } = new();
+	internal ClickHouseFacadeFactory<TContext> FacadeFactory { get; set; } = null!;
 
 	internal HttpClient? HttpClient { get; set; }
 	internal IHttpClientFactory? HttpClientFactory { get; set; }

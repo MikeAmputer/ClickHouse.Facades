@@ -7,7 +7,7 @@ public abstract class ClickHouseContext<TContext> : IDisposable, IAsyncDisposabl
 {
 	private bool _initialized = false;
 	private ClickHouseConnection? _connection;
-	private ClickHouseFacadeRegistry<TContext>? _facadeRegistry;
+	private ClickHouseFacadeFactory<TContext> _facadeFactory = null!;
 	private readonly Dictionary<Type, ClickHouseFacade<TContext>> _facades = new();
 
 	private bool _allowDatabaseChanges = false;
@@ -43,7 +43,7 @@ public abstract class ClickHouseContext<TContext> : IDisposable, IAsyncDisposabl
 	}
 
 	public TFacade GetFacade<TFacade>()
-		where TFacade : ClickHouseFacade<TContext>, new()
+		where TFacade : ClickHouseFacade<TContext>
 	{
 		ThrowIfNotInitialized();
 
@@ -52,7 +52,7 @@ public abstract class ClickHouseContext<TContext> : IDisposable, IAsyncDisposabl
 			return (TFacade) facade;
 		}
 
-		var newFacade = _facadeRegistry!.CreateFacade<TFacade>(_connection!);
+		var newFacade = _facadeFactory.CreateFacade<TFacade>(_connection!);
 		_facades.Add(typeof(TFacade), newFacade);
 
 		return newFacade;
@@ -75,7 +75,7 @@ public abstract class ClickHouseContext<TContext> : IDisposable, IAsyncDisposabl
 		ThrowIfInitialized();
 
 		_connection = CreateConnection(options);
-		_facadeRegistry = options.FacadeRegistry;
+		_facadeFactory = options.FacadeFactory;
 		_allowDatabaseChanges = options.AllowDatabaseChanges;
 
 		_initialized = true;
