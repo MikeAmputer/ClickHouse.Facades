@@ -32,6 +32,33 @@ internal class MigrationsResolver
 			.OrderBy(m => m.Index);
 	}
 
+	public IOrderedEnumerable<ClickHouseMigration> GetMigrationsToRollback(ulong targetMigrationId)
+	{
+		if (_appliedMigrations.All(m => m.Id != targetMigrationId))
+		{
+			throw new InvalidOperationException("Unable to find target migration for rollback.");
+		}
+
+		var locatedMigrationsDictionary = _locatedMigrations.ToDictionary(m => m.Index);
+
+		var result = new List<ClickHouseMigration>();
+
+		foreach (var appliedMigration in _appliedMigrations.Reverse())
+		{
+			if (appliedMigration.Id == targetMigrationId)
+			{
+				break;
+			}
+
+			if (locatedMigrationsDictionary.TryGetValue(appliedMigration.Id, out var migration))
+			{
+				result.Add(migration);
+			}
+		}
+
+		return result.OrderByDescending(m => m.Index);
+	}
+
 	private void ValidateAppliedMigrations()
 	{
 		for (var i = 0; i < _appliedMigrations.Count(); i++)

@@ -70,7 +70,7 @@ internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMig
 		return migrations;
 	}
 
-	private readonly string AddAppliedMigration = "insert into {0} values ({1}, '{2}', 0)";
+	private const string AddAppliedMigrationSql = "insert into {0} values ({1}, '{2}', 0)";
 
 	internal async Task ApplyMigrationAsync(ClickHouseMigration migration, CancellationToken cancellationToken)
 	{
@@ -89,7 +89,37 @@ internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMig
 		}
 
 		var addAppliedMigrationSql = string.Format(
-			AddAppliedMigration,
+			AddAppliedMigrationSql,
+			new object[]
+			{
+				$"{DbName}.{MigrationsTable}",
+				migration.Index,
+				migration.Name,
+			});
+
+		await ExecuteNonQueryAsync(addAppliedMigrationSql, CancellationToken.None);
+	}
+
+	private const string AddRolledBackMigrationSql = "insert into {0} values ({1}, '{2}', 1)";
+
+	internal async Task RollbackMigrationAsync(ClickHouseMigration migration, CancellationToken cancellationToken)
+	{
+		ThrowIfDatabaseNotSet();
+		ExceptionHelpers.ThrowIfNull(migration);
+
+		var migrationBuilder = ClickHouseMigrationBuilder.Create;
+
+		migration.Down(migrationBuilder);
+
+		cancellationToken.ThrowIfCancellationRequested();
+
+		foreach (var statement in migrationBuilder.Statements)
+		{
+			await ExecuteNonQueryAsync(statement, CancellationToken.None);
+		}
+
+		var addAppliedMigrationSql = string.Format(
+			AddRolledBackMigrationSql,
 			new object[]
 			{
 				$"{DbName}.{MigrationsTable}",
