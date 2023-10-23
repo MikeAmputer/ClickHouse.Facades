@@ -50,7 +50,27 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 		}
 	}
 
-	private async Task EnsureDatabaseCreated(
+	/// <summary>
+	/// Rolls back migrations one by one from last to first until the last applied migration has specified Id.
+	/// </summary>
+	public async Task RollbackAsync(ulong targetMigrationId, CancellationToken cancellationToken = default)
+	{
+		await using var context = _migrationContextFactory.CreateContext();
+
+		var facade = context.GetFacade<ClickHouseMigrationFacade>();
+		facade.DbName = _migrationsDatabase;
+
+		var migrationsResolver = new MigrationsResolver(
+			await facade.GetAppliedMigrationsAsync(cancellationToken),
+			_migrationsLocator.GetMigrations());
+
+		foreach (var migration in migrationsResolver.GetMigrationsToRollback(targetMigrationId))
+		{
+			await facade.RollbackMigrationAsync(migration, cancellationToken);
+		}
+	}
+
+	private static async Task EnsureDatabaseCreated(
 		ClickHouseMigrationContext context,
 		CancellationToken cancellationToken)
 	{
