@@ -75,7 +75,7 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 			facadeRegistry);
 	}
 
-	public ClickHouseContextOptionsBuilder<TContext> ForceSession()
+	public ClickHouseContextOptionsBuilder<TContext> ForceSessions()
 	{
 		return WithPropertyValue(
 			builder => builder._forceSession,
