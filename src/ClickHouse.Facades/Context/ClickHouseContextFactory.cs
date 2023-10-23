@@ -3,18 +3,18 @@
 public abstract class ClickHouseContextFactory<TContext> : IClickHouseContextFactory<TContext>
 	where TContext : ClickHouseContext<TContext>, new()
 {
-	private ClickHouseFacadeRegistry<TContext>? _facadeRegistry;
+	private ClickHouseFacadeFactory<TContext>? _facadeFactory;
 
-	internal ClickHouseContextFactory<TContext> Setup(ClickHouseFacadeRegistry<TContext> facadeRegistry)
+	internal ClickHouseContextFactory<TContext> Setup(ClickHouseFacadeFactory<TContext> facadeFactory)
 	{
-		_facadeRegistry = facadeRegistry ?? throw new ArgumentNullException(nameof(facadeRegistry));
+		_facadeFactory = facadeFactory ?? throw new ArgumentNullException(nameof(facadeFactory));
 
 		return this;
 	}
 
 	public TContext CreateContext()
 	{
-		if (_facadeRegistry == null)
+		if (_facadeFactory == null)
 		{
 			throw new InvalidOperationException($"{GetType()} has no facade registry.");
 		}
@@ -24,7 +24,7 @@ public abstract class ClickHouseContextFactory<TContext> : IClickHouseContextFac
 		SetupContextOptions(builder);
 
 		var contextOptions = builder
-			.WithFacadeRegistry(_facadeRegistry)
+			.WithFacadeFactory(_facadeFactory)
 			.Build();
 
 		var context = new TContext();

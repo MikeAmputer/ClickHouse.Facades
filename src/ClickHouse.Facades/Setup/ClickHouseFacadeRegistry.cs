@@ -1,6 +1,4 @@
-﻿using ClickHouse.Client.ADO;
-
-namespace ClickHouse.Facades;
+﻿namespace ClickHouse.Facades;
 
 internal sealed class ClickHouseFacadeRegistry<TContext>
 	where TContext : ClickHouseContext<TContext>
@@ -13,14 +11,9 @@ internal sealed class ClickHouseFacadeRegistry<TContext>
 		_facades.Add(typeof(TFacade));
 	}
 
-	internal TFacade CreateFacade<TFacade>(ClickHouseConnection connection)
-		where TFacade : ClickHouseFacade<TContext>, new()
+	internal bool Contains<TFacade>()
+		where TFacade : ClickHouseFacade<TContext>
 	{
-		if (_facades.Contains(typeof(TFacade)))
-		{
-			return (new TFacade().SetConnection(connection) as TFacade)!;
-		}
-
-		throw new InvalidOperationException($"Facade of type {typeof(TFacade)} was not found.");
+		return _facades.Contains(typeof(TFacade));
 	}
 }

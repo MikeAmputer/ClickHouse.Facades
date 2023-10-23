@@ -34,7 +34,7 @@ public static class ServiceCollectionExtensions
 			typeof(IClickHouseContextFactory<TContext>),
 			serviceProvider => ActivatorUtilities
 				.CreateInstance<TContextFactory>(serviceProvider)
-				.Setup(serviceProvider.GetRequiredService<ClickHouseFacadeRegistry<TContext>>()),
+				.Setup(serviceProvider.GetRequiredService<ClickHouseFacadeFactory<TContext>>()),
 			factoryLifetime);
 
 		services.Add(descriptor);
@@ -42,6 +42,8 @@ public static class ServiceCollectionExtensions
 		var builder = ClickHouseContextServiceBuilder<TContext>.Create;
 		builderAction(builder);
 		builder.Build(services);
+
+		services.AddTransient<ClickHouseFacadeFactory<TContext>>();
 
 		return services;
 	}

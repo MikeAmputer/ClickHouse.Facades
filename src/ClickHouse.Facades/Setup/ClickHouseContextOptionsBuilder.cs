@@ -10,7 +10,7 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 
 	private OptionalValue<string> _connectionString;
 	private OptionalValue<bool> _forceSession;
-	private OptionalValue<ClickHouseFacadeRegistry<TContext>> _facadeRegistry;
+	private OptionalValue<ClickHouseFacadeFactory<TContext>> _facadeFactory;
 	private OptionalValue<bool> _allowDatabaseChanges;
 	private OptionalValue<HttpClient> _httpClient;
 	private OptionalValue<IHttpClientFactory> _httpClientFactory;
@@ -64,15 +64,15 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 			true);
 	}
 
-	internal ClickHouseContextOptionsBuilder<TContext> WithFacadeRegistry(
-		ClickHouseFacadeRegistry<TContext> facadeRegistry)
+	internal ClickHouseContextOptionsBuilder<TContext> WithFacadeFactory(
+		ClickHouseFacadeFactory<TContext> facadeFactory)
 	{
-		ExceptionHelpers.ThrowIfNull(facadeRegistry);
+		ExceptionHelpers.ThrowIfNull(facadeFactory);
 
 		return WithPropertyValue(
-			builder => builder._facadeRegistry,
-			(builder, value) => builder._facadeRegistry = value,
-			facadeRegistry);
+			builder => builder._facadeFactory,
+			(builder, value) => builder._facadeFactory = value,
+			facadeFactory);
 	}
 
 	public ClickHouseContextOptionsBuilder<TContext> ForceSessions()
@@ -108,7 +108,7 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 		return new ClickHouseContextOptions<TContext>
 		{
 			ConnectionString = connectionString,
-			FacadeRegistry = _facadeRegistry.NotNullOrThrow(),
+			FacadeFactory = _facadeFactory.NotNullOrThrow(),
 			AllowDatabaseChanges = _allowDatabaseChanges.OrElseValue(false),
 			HttpClient = _httpClient.OrDefault(),
 			HttpClientFactory = _httpClientFactory.OrDefault(),
