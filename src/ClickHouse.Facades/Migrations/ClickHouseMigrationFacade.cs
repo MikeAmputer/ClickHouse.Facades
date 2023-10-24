@@ -6,15 +6,28 @@ namespace ClickHouse.Facades.Migrations;
 internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMigrationContext>
 {
 	private const string MigrationsTable = "db_migrations_history";
-	internal string DbName { get; set; } = string.Empty;
+
+	private readonly IClickHouseMigrationInstructions _migrationInstructions;
+	private readonly string _dbName;
+
+	public ClickHouseMigrationFacade(IClickHouseMigrationInstructions migrationInstructions)
+	{
+		_migrationInstructions = migrationInstructions
+			?? throw new ArgumentNullException(nameof(migrationInstructions));
+
+		if (_migrationInstructions.DatabaseName.IsNullOrWhiteSpace())
+		{
+			throw new ArgumentException($"Migrations database name is null or white space.");
+		}
+
+		_dbName = _migrationInstructions.DatabaseName;
+	}
 
 	internal async Task EnsureMigrationsTableCreatedAsync(CancellationToken cancellationToken)
 	{
-		ThrowIfDatabaseNotSet();
-
 		var builder = CreateTableSqlBuilder.Create
 			.IfNotExists()
-			.WithDatabase(DbName)
+			.WithDatabase(_dbName)
 			.WithTableName(MigrationsTable)
 			.AddColumn(builder => builder
 				.WithName("id")
@@ -42,11 +55,9 @@ internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMig
 	internal async Task EnsureDatabaseCreatedAsync(
 		CancellationToken cancellationToken)
 	{
-		ThrowIfDatabaseNotSet();
-
 		var builder = CreateDatabaseSqlBuilder.Create
 			.IfNotExists()
-			.WithDbName(DbName)
+			.WithDbName(_dbName)
 			.WithEngine(builder => builder.WithEngine(ClickHouseDatabaseEngine.Atomic));
 
 		var statement = builder.BuildSql();
@@ -55,12 +66,10 @@ internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMig
 	}
 
 	private string GetAppliedMigrationsSql =>
-		$"select id, name from {DbName}.{MigrationsTable} final";
+		$"select id, name from {_dbName}.{MigrationsTable} final";
 
 	internal async Task<IEnumerable<AppliedMigration>> GetAppliedMigrationsAsync(CancellationToken cancellationToken)
 	{
-		ThrowIfDatabaseNotSet();
-
 		var migrations = await ExecuteQueryAsync(
 				GetAppliedMigrationsSql,
 				AppliedMigration.FromReader,
@@ -74,7 +83,6 @@ internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMig
 
 	internal async Task ApplyMigrationAsync(ClickHouseMigration migration, CancellationToken cancellationToken)
 	{
-		ThrowIfDatabaseNotSet();
 		ExceptionHelpers.ThrowIfNull(migration);
 
 		var migrationBuilder = ClickHouseMigrationBuilder.Create;
@@ -92,7 +100,7 @@ internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMig
 			AddAppliedMigrationSql,
 			new object[]
 			{
-				$"{DbName}.{MigrationsTable}",
+				$"{_dbName}.{MigrationsTable}",
 				migration.Index,
 				migration.Name,
 			});
@@ -104,7 +112,6 @@ internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMig
 
 	internal async Task RollbackMigrationAsync(ClickHouseMigration migration, CancellationToken cancellationToken)
 	{
-		ThrowIfDatabaseNotSet();
 		ExceptionHelpers.ThrowIfNull(migration);
 
 		var migrationBuilder = ClickHouseMigrationBuilder.Create;
@@ -122,19 +129,11 @@ internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMig
 			AddRolledBackMigrationSql,
 			new object[]
 			{
-				$"{DbName}.{MigrationsTable}",
+				$"{_dbName}.{MigrationsTable}",
 				migration.Index,
 				migration.Name,
 			});
 
 		await ExecuteNonQueryAsync(addAppliedMigrationSql, CancellationToken.None);
-	}
-
-	private void ThrowIfDatabaseNotSet()
-	{
-		if (DbName.IsNullOrWhiteSpace())
-		{
-			throw new InvalidOperationException($"{nameof(DbName)} is not set.");
-		}
 	}
 }
