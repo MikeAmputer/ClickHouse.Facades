@@ -10,4 +10,11 @@ public static class ServiceProviderExtensions
 
 		return migrator.ApplyMigrationsAsync();
 	}
+
+	public static Task ClickHouseRollbackAsync(this IServiceProvider serviceProvider, ulong targetMigrationId)
+	{
+		var migrator = serviceProvider.GetRequiredService<IClickHouseMigrator>();
+
+		return migrator.RollbackAsync(targetMigrationId);
+	}
 }

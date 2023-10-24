@@ -40,9 +40,6 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 		}
 	}
 
-	/// <summary>
-	/// Rolls back migrations one by one from last to first until the last applied migration has specified Id.
-	/// </summary>
 	public async Task RollbackAsync(ulong targetMigrationId, CancellationToken cancellationToken = default)
 	{
 		await using var context = _migrationContextFactory.CreateContext();
