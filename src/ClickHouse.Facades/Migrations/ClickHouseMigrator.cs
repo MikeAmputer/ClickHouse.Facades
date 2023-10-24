@@ -7,8 +7,6 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 	private readonly IClickHouseContextFactory<ClickHouseMigrationContext> _migrationContextFactory;
 	private readonly IClickHouseMigrationsLocator _migrationsLocator;
 
-	private readonly string _migrationsDatabase;
-
 	public ClickHouseMigrator(
 		IClickHouseContextFactory<ClickHouseMigrationContext> migrationContextFactory,
 		IClickHouseMigrationsLocator migrationsLocator,
@@ -21,13 +19,6 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 			?? throw new ArgumentNullException(nameof(migrationsLocator));
 
 		ExceptionHelpers.ThrowIfNull(instructions);
-
-		_migrationsDatabase = instructions.DatabaseName;
-
-		if (_migrationsDatabase.IsNullOrWhiteSpace())
-		{
-			throw new ArgumentException($"Migrations database name is null or white space.");
-		}
 	}
 
 	public async Task ApplyMigrationsAsync(CancellationToken cancellationToken = default)
@@ -35,7 +26,6 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 		await using var context = _migrationContextFactory.CreateContext();
 
 		var facade = context.GetFacade<ClickHouseMigrationFacade>();
-		facade.DbName = _migrationsDatabase;
 
 		await EnsureDatabaseCreated(context, cancellationToken);
 		await facade.EnsureMigrationsTableCreatedAsync(cancellationToken);
@@ -58,7 +48,6 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 		await using var context = _migrationContextFactory.CreateContext();
 
 		var facade = context.GetFacade<ClickHouseMigrationFacade>();
-		facade.DbName = _migrationsDatabase;
 
 		var migrationsResolver = new MigrationsResolver(
 			await facade.GetAppliedMigrationsAsync(cancellationToken),
