@@ -1,4 +1,6 @@
-﻿namespace ClickHouse.Facades;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace ClickHouse.Facades;
 
 internal sealed class ClickHouseFacadeRegistry<TContext>
 	where TContext : ClickHouseContext<TContext>
@@ -15,5 +17,13 @@ internal sealed class ClickHouseFacadeRegistry<TContext>
 		where TFacade : ClickHouseFacade<TContext>
 	{
 		return _facades.Contains(typeof(TFacade));
+	}
+
+	internal void RegisterFacades(IServiceCollection serviceCollection)
+	{
+		foreach (var facade in _facades)
+		{
+			serviceCollection.AddTransient(facade);
+		}
 	}
 }
