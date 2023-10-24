@@ -12,4 +12,8 @@ public interface IClickHouseMigrationInstructions
 	/// </summary>
 	string DatabaseName => GetConnectionString().GetConnectionStringParameters()["database"]
 		?? throw new InvalidOperationException("Unable to get 'database' parameter from connection string.");
+
+	bool RetryMigrations => false;
+
+	bool RollbackOnMigrationFail => false;
 }
