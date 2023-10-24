@@ -91,21 +91,33 @@ internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMig
 
 		cancellationToken.ThrowIfCancellationRequested();
 
-		foreach (var statement in migrationBuilder.Statements)
+		try
 		{
-			await ExecuteNonQueryAsync(statement, CancellationToken.None);
-		}
-
-		var addAppliedMigrationSql = string.Format(
-			AddAppliedMigrationSql,
-			new object[]
+			foreach (var statement in migrationBuilder.Statements)
 			{
-				$"{_dbName}.{MigrationsTable}",
-				migration.Index,
-				migration.Name,
-			});
+				await ExecuteNonQueryAsync(statement, CancellationToken.None);
+			}
 
-		await ExecuteNonQueryAsync(addAppliedMigrationSql, CancellationToken.None);
+			var addAppliedMigrationSql = string.Format(
+				AddAppliedMigrationSql,
+				new object[]
+				{
+					$"{_dbName}.{MigrationsTable}",
+					migration.Index,
+					migration.Name,
+				});
+
+			await ExecuteNonQueryAsync(addAppliedMigrationSql, CancellationToken.None);
+		}
+		catch (Exception migrationException)
+		{
+			var rolledBack = await TryRollbackMigrationAsync(migration);
+			var verb = rolledBack ? "has been" : "has not been";
+
+			throw new AggregateException(
+				$"Failed to apply migration '{migration.Name}'. Migration {verb} rolled back.",
+				migrationException);
+		}
 	}
 
 	private const string AddRolledBackMigrationSql = "insert into {0} values ({1}, '{2}', 1)";
@@ -135,5 +147,24 @@ internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMig
 			});
 
 		await ExecuteNonQueryAsync(addAppliedMigrationSql, CancellationToken.None);
+	}
+
+	private async Task<bool> TryRollbackMigrationAsync(ClickHouseMigration migration)
+	{
+		if (!_migrationInstructions.RollbackOnMigrationFail)
+		{
+			return false;
+		}
+
+		try
+		{
+			await RollbackMigrationAsync(migration, CancellationToken.None);
+
+			return true;
+		}
+		catch (Exception)
+		{
+			return false;
+		}
 	}
 }
