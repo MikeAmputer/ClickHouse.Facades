@@ -28,5 +28,7 @@ public sealed class ClickHouseContextServiceBuilder<TContext>
 		ExceptionHelpers.ThrowIfNull(serviceCollection);
 
 		serviceCollection.AddSingleton(_facadeRegistry);
+
+		_facadeRegistry.RegisterFacades(serviceCollection);
 	}
 }

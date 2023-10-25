@@ -1,0 +1,15 @@
+version: "3.9"
+name: clickhouse-facades-example
+
+services:
+  example-clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    platform: linux/amd64
+    container_name: example-clickhouse
+    restart: unless-stopped
+    environment:
+      - CLICKHOUSE_USER=example
+      - CLICKHOUSE_PASSWORD=example
+      - CLICKHOUSE_DB=facades_example
+    ports:
+      - "38123:8123"
