@@ -5,7 +5,7 @@ public abstract class Builder<TResult, TBuilder>
 {
 	internal Builder() { }
 
-	public static TBuilder Create => new();
+	internal static TBuilder Create => new();
 
 	private bool _isBuilt = false;
 
