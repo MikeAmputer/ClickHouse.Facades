@@ -2,14 +2,39 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
+
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>default</LangVersion>
+
+		<PackageProjectUrl>https://github.com/MikeAmputer/ClickHouse.Facades</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/MikeAmputer/ClickHouse.Facades</RepositoryUrl>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<PackageTags>clickhouse, migrations, context, facade</PackageTags>
+		<Authors>Pavel Kravtsov</Authors>
+		<Description>Raw SQL migrations and contexts for ClickHouse</Description>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="ClickHouse.Client" Version="6.7.5" />
-	  <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+		<None Include="..\..\README.md" Link="README.md" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="ClickHouse.Client" Version="6.7.5"/>
+		<PackageReference Include="System.Linq.Async" Version="6.0.1"/>
 	</ItemGroup>
 
 </Project>
