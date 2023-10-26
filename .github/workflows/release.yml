@@ -32,4 +32,4 @@ jobs:
       uses: tvdias/github-tagger@v0.0.2
       with:
         repo-token: "${{ secrets.REGISTRY_GITHUB_TOKEN }}"
-        tag: version
+        tag: ${{ github.event.inputs.version }}
