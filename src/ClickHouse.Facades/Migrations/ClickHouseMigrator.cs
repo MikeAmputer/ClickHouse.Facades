@@ -25,7 +25,7 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 	{
 		await using var context = _migrationContextFactory.CreateContext();
 
-		var facade = context.GetFacade<ClickHouseMigrationFacade>();
+		var facade = context.MigrationFacade;
 
 		await EnsureDatabaseCreated(context, cancellationToken);
 		await facade.EnsureMigrationsTableCreatedAsync(cancellationToken);
@@ -44,7 +44,7 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 	{
 		await using var context = _migrationContextFactory.CreateContext();
 
-		var facade = context.GetFacade<ClickHouseMigrationFacade>();
+		var facade = context.MigrationFacade;
 
 		var migrationsResolver = new MigrationsResolver(
 			await facade.GetAppliedMigrationsAsync(cancellationToken),
@@ -64,7 +64,7 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 
 		context.ChangeDatabase("");
 
-		await context.GetFacade<ClickHouseMigrationFacade>()
+		await context.MigrationFacade
 			.EnsureDatabaseCreatedAsync(cancellationToken);
 
 		context.ChangeDatabase(database);
