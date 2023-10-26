@@ -17,21 +17,35 @@ jobs:
     - name: Dotnet build
       run: dotnet build src/ClickHouse.Facades/ClickHouse.Facades.csproj --configuration Release /p:Version=${{ github.event.inputs.version }}
 
-    - name: Upload package
+    - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
         name: facades-package
         path: src/ClickHouse.Facades/bin/Release/ClickHouse.Facades.*nupkg
 
-  github-release:
-    name: GitHub Release
+  push-nuget-org:
     runs-on: ubuntu-latest
     needs: [build]
+    name: Push to NuGet.org
     steps:
     - name: Download Artifact
       uses: actions/download-artifact@v3
       with:
         name: facades-package
+      
+    - name: Push Package
+      run: dotnet nuget push ClickHouse.Facades.*.nupkg --skip-duplicate --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json
+
+  github-release:
+    name: GitHub Release
+    runs-on: ubuntu-latest
+    needs: [push-nuget-org]
+    steps:
+    - name: Download Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: facades-package
+
     - name: Create GitHub Release
       uses: ncipollo/release-action@v1
       with:
