@@ -1,4 +1,6 @@
-﻿namespace ClickHouse.Facades.Migrations;
+﻿using ClickHouse.Facades.Utility;
+
+namespace ClickHouse.Facades.Migrations;
 
 internal class MigrationsResolver
 {
@@ -9,11 +11,12 @@ internal class MigrationsResolver
 		IEnumerable<AppliedMigration> appliedMigrations,
 		IEnumerable<ClickHouseMigration> locatedMigrations)
 	{
-		_appliedMigrations = appliedMigrations.OrderBy(m => m.Id)
-			?? throw new ArgumentNullException(nameof(appliedMigrations));
+		ExceptionHelpers.ThrowIfNull(appliedMigrations);
+		ExceptionHelpers.ThrowIfNull(locatedMigrations);
 
-		_locatedMigrations = locatedMigrations.OrderBy(m => m.Index)
-			?? throw new ArgumentNullException(nameof(locatedMigrations));
+		_appliedMigrations = appliedMigrations.OrderBy(m => m.Id);
+
+		_locatedMigrations = locatedMigrations.OrderBy(m => m.Index);
 	}
 
 	public IOrderedEnumerable<ClickHouseMigration> GetMigrationsToApply()
