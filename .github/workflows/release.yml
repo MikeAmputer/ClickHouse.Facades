@@ -24,12 +24,20 @@ jobs:
         path: src/ClickHouse.Facades/bin/Release/ClickHouse.Facades.*nupkg
 
   github-release:
-    name: Github release
+    name: GitHub Release
     runs-on: ubuntu-latest
     needs: [build]
     steps:
-    - name: Add tag
-      uses: tvdias/github-tagger@v0.0.2
+    - name: Download Artifact
+      uses: actions/download-artifact@v3
       with:
-        repo-token: "${{ secrets.REGISTRY_GITHUB_TOKEN }}"
+        name: facades-package
+    - name: Create GitHub Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "*.nupkg,*.snupkg"
         tag: "${{ github.event.inputs.version }}"
+        token: ${{ secrets.REGISTRY_GITHUB_TOKEN }}
+        generateReleaseNotes: true
+        draft: true
+        prerelease: false
