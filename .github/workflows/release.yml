@@ -34,7 +34,7 @@ jobs:
         name: facades-package
       
     - name: Push Package
-      run: dotnet nuget push ClickHouse.Facades.*.nupkg --skip-duplicate --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push ClickHouse.Facades.*.nupkg --skip-duplicate --api-key ${{ secrets.NUGET_ORG_API_KEY }} --source https://api.nuget.org/v3/index.json
 
   github-release:
     name: GitHub Release
