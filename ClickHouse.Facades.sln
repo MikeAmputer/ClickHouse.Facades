@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClickHouse.Facades", "src\C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClickHouse.Facades.Example", "src\ClickHouse.Facades.Example\ClickHouse.Facades.Example.csproj", "{A7555176-F42B-4DD3-8810-E16CFE4378BB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClickHouse.Facades.Tests", "ClickHouse.Facades.Tests\ClickHouse.Facades.Tests.csproj", "{978B9E76-4C8B-485C-A78C-F0B1E4E23DEF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{A7555176-F42B-4DD3-8810-E16CFE4378BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7555176-F42B-4DD3-8810-E16CFE4378BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7555176-F42B-4DD3-8810-E16CFE4378BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{978B9E76-4C8B-485C-A78C-F0B1E4E23DEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{978B9E76-4C8B-485C-A78C-F0B1E4E23DEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{978B9E76-4C8B-485C-A78C-F0B1E4E23DEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{978B9E76-4C8B-485C-A78C-F0B1E4E23DEF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

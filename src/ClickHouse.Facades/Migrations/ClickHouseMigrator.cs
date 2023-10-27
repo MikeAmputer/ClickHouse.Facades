@@ -32,7 +32,7 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 
 		var migrationsResolver = new MigrationsResolver(
 			await facade.GetAppliedMigrationsAsync(cancellationToken),
-			_migrationsLocator.GetMigrations());
+			_migrationsLocator.GetMigrations().ToList());
 
 		foreach (var migration in migrationsResolver.GetMigrationsToApply())
 		{
@@ -48,7 +48,7 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 
 		var migrationsResolver = new MigrationsResolver(
 			await facade.GetAppliedMigrationsAsync(cancellationToken),
-			_migrationsLocator.GetMigrations());
+			_migrationsLocator.GetMigrations().ToList());
 
 		foreach (var migration in migrationsResolver.GetMigrationsToRollback(targetMigrationId))
 		{

@@ -8,11 +8,21 @@ internal class MigrationsResolver
 	private readonly IOrderedEnumerable<ClickHouseMigration> _locatedMigrations;
 
 	public MigrationsResolver(
-		IEnumerable<AppliedMigration> appliedMigrations,
-		IEnumerable<ClickHouseMigration> locatedMigrations)
+		IReadOnlyCollection<AppliedMigration> appliedMigrations,
+		IReadOnlyCollection<ClickHouseMigration> locatedMigrations)
 	{
 		ExceptionHelpers.ThrowIfNull(appliedMigrations);
 		ExceptionHelpers.ThrowIfNull(locatedMigrations);
+
+		if (appliedMigrations.HasDuplicates(m => m.Id))
+		{
+			throw new InvalidOperationException("Applied migrations collection contains duplicates.");
+		}
+
+		if (locatedMigrations.HasDuplicates(m => m.Index))
+		{
+			throw new InvalidOperationException("Located migrations collection contains duplicates.");
+		}
 
 		_appliedMigrations = appliedMigrations.OrderBy(m => m.Id);
 
@@ -56,6 +66,11 @@ internal class MigrationsResolver
 			if (locatedMigrationsDictionary.TryGetValue(appliedMigration.Id, out var migration))
 			{
 				result.Add(migration);
+			}
+			else
+			{
+				throw new InvalidOperationException(
+					$"Unable to find located migration '{appliedMigration.Name}'");
 			}
 		}
 

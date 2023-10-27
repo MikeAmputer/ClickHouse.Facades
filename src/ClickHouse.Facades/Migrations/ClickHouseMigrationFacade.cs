@@ -68,7 +68,7 @@ internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMig
 	private string GetAppliedMigrationsSql =>
 		$"select id, name from {_dbName}.{MigrationsTable} final";
 
-	internal async Task<IEnumerable<AppliedMigration>> GetAppliedMigrationsAsync(CancellationToken cancellationToken)
+	internal async Task<List<AppliedMigration>> GetAppliedMigrationsAsync(CancellationToken cancellationToken)
 	{
 		var migrations = await ExecuteQueryAsync(
 				GetAppliedMigrationsSql,

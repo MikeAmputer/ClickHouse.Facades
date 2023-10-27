@@ -8,7 +8,7 @@ internal class AppliedMigration
 
 	public string Name { get; set; }
 
-	private AppliedMigration(ulong id, string name)
+	internal AppliedMigration(ulong id, string name)
 	{
 		Id = id;
 		Name = name;
