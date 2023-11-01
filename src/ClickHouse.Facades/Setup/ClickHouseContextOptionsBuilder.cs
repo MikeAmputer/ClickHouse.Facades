@@ -1,4 +1,5 @@
-﻿using ClickHouse.Facades.Utility;
+﻿using ClickHouse.Client.ADO;
+using ClickHouse.Facades.Utility;
 
 namespace ClickHouse.Facades;
 
@@ -10,11 +11,14 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 
 	private OptionalValue<string> _connectionString;
 	private OptionalValue<bool> _forceSession;
-	private OptionalValue<ClickHouseFacadeFactory<TContext>> _facadeFactory;
 	private OptionalValue<bool> _allowDatabaseChanges;
+
 	private OptionalValue<HttpClient> _httpClient;
 	private OptionalValue<IHttpClientFactory> _httpClientFactory;
 	private OptionalValue<string> _httpClientName;
+
+	private OptionalValue<ClickHouseFacadeFactory<TContext>> _facadeFactory;
+	private OptionalValue<Func<ClickHouseConnection, ClickHouseConnectionBroker>> _connectionBrokerProvider;
 
 	public ClickHouseContextOptionsBuilder<TContext> WithHttpClientFactory(
 		IHttpClientFactory httpClientFactory,
@@ -64,17 +68,6 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 			true);
 	}
 
-	internal ClickHouseContextOptionsBuilder<TContext> WithFacadeFactory(
-		ClickHouseFacadeFactory<TContext> facadeFactory)
-	{
-		ExceptionHelpers.ThrowIfNull(facadeFactory);
-
-		return WithPropertyValue(
-			builder => builder._facadeFactory,
-			(builder, value) => builder._facadeFactory = value,
-			facadeFactory);
-	}
-
 	public ClickHouseContextOptionsBuilder<TContext> ForceSessions()
 	{
 		return WithPropertyValue(
@@ -96,6 +89,28 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 			connectionString);
 	}
 
+	internal ClickHouseContextOptionsBuilder<TContext> WithFacadeFactory(
+		ClickHouseFacadeFactory<TContext> facadeFactory)
+	{
+		ExceptionHelpers.ThrowIfNull(facadeFactory);
+
+		return WithPropertyValue(
+			builder => builder._facadeFactory,
+			(builder, value) => builder._facadeFactory = value,
+			facadeFactory);
+	}
+
+	internal ClickHouseContextOptionsBuilder<TContext> WithConnectionBrokerProvider(
+		Func<ClickHouseConnection, ClickHouseConnectionBroker> connectionBrokerProvider)
+	{
+		ExceptionHelpers.ThrowIfNull(connectionBrokerProvider);
+
+		return WithPropertyValue(
+			builder => builder._connectionBrokerProvider,
+			(builder, value) => builder._connectionBrokerProvider = value,
+			connectionBrokerProvider);
+	}
+
 	protected override ClickHouseContextOptions<TContext> BuildCore()
 	{
 		var connectionString = _connectionString.NotNullOrThrow();
@@ -108,11 +123,12 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 		return new ClickHouseContextOptions<TContext>
 		{
 			ConnectionString = connectionString,
-			FacadeFactory = _facadeFactory.NotNullOrThrow(),
 			AllowDatabaseChanges = _allowDatabaseChanges.OrElseValue(false),
 			HttpClient = _httpClient.OrDefault(),
 			HttpClientFactory = _httpClientFactory.OrDefault(),
 			HttpClientName = _httpClientName.OrDefault(),
+			FacadeFactory = _facadeFactory.NotNullOrThrow(),
+			ConnectionBrokerProvider = _connectionBrokerProvider.NotNullOrThrow(),
 		};
 	}
 

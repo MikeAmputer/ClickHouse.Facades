@@ -3,7 +3,6 @@ using System.Data.Common;
 using System.Runtime.CompilerServices;
 using ClickHouse.Client.ADO;
 using ClickHouse.Client.Copy;
-using ClickHouse.Client.Utility;
 using ClickHouse.Facades.Utility;
 
 namespace ClickHouse.Facades;
@@ -11,42 +10,28 @@ namespace ClickHouse.Facades;
 public abstract class ClickHouseFacade<TContext>
 	where TContext : ClickHouseContext<TContext>
 {
-	private const string UseSessionConnectionStringParameter = "usesession";
+	private ClickHouseConnectionBroker _connectionBroker = null!;
 
-	private ClickHouseConnection? _connection = null;
-	private bool _sessionEnabled = false;
-
-	internal ClickHouseFacade<TContext> SetConnection(ClickHouseConnection connection)
+	internal ClickHouseFacade<TContext> SetConnectionBroker(ClickHouseConnectionBroker connectionBroker)
 	{
-		ExceptionHelpers.ThrowIfNull(connection);
-
-		if (_connection != null)
+		if (_connectionBroker != null)
 		{
-			throw new InvalidOperationException($"{GetType()} is already connected.");
+			throw new InvalidOperationException("Connection broker is already set.");
 		}
 
-		_connection = connection;
-
-		_sessionEnabled = connection.ConnectionString
-			.GetConnectionStringParameters()
-			.Contains(new KeyValuePair<string, string?>(UseSessionConnectionStringParameter, true.ToString()));
+		_connectionBroker = connectionBroker ?? throw new ArgumentNullException(nameof(connectionBroker));
 
 		return this;
 	}
 
 	protected ClickHouseCommand CreateCommand()
 	{
-		ThrowIfNotConnected();
-
-		return _connection!.CreateCommand();
+		return _connectionBroker.CreateCommand();
 	}
 
 	protected Task<object> ExecuteScalarAsync(string query, CancellationToken cancellationToken = default)
 	{
-		ThrowIfNotConnected();
-		cancellationToken.ThrowIfCancellationRequested();
-
-		return _connection.ExecuteScalarAsync(query);
+		return _connectionBroker.ExecuteScalarAsync(query, cancellationToken);
 	}
 
 	/// <exception cref="System.InvalidCastException">Unable to cast object to type T.</exception>
@@ -59,18 +44,12 @@ public abstract class ClickHouseFacade<TContext>
 
 	protected Task<int> ExecuteNonQueryAsync(string statement, CancellationToken cancellationToken = default)
 	{
-		ThrowIfNotConnected();
-		cancellationToken.ThrowIfCancellationRequested();
-
-		return _connection.ExecuteStatementAsync(statement);
+		return _connectionBroker.ExecuteNonQueryAsync(statement, cancellationToken);
 	}
 
 	protected Task<DbDataReader> ExecuteReaderAsync(string query, CancellationToken cancellationToken = default)
 	{
-		ThrowIfNotConnected();
-		cancellationToken.ThrowIfCancellationRequested();
-
-		return _connection.ExecuteReaderAsync(query);
+		return _connectionBroker.ExecuteReaderAsync(query, cancellationToken);
 	}
 
 	protected async IAsyncEnumerable<T> ExecuteQueryAsync<T>(
@@ -78,7 +57,7 @@ public abstract class ClickHouseFacade<TContext>
 		Func<DbDataReader, T> rowSelector,
 		[EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		var reader = await ExecuteReaderAsync(query, cancellationToken);
+		await using var reader = await ExecuteReaderAsync(query, cancellationToken);
 
 		if (!reader.HasRows)
 		{
@@ -93,10 +72,7 @@ public abstract class ClickHouseFacade<TContext>
 
 	protected DataTable ExecuteDataTable(string query, CancellationToken cancellationToken = default)
 	{
-		ThrowIfNotConnected();
-		cancellationToken.ThrowIfCancellationRequested();
-
-		return _connection.ExecuteDataTable(query);
+		return _connectionBroker.ExecuteDataTable(query, cancellationToken);
 	}
 
 	protected Task<long> BulkInsertAsync(
@@ -146,47 +122,12 @@ public abstract class ClickHouseFacade<TContext>
 			maxDegreeOfParallelism);
 	}
 
-	private async Task<long> BulkInsertAsync(
+	private Task<long> BulkInsertAsync(
 		string destinationTable,
 		Func<ClickHouseBulkCopy, Task> saveAction,
 		int batchSize,
 		int maxDegreeOfParallelism)
 	{
-		ThrowIfNotConnected();
-
-		if (destinationTable.IsNullOrWhiteSpace())
-		{
-			throw new ArgumentException($"{nameof(destinationTable)} is null or whitespace.");
-		}
-
-		if (batchSize < 1)
-		{
-			throw new ArgumentException($"{nameof(batchSize)} is lower than 1.");
-		}
-
-		switch (maxDegreeOfParallelism)
-		{
-			case < 1:
-				throw new ArgumentException($"{nameof(maxDegreeOfParallelism)} is lower than 1.");
-			case > 1 when _sessionEnabled:
-				throw new InvalidOperationException($"Sessions are not compatible with parallel insertion.");
-		}
-
-		using var bulkCopyInterface = new ClickHouseBulkCopy(_connection);
-		bulkCopyInterface.DestinationTableName = destinationTable;
-		bulkCopyInterface.BatchSize = batchSize;
-		bulkCopyInterface.MaxDegreeOfParallelism = maxDegreeOfParallelism;
-
-		await saveAction(bulkCopyInterface);
-
-		return bulkCopyInterface.RowsWritten;
-	}
-
-	private void ThrowIfNotConnected()
-	{
-		if (_connection == null)
-		{
-			throw new InvalidOperationException($"{GetType()} is not connected.");
-		}
+		return _connectionBroker.BulkInsertAsync(destinationTable, saveAction, batchSize, maxDegreeOfParallelism);
 	}
 }

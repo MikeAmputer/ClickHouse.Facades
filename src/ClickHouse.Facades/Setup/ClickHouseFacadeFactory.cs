@@ -1,5 +1,4 @@
-﻿using ClickHouse.Client.ADO;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace ClickHouse.Facades;
 
@@ -15,12 +14,12 @@ internal class ClickHouseFacadeFactory<TContext>
 		_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 	}
 
-	internal TFacade CreateFacade<TFacade>(ClickHouseConnection connection)
+	internal TFacade CreateFacade<TFacade>(ClickHouseConnectionBroker connectionBroker)
 		where TFacade : ClickHouseFacade<TContext>
 	{
 		if (_registry.Contains<TFacade>())
 		{
-			return (_serviceProvider.GetRequiredService<TFacade>().SetConnection(connection) as TFacade)!;
+			return (_serviceProvider.GetRequiredService<TFacade>().SetConnectionBroker(connectionBroker) as TFacade)!;
 		}
 
 		throw new InvalidOperationException($"Facade of type {typeof(TFacade)} was not found.");

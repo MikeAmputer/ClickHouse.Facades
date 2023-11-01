@@ -1,6 +1,4 @@
-﻿using ClickHouse.Facades.Utility;
-
-namespace ClickHouse.Facades.Migrations;
+﻿namespace ClickHouse.Facades.Migrations;
 
 internal class ClickHouseMigrator : IClickHouseMigrator
 {
@@ -9,16 +7,13 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 
 	public ClickHouseMigrator(
 		IClickHouseContextFactory<ClickHouseMigrationContext> migrationContextFactory,
-		IClickHouseMigrationsLocator migrationsLocator,
-		IClickHouseMigrationInstructions instructions)
+		IClickHouseMigrationsLocator migrationsLocator)
 	{
 		_migrationContextFactory = migrationContextFactory
 			?? throw new ArgumentNullException(nameof(migrationContextFactory));
 
 		_migrationsLocator = migrationsLocator
 			?? throw new ArgumentNullException(nameof(migrationsLocator));
-
-		ExceptionHelpers.ThrowIfNull(instructions);
 	}
 
 	public async Task ApplyMigrationsAsync(CancellationToken cancellationToken = default)

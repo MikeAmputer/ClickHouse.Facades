@@ -34,7 +34,9 @@ public static class ServiceCollectionExtensions
 			typeof(IClickHouseContextFactory<TContext>),
 			serviceProvider => ActivatorUtilities
 				.CreateInstance<TContextFactory>(serviceProvider)
-				.Setup(serviceProvider.GetRequiredService<ClickHouseFacadeFactory<TContext>>()),
+				.Setup(
+					serviceProvider.GetRequiredService<ClickHouseFacadeFactory<TContext>>(),
+					connection => new ClickHouseConnectionBroker(connection)),
 			factoryLifetime);
 
 		services.Add(descriptor);
