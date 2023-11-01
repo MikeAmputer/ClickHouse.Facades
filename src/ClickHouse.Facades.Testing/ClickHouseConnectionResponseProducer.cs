@@ -3,16 +3,29 @@
 internal class ClickHouseConnectionResponseProducer<TContext>
 	where TContext : ClickHouseContext<TContext>
 {
-	private readonly Dictionary<TestQueryType, List<(Predicate<string>, object?)>> _responseDictionary = new();
+	private readonly Dictionary<TestQueryType, List<(Predicate<string>, Func<object?>)>> _responseDictionary = new();
 
-	internal string? ServerVersion { get; set; } = null;
-	internal string? ServerTimezone { get; set; } = null;
+	private Func<string?>? _serverVersionProvider;
+	private Func<string?>? _serverTimezoneProvider;
 
-	internal void Add(TestQueryType queryType, Predicate<string> sqlPredicate, object? result)
+	internal void SetServerVersionProvider(Func<string?> serverVersionProvider)
+	{
+		_serverVersionProvider = serverVersionProvider;
+	}
+
+	internal void SetServerTimezoneProvider(Func<string?> serverTimezoneProvider)
+	{
+		_serverTimezoneProvider = serverTimezoneProvider;
+	}
+
+	internal string? ServerVersion => _serverVersionProvider?.Invoke();
+	internal string? ServerTimezone => _serverTimezoneProvider?.Invoke();
+
+	internal void Add(TestQueryType queryType, Predicate<string> sqlPredicate, Func<object?> result)
 	{
 		if (!_responseDictionary.ContainsKey(queryType))
 		{
-			_responseDictionary.Add(queryType, new List<(Predicate<string>, object?)>());
+			_responseDictionary.Add(queryType, new List<(Predicate<string>, Func<object?>)>());
 		}
 
 		_responseDictionary[queryType].Add((sqlPredicate, result));
@@ -30,7 +43,7 @@ internal class ClickHouseConnectionResponseProducer<TContext>
 		{
 			if (match.Item1(sql))
 			{
-				response = match.Item2;
+				response = match.Item2();
 
 				return true;
 			}

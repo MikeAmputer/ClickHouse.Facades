@@ -13,7 +13,7 @@ public class ClickHouseTestResponse
 	public string Sql { get; }
 	public object? Result { get; }
 
-	public ClickHouseTestResponse(TestQueryType queryType, string sql, object? result)
+	internal ClickHouseTestResponse(TestQueryType queryType, string sql, object? result)
 	{
 		QueryType = queryType;
 		Sql = sql;

@@ -39,18 +39,18 @@ public class ClickHouseFacadesTestsCore
 		_serviceProvider = _serviceCollection.BuildServiceProvider();
 	}
 
-	protected void MockExecuteNonQuery<TContext>(Predicate<string> sqlPredicate, int returns)
+	protected void MockExecuteNonQuery<TContext>(Predicate<string> sqlPredicate, Func<int> resultProvider)
 		where TContext : ClickHouseContext<TContext>
 	{
 		GetService<ClickHouseConnectionResponseProducer<TContext>>()
-			.Add(TestQueryType.ExecuteNonQuery, sqlPredicate, returns);
+			.Add(TestQueryType.ExecuteNonQuery, sqlPredicate, () => resultProvider());
 	}
 
-	protected void MockExecuteScalar<TContext>(Predicate<string> sqlPredicate, object returns)
+	protected void MockExecuteScalar<TContext>(Predicate<string> sqlPredicate, Func<object> resultProvider)
 		where TContext : ClickHouseContext<TContext>
 	{
 		GetService<ClickHouseConnectionResponseProducer<TContext>>()
-			.Add(TestQueryType.ExecuteScalar, sqlPredicate, returns);
+			.Add(TestQueryType.ExecuteScalar, sqlPredicate, resultProvider);
 	}
 
 	protected void MockExecuteReader<TContext, TResult>(
@@ -81,25 +81,37 @@ public class ClickHouseFacadesTestsCore
 		var dataReader = dataTable.CreateDataReader();
 
 		GetService<ClickHouseConnectionResponseProducer<TContext>>()
-			.Add(TestQueryType.ExecuteReader, sqlPredicate, dataReader);
+			.Add(TestQueryType.ExecuteReader, sqlPredicate, () => dataReader);
 	}
 
 	protected IReadOnlyCollection<ClickHouseTestResponse> GetClickHouseResponses<TContext>()
 		where TContext : ClickHouseContext<TContext>
 	{
-		return GetService<ClickHouseConnectionTracker<TContext>>().GetRecords();
+		return GetService<ClickHouseConnectionTracker<TContext>>().GetAllRecords();
 	}
 
-	protected void MockServerVersion<TContext>(string? value)
+	protected ClickHouseTestResponse GetClickHouseResponse<TContext>(int index)
 		where TContext : ClickHouseContext<TContext>
 	{
-		GetService<ClickHouseConnectionResponseProducer<TContext>>().ServerVersion = value;
+		return GetService<ClickHouseConnectionTracker<TContext>>().GetRecord(index);
 	}
 
-	protected void MockServerTimezone<TContext>(string? value)
+	protected int GetClickHouseResponsesCount<TContext>()
 		where TContext : ClickHouseContext<TContext>
 	{
-		GetService<ClickHouseConnectionResponseProducer<TContext>>().ServerTimezone = value;
+		return GetService<ClickHouseConnectionTracker<TContext>>().RecordsCount;
+	}
+
+	protected void MockServerVersion<TContext>(Func<string?> valueProvider)
+		where TContext : ClickHouseContext<TContext>
+	{
+		GetService<ClickHouseConnectionResponseProducer<TContext>>().SetServerVersionProvider(valueProvider);
+	}
+
+	protected void MockServerTimezone<TContext>(Func<string?> valueProvider)
+		where TContext : ClickHouseContext<TContext>
+	{
+		GetService<ClickHouseConnectionResponseProducer<TContext>>().SetServerTimezoneProvider(valueProvider);
 	}
 
 	protected void MockFacadeAbstraction<TAbstraction>(TAbstraction mock)
