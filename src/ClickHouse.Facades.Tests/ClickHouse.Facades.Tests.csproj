@@ -19,6 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\ClickHouse.Facades.Testing\ClickHouse.Facades.Testing.csproj" />
 	  <ProjectReference Include="..\ClickHouse.Facades\ClickHouse.Facades.csproj" />
 	</ItemGroup>
 
