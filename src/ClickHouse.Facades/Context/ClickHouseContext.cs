@@ -9,7 +9,7 @@ public abstract class ClickHouseContext<TContext> : IDisposable, IAsyncDisposabl
 	private ClickHouseConnection? _connection = null;
 	private ClickHouseConnectionBroker _connectionBroker = null!;
 	private ClickHouseFacadeFactory<TContext> _facadeFactory = null!;
-	private readonly Dictionary<Type, ClickHouseFacade<TContext>> _facades = new();
+	private readonly Dictionary<Type, object> _facades = new();
 
 	private bool _allowDatabaseChanges = false;
 
@@ -53,8 +53,24 @@ public abstract class ClickHouseContext<TContext> : IDisposable, IAsyncDisposabl
 			return (TFacade) facade;
 		}
 
-		var newFacade = _facadeFactory.CreateFacade<TFacade>(_connectionBroker!);
+		var newFacade = _facadeFactory.CreateFacade<TFacade>(_connectionBroker);
 		_facades.Add(typeof(TFacade), newFacade);
+
+		return newFacade;
+	}
+
+	public TAbstraction GetFacadeAbstraction<TAbstraction>()
+		where TAbstraction : class
+	{
+		ThrowIfNotInitialized();
+
+		if (_facades.TryGetValue(typeof(TAbstraction), out var abstraction))
+		{
+			return (TAbstraction) abstraction;
+		}
+
+		var newFacade = _facadeFactory.CreateFacadeAbstraction<TAbstraction>(_connectionBroker);
+		_facades.Add(typeof(TAbstraction), newFacade);
 
 		return newFacade;
 	}

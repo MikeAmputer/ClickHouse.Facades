@@ -16,7 +16,7 @@ public static class ServiceCollectionExtensions
 			.AddTransient<IClickHouseMigrationsLocator, TLocator>()
 			.AddClickHouseContext<ClickHouseMigrationContext, ClickHouseMigrationContextFactory>(
 				builder => builder
-					.AddFacade<ClickHouseMigrationFacade>(),
+					.AddFacade<IClickHouseMigrationFacade, ClickHouseMigrationFacade>(),
 				ServiceLifetime.Transient)
 			.AddTransient<IClickHouseMigrator, ClickHouseMigrator>();
 	}

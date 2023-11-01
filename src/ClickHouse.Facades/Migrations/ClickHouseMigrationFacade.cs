@@ -3,7 +3,8 @@ using ClickHouse.Facades.Utility;
 
 namespace ClickHouse.Facades.Migrations;
 
-internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMigrationContext>
+internal sealed class ClickHouseMigrationFacade
+	: ClickHouseFacade<ClickHouseMigrationContext>, IClickHouseMigrationFacade
 {
 	private const string MigrationsTable = "db_migrations_history";
 
@@ -23,7 +24,7 @@ internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMig
 		_dbName = _migrationInstructions.DatabaseName;
 	}
 
-	internal async Task EnsureMigrationsTableCreatedAsync(CancellationToken cancellationToken)
+	public async Task EnsureMigrationsTableCreatedAsync(CancellationToken cancellationToken)
 	{
 		var builder = CreateTableSqlBuilder.Create
 			.IfNotExists()
@@ -52,8 +53,7 @@ internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMig
 		await ExecuteNonQueryAsync(statement, cancellationToken);
 	}
 
-	internal async Task EnsureDatabaseCreatedAsync(
-		CancellationToken cancellationToken)
+	public async Task EnsureDatabaseCreatedAsync(CancellationToken cancellationToken)
 	{
 		var builder = CreateDatabaseSqlBuilder.Create
 			.IfNotExists()
@@ -68,7 +68,7 @@ internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMig
 	private string GetAppliedMigrationsSql =>
 		$"select id, name from {_dbName}.{MigrationsTable} final";
 
-	internal async Task<List<AppliedMigration>> GetAppliedMigrationsAsync(CancellationToken cancellationToken)
+	public async Task<List<AppliedMigration>> GetAppliedMigrationsAsync(CancellationToken cancellationToken)
 	{
 		var migrations = await ExecuteQueryAsync(
 				GetAppliedMigrationsSql,
@@ -81,7 +81,7 @@ internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMig
 
 	private const string AddAppliedMigrationSql = "insert into {0} values ({1}, '{2}', 0)";
 
-	internal async Task ApplyMigrationAsync(ClickHouseMigration migration, CancellationToken cancellationToken)
+	public async Task ApplyMigrationAsync(ClickHouseMigration migration, CancellationToken cancellationToken)
 	{
 		ExceptionHelpers.ThrowIfNull(migration);
 
@@ -122,7 +122,7 @@ internal sealed class ClickHouseMigrationFacade : ClickHouseFacade<ClickHouseMig
 
 	private const string AddRolledBackMigrationSql = "insert into {0} values ({1}, '{2}', 1)";
 
-	internal async Task RollbackMigrationAsync(ClickHouseMigration migration, CancellationToken cancellationToken)
+	public async Task RollbackMigrationAsync(ClickHouseMigration migration, CancellationToken cancellationToken)
 	{
 		ExceptionHelpers.ThrowIfNull(migration);
 

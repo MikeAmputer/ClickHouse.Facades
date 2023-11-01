@@ -19,9 +19,30 @@ internal class ClickHouseFacadeFactory<TContext>
 	{
 		if (_registry.Contains<TFacade>())
 		{
-			return (_serviceProvider.GetRequiredService<TFacade>().SetConnectionBroker(connectionBroker) as TFacade)!;
+			var facade = _serviceProvider.GetRequiredService<TFacade>();
+			facade.SetConnectionBroker(connectionBroker);
+
+			return facade;
 		}
 
 		throw new InvalidOperationException($"Facade of type {typeof(TFacade)} was not found.");
+	}
+
+	internal TAbstraction CreateFacadeAbstraction<TAbstraction>(ClickHouseConnectionBroker connectionBroker)
+		where TAbstraction : class
+	{
+		if (_registry.ContainsAbstraction<TAbstraction>())
+		{
+			var abstraction = _serviceProvider.GetRequiredService<TAbstraction>();
+
+			if (abstraction is ClickHouseFacade<TContext> facade)
+			{
+				facade.SetConnectionBroker(connectionBroker);
+			}
+
+			return abstraction;
+		}
+
+		throw new InvalidOperationException($"Facade abstraction of type {typeof(TAbstraction)} was not found.");
 	}
 }

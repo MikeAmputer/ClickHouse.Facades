@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ClickHouse.Facades.Testing;
 
@@ -99,5 +100,15 @@ public class ClickHouseFacadesTestsCore
 		where TContext : ClickHouseContext<TContext>
 	{
 		GetService<ClickHouseConnectionResponseProducer<TContext>>().ServerTimezone = value;
+	}
+
+	protected void MockFacadeAbstraction<TAbstraction>(TAbstraction mock)
+		where TAbstraction : class
+	{
+		UpdateServiceCollection(services =>
+		{
+			services.RemoveAll<TAbstraction>();
+			services.AddTransient(_ => mock);
+		});
 	}
 }

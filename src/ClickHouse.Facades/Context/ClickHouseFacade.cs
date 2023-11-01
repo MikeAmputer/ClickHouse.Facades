@@ -12,7 +12,7 @@ public abstract class ClickHouseFacade<TContext>
 {
 	private ClickHouseConnectionBroker _connectionBroker = null!;
 
-	internal ClickHouseFacade<TContext> SetConnectionBroker(ClickHouseConnectionBroker connectionBroker)
+	internal void SetConnectionBroker(ClickHouseConnectionBroker connectionBroker)
 	{
 		if (_connectionBroker != null)
 		{
@@ -20,8 +20,6 @@ public abstract class ClickHouseFacade<TContext>
 		}
 
 		_connectionBroker = connectionBroker ?? throw new ArgumentNullException(nameof(connectionBroker));
-
-		return this;
 	}
 
 	protected ClickHouseCommand CreateCommand()

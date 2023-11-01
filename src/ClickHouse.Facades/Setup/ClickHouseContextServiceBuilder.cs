@@ -23,6 +23,15 @@ public sealed class ClickHouseContextServiceBuilder<TContext>
 		return this;
 	}
 
+	public ClickHouseContextServiceBuilder<TContext> AddFacade<TAbstraction, TFacade>()
+		where TFacade : ClickHouseFacade<TContext>, TAbstraction
+		where TAbstraction : class
+	{
+		_facadeRegistry.AddFacade<TAbstraction, TFacade>();
+
+		return this;
+	}
+
 	internal void Build(IServiceCollection serviceCollection)
 	{
 		ExceptionHelpers.ThrowIfNull(serviceCollection);
