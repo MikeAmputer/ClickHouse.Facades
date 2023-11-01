@@ -16,7 +16,7 @@ public static class ServiceCollectionExtensions
 			.AddTransient<IClickHouseMigrationsLocator, TLocator>()
 			.AddClickHouseContext<ClickHouseMigrationContext, ClickHouseMigrationContextFactory>(
 				builder => builder
-					.AddFacade<ClickHouseMigrationFacade>(),
+					.AddFacade<IClickHouseMigrationFacade, ClickHouseMigrationFacade>(),
 				ServiceLifetime.Transient)
 			.AddTransient<IClickHouseMigrator, ClickHouseMigrator>();
 	}
@@ -34,7 +34,9 @@ public static class ServiceCollectionExtensions
 			typeof(IClickHouseContextFactory<TContext>),
 			serviceProvider => ActivatorUtilities
 				.CreateInstance<TContextFactory>(serviceProvider)
-				.Setup(serviceProvider.GetRequiredService<ClickHouseFacadeFactory<TContext>>()),
+				.Setup(
+					serviceProvider.GetRequiredService<ClickHouseFacadeFactory<TContext>>(),
+					connection => new ClickHouseConnectionBroker(connection)),
 			factoryLifetime);
 
 		services.Add(descriptor);
