@@ -24,7 +24,7 @@ jobs:
       run: dotnet restore src/ClickHouse.Facades.Testing/ClickHouse.Facades.Testing.csproj
 
     - name: Dotnet Build
-      run: dotnet build src/ClickHouse.Facades.Testing/ClickHouse.Facades.Testing.csproj --configuration Release /p:Version=${{ github.event.inputs.version }}
+      run: dotnet build src/ClickHouse.Facades.Testing/ClickHouse.Facades.Testing.csproj --configuration Release /p:Version=${{ github.event.inputs.version }} --no-restore
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
