@@ -1,5 +1,5 @@
 # ClickHouse.Facades.Testing
-Dedicated testing toolkit tailored for unit testing components within the ClickHouse.Facades library.
+Dedicated testing toolkit tailored for unit testing components within the [ClickHouse.Facades](https://github.com/MikeAmputer/ClickHouse.Facades) library.
 
 ## Key Features
 - **Base Testing Class:** Utilize the ClickHouseFacadesTestsCore class,
