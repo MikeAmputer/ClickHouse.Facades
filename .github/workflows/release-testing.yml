@@ -18,7 +18,7 @@ jobs:
       run: dotnet remove src/ClickHouse.Facades.Testing/ClickHouse.Facades.Testing.csproj reference ..\ClickHouse.Facades\ClickHouse.Facades.csproj
 
     - name: Add Package
-      run: dotnet add src/ClickHouse.Facades.Testing/ClickHouse.Facades.Testing.csproj package ClickHouse.Facades --version ${{ github.event.inputs.version }}
+      run: dotnet add src/ClickHouse.Facades.Testing/ClickHouse.Facades.Testing.csproj package ClickHouse.Facades --version ${{ github.event.inputs.version }} --no-restore
 
     - name: Dotnet Restore
       run: dotnet restore src/ClickHouse.Facades.Testing/ClickHouse.Facades.Testing.csproj
