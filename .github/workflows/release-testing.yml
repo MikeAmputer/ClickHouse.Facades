@@ -15,7 +15,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Remove Reference
-      run: dotnet remove src/ClickHouse.Facades.Testing/ClickHouse.Facades.Testing.csproj reference ..\ClickHouse.Facades\ClickHouse.Facades.csproj
+      run: dotnet remove src/ClickHouse.Facades.Testing/ClickHouse.Facades.Testing.csproj reference ../ClickHouse.Facades/ClickHouse.Facades.csproj
 
     - name: Add Package
       run: dotnet add src/ClickHouse.Facades.Testing/ClickHouse.Facades.Testing.csproj package ClickHouse.Facades --version ${{ github.event.inputs.version }} --no-restore
