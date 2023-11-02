@@ -13,10 +13,23 @@
 		<PackageTags>clickhouse, context, testing</PackageTags>
 		<Authors>Pavel Kravtsov</Authors>
 		<Description>Provides tools for unit testing ClickHouse.Facades components</Description>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="README.md" Link="README.md" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 	</PropertyGroup>
 
 	<ItemGroup>
