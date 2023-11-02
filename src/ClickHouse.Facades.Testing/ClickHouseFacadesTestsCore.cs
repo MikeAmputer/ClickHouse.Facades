@@ -84,22 +84,10 @@ public class ClickHouseFacadesTestsCore
 			.Add(TestQueryType.ExecuteReader, sqlPredicate, () => dataReader);
 	}
 
-	protected IReadOnlyCollection<ClickHouseTestResponse> GetClickHouseResponses<TContext>()
+	protected IClickHouseConnectionTracker GetClickHouseConnectionTracker<TContext>()
 		where TContext : ClickHouseContext<TContext>
 	{
-		return GetService<ClickHouseConnectionTracker<TContext>>().GetAllRecords();
-	}
-
-	protected ClickHouseTestResponse GetClickHouseResponse<TContext>(int index)
-		where TContext : ClickHouseContext<TContext>
-	{
-		return GetService<ClickHouseConnectionTracker<TContext>>().GetRecord(index);
-	}
-
-	protected int GetClickHouseResponsesCount<TContext>()
-		where TContext : ClickHouseContext<TContext>
-	{
-		return GetService<ClickHouseConnectionTracker<TContext>>().RecordsCount;
+		return GetService<ClickHouseConnectionTracker<TContext>>();
 	}
 
 	protected void MockServerVersion<TContext>(Func<string?> valueProvider)
