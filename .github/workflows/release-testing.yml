@@ -33,3 +33,16 @@ jobs:
       with:
         name: testing-package
         path: src/ClickHouse.Facades.Testing/bin/Release/ClickHouse.Facades.Testing.*nupkg
+
+  push-nuget-org:
+    runs-on: ubuntu-latest
+    needs: [build]
+    name: Push to NuGet.org
+    steps:
+    - name: Download Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: testing-package
+      
+    - name: Push Package
+      run: dotnet nuget push ClickHouse.Facades.Testing.*.nupkg --skip-duplicate --api-key ${{ secrets.NUGET_ORG_API_KEY }} --source https://api.nuget.org/v3/index.json
