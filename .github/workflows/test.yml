@@ -24,7 +24,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: test-results
-        path: TestResults
+        path: TestResults/*.trx
 
     - name: Upload Package Artifact
       uses: actions/upload-artifact@v3
