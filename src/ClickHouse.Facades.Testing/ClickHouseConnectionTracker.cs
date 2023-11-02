@@ -1,6 +1,6 @@
 ﻿namespace ClickHouse.Facades.Testing;
 
-internal class ClickHouseConnectionTracker<TContext>
+internal class ClickHouseConnectionTracker<TContext> : IClickHouseConnectionTracker
 	where TContext : ClickHouseContext<TContext>
 {
 	private readonly Dictionary<int, ClickHouseTestResponse> _records = new();

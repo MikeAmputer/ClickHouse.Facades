@@ -18,14 +18,17 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 		await GetService<IClickHouseMigrator>().ApplyMigrationsAsync();
 
 
-		Assert.AreEqual(3, GetClickHouseResponsesCount<ClickHouseMigrationContext>());
+		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
+
+		Assert.AreEqual(3, connectionTracker.RecordsCount);
 
 		Assert.AreEqual(
 			$"create database if not exists {databaseName}\nengine = Atomic",
-			GetClickHouseResponse<ClickHouseMigrationContext>(1).Sql);
+			connectionTracker.GetRecord(1).Sql);
 
 		Assert.IsTrue(
-			GetClickHouseResponse<ClickHouseMigrationContext>(2)
+			connectionTracker
+				.GetRecord(2)
 				.Sql
 				.StartsWith($"create table if not exists {databaseName}.db_migrations_history"));
 	}
@@ -47,14 +50,16 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 		await GetService<IClickHouseMigrator>().ApplyMigrationsAsync();
 
 
-		Assert.AreEqual(5, GetClickHouseResponsesCount<ClickHouseMigrationContext>());
+		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
 
-		Assert.AreEqual("apply migration", GetClickHouseResponse<ClickHouseMigrationContext>(4).Sql);
+		Assert.AreEqual(5, connectionTracker.RecordsCount);
+
+		Assert.AreEqual("apply migration", connectionTracker.GetRecord(4).Sql);
 
 		Assert.AreEqual(
 			$"insert into {databaseName}.db_migrations_history values "
 			+ $"({_1_FirstMigration.MigrationIndex}, '{_1_FirstMigration.MigrationName}', 0)",
-			GetClickHouseResponse<ClickHouseMigrationContext>(5).Sql);
+			connectionTracker.GetRecord(5).Sql);
 	}
 
 	[TestMethod]
@@ -83,14 +88,16 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 			() => GetService<IClickHouseMigrator>().ApplyMigrationsAsync());
 
 
-		Assert.AreEqual(5, GetClickHouseResponsesCount<ClickHouseMigrationContext>());
+		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
 
-		Assert.AreEqual("rollback migration", GetClickHouseResponse<ClickHouseMigrationContext>(4).Sql);
+		Assert.AreEqual(5, connectionTracker.RecordsCount);
+
+		Assert.AreEqual("rollback migration", connectionTracker.GetRecord(4).Sql);
 
 		Assert.AreEqual(
 			$"insert into {databaseName}.db_migrations_history values "
 			+ $"({_1_FirstMigration.MigrationIndex}, '{_1_FirstMigration.MigrationName}', 1)",
-			GetClickHouseResponse<ClickHouseMigrationContext>(5).Sql);
+			connectionTracker.GetRecord(5).Sql);
 	}
 
 	[TestMethod]
@@ -119,7 +126,9 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 			() => GetService<IClickHouseMigrator>().ApplyMigrationsAsync());
 
 
-		Assert.AreEqual(3, GetClickHouseResponsesCount<ClickHouseMigrationContext>());
+		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
+
+		Assert.AreEqual(3, connectionTracker.RecordsCount);
 	}
 
 	private void SetupMigrations(
