@@ -9,3 +9,9 @@ public interface IClickHouseMigrator
 	/// </summary>
 	public Task RollbackAsync(ulong targetMigrationId, CancellationToken cancellationToken = default);
 }
+
+public interface IClickHouseMigrator<TContext> : IClickHouseMigrator
+	where TContext : ClickHouseContext<TContext>
+{
+
+}

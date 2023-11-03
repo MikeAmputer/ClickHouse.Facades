@@ -13,6 +13,12 @@ public static class ServiceCollectionExtensions
 	{
 		ExceptionHelpers.ThrowIfNull(builderAction);
 
+		if (services.Any(service => service.ServiceType == typeof(IClickHouseContextFactory<TContext>)))
+		{
+			throw new InvalidOperationException(
+				$"ClickHouse context of type {typeof(TContext)} is already registered.");
+		}
+
 		var descriptor = new ServiceDescriptor(
 			typeof(IClickHouseContextFactory<TContext>),
 			serviceProvider => ActivatorUtilities
