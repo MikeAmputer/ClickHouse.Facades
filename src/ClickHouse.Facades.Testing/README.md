@@ -9,7 +9,7 @@ Dedicated testing toolkit tailored for unit testing components within the [Click
   including operations like `ExecuteNonQuery`, `ExecuteScalar`, and `ExecuteReader`.
 - **Request Tracking:** Monitor requests made to the ClickHouse database, utilizing `IClickHouseConnectionTracker` interface.
 
-***Note:*** This package does not reference any testing frameworks,
+> ***Note:*** This package does not reference any testing frameworks,
 but it was designed with a focus on MSTest v2.
 Therefore, correct behavior is currently guaranteed only for this framework.
 
