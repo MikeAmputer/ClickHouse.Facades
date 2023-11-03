@@ -21,4 +21,27 @@ public static class ServiceCollectionExtensions
 				builder => builder
 					.AddFacade<IClickHouseMigrationFacade, ClickHouseMigrationFacade>());
 	}
+
+	public static IServiceCollection AddClickHouseTestMigrations<TInstructions>(
+		this IServiceCollection services,
+		TInstructions instructions)
+		where TInstructions : class, IClickHouseMigrationInstructions
+	{
+		return services
+			.AddSingleton<IClickHouseMigrationInstructions>(_ => instructions)
+			.AddClickHouseTestContext<ClickHouseMigrationContext, ClickHouseMigrationContextFactory>(
+				builder => builder
+					.AddFacade<IClickHouseMigrationFacade, ClickHouseMigrationFacade>());
+	}
+
+	public static IServiceCollection AddClickHouseTestContextMigrations<TContext, TLocator>(
+		this IServiceCollection services,
+		TLocator locator)
+		where TContext : ClickHouseContext<TContext>
+		where TLocator : class, IClickHouseMigrationsLocator<TContext>
+	{
+		return services
+			.AddSingleton<IClickHouseMigrationsLocator<TContext>>(_ => locator)
+			.AddSingleton<IClickHouseMigrator<TContext>, ClickHouseContextMigrator<TContext>>();
+	}
 }

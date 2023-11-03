@@ -25,7 +25,7 @@ public class ClickHouseFacadesTestsCore
 	}
 
 	/// <summary>
-	/// Is called in constructor. Should never access class members.
+	/// Is called in base class constructor. Should never access class members.
 	/// </summary>
 	protected virtual void SetupServiceCollection(IServiceCollection services)
 	{
