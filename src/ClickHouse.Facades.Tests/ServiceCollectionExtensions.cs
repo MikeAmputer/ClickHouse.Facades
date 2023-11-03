@@ -16,9 +16,9 @@ public static class ServiceCollectionExtensions
 		return services
 			.AddSingleton<IClickHouseMigrationInstructions>(_ => instructions)
 			.AddSingleton<IClickHouseMigrationsLocator>(_ => locator)
+			.AddSingleton<IClickHouseMigrator, ClickHouseMigrator>()
 			.AddClickHouseTestContext<ClickHouseMigrationContext, ClickHouseMigrationContextFactory>(
 				builder => builder
-					.AddFacade<IClickHouseMigrationFacade, ClickHouseMigrationFacade>())
-			.AddSingleton<IClickHouseMigrator, ClickHouseMigrator>();
+					.AddFacade<IClickHouseMigrationFacade, ClickHouseMigrationFacade>());
 	}
 }
