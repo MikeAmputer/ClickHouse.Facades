@@ -53,26 +53,22 @@ internal class ClickHouseConnectionBrokerStub<TContext> : ClickHouseConnectionBr
 
 	internal override Task<DbDataReader> ExecuteReaderAsync(string query, CancellationToken cancellationToken)
 	{
-		var result = _responseProducer.TryGetResponse(TestQueryType.ExecuteReader, query, out var response)
-			? (DbDataReader) response!
-			: new DataTableReader(new DataTable());
+		var result = _responseProducer
+			.TryGetResponse(TestQueryType.ExecuteReader, query, out var response)
+			? (DataTable) response!
+			: new DataTable();
 
-		_tracker.Add(new ClickHouseTestResponse(TestQueryType.ExecuteReader, query, result.HasRows));
+		_tracker.Add(new ClickHouseTestResponse(TestQueryType.ExecuteReader, query, result));
 
-		return Task.FromResult(result);
+		return Task.FromResult((DbDataReader) new DataTableReader(result));
 	}
 
 	internal override DataTable ExecuteDataTable(string query, CancellationToken cancellationToken)
 	{
-		var responseMocked = _responseProducer
-			.TryGetResponse(TestQueryType.ExecuteReader, query, out var response);
-
-		var result = new DataTable();
-
-		if (responseMocked)
-		{
-			result.Load((DbDataReader) response!);
-		}
+		var result = _responseProducer
+			.TryGetResponse(TestQueryType.ExecuteReader, query, out var response)
+			? (DataTable) response!
+			: new DataTable();
 
 		_tracker.Add(new ClickHouseTestResponse(TestQueryType.ExecuteReader, query, result));
 

@@ -78,10 +78,8 @@ public class ClickHouseFacadesTestsCore
 			dataTable.Rows.Add(dataRow);
 		}
 
-		var dataReader = dataTable.CreateDataReader();
-
 		GetService<ClickHouseConnectionResponseProducer<TContext>>()
-			.Add(TestQueryType.ExecuteReader, sqlPredicate, () => dataReader);
+			.Add(TestQueryType.ExecuteReader, sqlPredicate, () => dataTable);
 	}
 
 	protected IClickHouseConnectionTracker GetClickHouseConnectionTracker<TContext>()
