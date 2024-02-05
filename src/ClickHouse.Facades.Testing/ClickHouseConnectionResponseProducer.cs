@@ -3,7 +3,7 @@
 internal class ClickHouseConnectionResponseProducer<TContext>
 	where TContext : ClickHouseContext<TContext>
 {
-	private readonly Dictionary<TestQueryType, List<(Predicate<string>, Func<object?>)>> _responseDictionary = new();
+	private readonly Dictionary<TestQueryType, Stack<(Predicate<string>, Func<object?>)>> _responseDictionary = new();
 
 	private Func<string?>? _serverVersionProvider;
 	private Func<string?>? _serverTimezoneProvider;
@@ -25,21 +25,21 @@ internal class ClickHouseConnectionResponseProducer<TContext>
 	{
 		if (!_responseDictionary.ContainsKey(queryType))
 		{
-			_responseDictionary.Add(queryType, new List<(Predicate<string>, Func<object?>)>());
+			_responseDictionary.Add(queryType, new Stack<(Predicate<string>, Func<object?>)>());
 		}
 
-		_responseDictionary[queryType].Add((sqlPredicate, result));
+		_responseDictionary[queryType].Push((sqlPredicate, result));
 	}
 
 	internal bool TryGetResponse(TestQueryType queryType, string sql, out object? response)
 	{
-		if (!_responseDictionary.ContainsKey(queryType))
+		if (!_responseDictionary.TryGetValue(queryType, out var value))
 		{
 			response = null;
 			return false;
 		}
 
-		foreach (var match in _responseDictionary[queryType])
+		foreach (var match in value)
 		{
 			if (match.Item1(sql))
 			{
