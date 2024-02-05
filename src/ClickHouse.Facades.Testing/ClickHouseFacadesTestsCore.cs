@@ -25,7 +25,7 @@ public class ClickHouseFacadesTestsCore
 	}
 
 	/// <summary>
-	/// Is called in constructor. Should never access class members.
+	/// Is called in base class constructor. Should never access class members.
 	/// </summary>
 	protected virtual void SetupServiceCollection(IServiceCollection services)
 	{
@@ -78,10 +78,8 @@ public class ClickHouseFacadesTestsCore
 			dataTable.Rows.Add(dataRow);
 		}
 
-		var dataReader = dataTable.CreateDataReader();
-
 		GetService<ClickHouseConnectionResponseProducer<TContext>>()
-			.Add(TestQueryType.ExecuteReader, sqlPredicate, () => dataReader);
+			.Add(TestQueryType.ExecuteReader, sqlPredicate, () => dataTable);
 	}
 
 	protected IClickHouseConnectionTracker GetClickHouseConnectionTracker<TContext>()

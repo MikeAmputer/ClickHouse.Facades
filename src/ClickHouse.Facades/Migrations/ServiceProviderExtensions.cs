@@ -11,9 +11,27 @@ public static class ServiceProviderExtensions
 		return migrator.ApplyMigrationsAsync();
 	}
 
+	public static Task ClickHouseMigrateAsync<TContext>(this IServiceProvider serviceProvider)
+		where TContext : ClickHouseContext<TContext>
+	{
+		var migrator = serviceProvider.GetRequiredService<IClickHouseMigrator<TContext>>();
+
+		return migrator.ApplyMigrationsAsync();
+	}
+
 	public static Task ClickHouseRollbackAsync(this IServiceProvider serviceProvider, ulong targetMigrationId)
 	{
 		var migrator = serviceProvider.GetRequiredService<IClickHouseMigrator>();
+
+		return migrator.RollbackAsync(targetMigrationId);
+	}
+
+	public static Task ClickHouseRollbackAsync<TContext>(
+		this IServiceProvider serviceProvider,
+		ulong targetMigrationId)
+		where TContext : ClickHouseContext<TContext>
+	{
+		var migrator = serviceProvider.GetRequiredService<IClickHouseMigrator<TContext>>();
 
 		return migrator.RollbackAsync(targetMigrationId);
 	}

@@ -26,8 +26,8 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 		await facade.EnsureMigrationsTableCreatedAsync(cancellationToken);
 
 		var migrationsResolver = new MigrationsResolver(
-			await facade.GetAppliedMigrationsAsync(cancellationToken),
-			_migrationsLocator.GetMigrations().ToList());
+			await GetAppliedMigrations(facade, cancellationToken),
+			GetLocatedMigrations());
 
 		foreach (var migration in migrationsResolver.GetMigrationsToApply())
 		{
@@ -42,8 +42,8 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 		var facade = context.MigrationFacade;
 
 		var migrationsResolver = new MigrationsResolver(
-			await facade.GetAppliedMigrationsAsync(cancellationToken),
-			_migrationsLocator.GetMigrations().ToList());
+			await GetAppliedMigrations(facade, cancellationToken),
+			GetLocatedMigrations());
 
 		foreach (var migration in migrationsResolver.GetMigrationsToRollback(targetMigrationId))
 		{
@@ -63,5 +63,17 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 			.EnsureDatabaseCreatedAsync(cancellationToken);
 
 		context.ChangeDatabase(database);
+	}
+
+	protected virtual Task<List<AppliedMigration>> GetAppliedMigrations(
+		IClickHouseMigrationFacade facade,
+		CancellationToken cancellationToken)
+	{
+		return facade.GetAppliedMigrationsAsync(cancellationToken);
+	}
+
+	protected List<ClickHouseMigration> GetLocatedMigrations()
+	{
+		return _migrationsLocator.GetMigrations().ToList();
 	}
 }

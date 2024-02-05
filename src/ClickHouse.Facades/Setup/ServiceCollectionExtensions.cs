@@ -14,11 +14,33 @@ public static class ServiceCollectionExtensions
 		return services
 			.AddTransient<IClickHouseMigrationInstructions, TInstructions>()
 			.AddTransient<IClickHouseMigrationsLocator, TLocator>()
+			.AddTransient<IClickHouseMigrator, ClickHouseMigrator>()
 			.AddClickHouseContext<ClickHouseMigrationContext, ClickHouseMigrationContextFactory>(
 				builder => builder
 					.AddFacade<IClickHouseMigrationFacade, ClickHouseMigrationFacade>(),
-				ServiceLifetime.Transient)
-			.AddTransient<IClickHouseMigrator, ClickHouseMigrator>();
+				ServiceLifetime.Transient);
+	}
+
+	public static IServiceCollection AddClickHouseMigrations<TInstructions>(
+		this IServiceCollection services)
+		where TInstructions : class, IClickHouseMigrationInstructions
+	{
+		return services
+			.AddTransient<IClickHouseMigrationInstructions, TInstructions>()
+			.AddClickHouseContext<ClickHouseMigrationContext, ClickHouseMigrationContextFactory>(
+				builder => builder
+					.AddFacade<IClickHouseMigrationFacade, ClickHouseMigrationFacade>(),
+				ServiceLifetime.Transient);
+	}
+
+	public static IServiceCollection AddClickHouseContextMigrations<TContext, TLocator>(
+		this IServiceCollection services)
+		where TContext : ClickHouseContext<TContext>
+		where TLocator : class, IClickHouseMigrationsLocator<TContext>
+	{
+		return services
+			.AddTransient<IClickHouseMigrationsLocator<TContext>, TLocator>()
+			.AddTransient<IClickHouseMigrator<TContext>, ClickHouseContextMigrator<TContext>>();
 	}
 
 	public static IServiceCollection AddClickHouseContext<TContext, TContextFactory>(
@@ -29,6 +51,12 @@ public static class ServiceCollectionExtensions
 		where TContextFactory : ClickHouseContextFactory<TContext>
 	{
 		ExceptionHelpers.ThrowIfNull(builderAction);
+
+		if (services.Any(service => service.ServiceType == typeof(IClickHouseContextFactory<TContext>)))
+		{
+			throw new InvalidOperationException(
+				$"ClickHouse context of type {typeof(TContext)} is already registered.");
+		}
 
 		var descriptor = new ServiceDescriptor(
 			typeof(IClickHouseContextFactory<TContext>),
