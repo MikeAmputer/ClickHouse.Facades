@@ -79,7 +79,8 @@ internal class ClickHouseConnectionBrokerStub<TContext> : ClickHouseConnectionBr
 		string destinationTable,
 		Func<ClickHouseBulkCopy, Task> saveAction,
 		int batchSize,
-		int maxDegreeOfParallelism)
+		int maxDegreeOfParallelism,
+		IReadOnlyCollection<string>? columnNames = null)
 	{
 		throw new NotImplementedException();
 	}

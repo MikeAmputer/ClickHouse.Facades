@@ -75,7 +75,8 @@ internal class ClickHouseConnectionBroker
 		string destinationTable,
 		Func<ClickHouseBulkCopy, Task> saveAction,
 		int batchSize,
-		int maxDegreeOfParallelism)
+		int maxDegreeOfParallelism,
+		IReadOnlyCollection<string>? columnNames = null)
 	{
 		ThrowIfNotConnected();
 
@@ -97,11 +98,15 @@ internal class ClickHouseConnectionBroker
 				throw new InvalidOperationException($"Sessions are not compatible with parallel insertion.");
 		}
 
-		using var bulkCopyInterface = new ClickHouseBulkCopy(_connection);
-		bulkCopyInterface.DestinationTableName = destinationTable;
-		bulkCopyInterface.BatchSize = batchSize;
-		bulkCopyInterface.MaxDegreeOfParallelism = maxDegreeOfParallelism;
+		using var bulkCopyInterface = new ClickHouseBulkCopy(_connection)
+		{
+			DestinationTableName = destinationTable,
+			BatchSize = batchSize,
+			MaxDegreeOfParallelism = maxDegreeOfParallelism,
+			ColumnNames = columnNames,
+		};
 
+		await bulkCopyInterface.InitAsync();
 		await saveAction(bulkCopyInterface);
 
 		return bulkCopyInterface.RowsWritten;

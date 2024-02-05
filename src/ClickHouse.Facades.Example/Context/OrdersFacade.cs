@@ -57,4 +57,41 @@ order by
 limit 1
 ";
 	#endregion
+
+	#region BulkInsert
+	public async Task InsertOrdersBulk(CancellationToken cancellationToken = default)
+	{
+		await BulkInsertAsync(
+			"example_orders",
+			Enumerable.Range(0, 100).Select(i => new object[] { i % 10 + 1, i * 2 + 1, (i + 1) / 0.33 }),
+			new[] { "user_id", "order_id", "price" },
+			batchSize: 45,
+			maxDegreeOfParallelism: 2,
+			cancellationToken: cancellationToken);
+	}
+
+	public async Task CopyOrdersBulk(CancellationToken cancellationToken = default)
+	{
+		var reader = await ExecuteReaderAsync("select * from example_orders where user_id = 1", cancellationToken);
+
+		await BulkInsertAsync(
+			"example_orders",
+			reader,
+			batchSize: 45,
+			maxDegreeOfParallelism: 2,
+			cancellationToken: cancellationToken);
+	}
+
+	public async Task CopyOrdersDataTable(CancellationToken cancellationToken = default)
+	{
+		var dataTable = ExecuteDataTable("select * from example_orders where user_id = 10", cancellationToken);
+
+		await BulkInsertAsync(
+			"example_orders",
+			dataTable,
+			batchSize: 45,
+			maxDegreeOfParallelism: 2,
+			cancellationToken: cancellationToken);
+	}
+	#endregion
 }

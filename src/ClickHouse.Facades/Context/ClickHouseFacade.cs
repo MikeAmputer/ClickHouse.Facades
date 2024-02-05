@@ -76,16 +76,17 @@ public abstract class ClickHouseFacade<TContext>
 	protected Task<long> BulkInsertAsync(
 		string destinationTable,
 		IEnumerable<object[]> rows,
-		IReadOnlyCollection<string>? columns = null,
+		IReadOnlyCollection<string>? columnNames = null,
 		int batchSize = 100000,
 		int maxDegreeOfParallelism = 4,
 		CancellationToken cancellationToken = default)
 	{
 		return BulkInsertAsync(
 			destinationTable,
-			bulkInterface => bulkInterface.WriteToServerAsync(rows, columns, cancellationToken),
+			bulkInterface => bulkInterface.WriteToServerAsync(rows, cancellationToken),
 			batchSize,
-			maxDegreeOfParallelism);
+			maxDegreeOfParallelism,
+			columnNames);
 	}
 
 	protected Task<long> BulkInsertAsync(
@@ -124,8 +125,14 @@ public abstract class ClickHouseFacade<TContext>
 		string destinationTable,
 		Func<ClickHouseBulkCopy, Task> saveAction,
 		int batchSize,
-		int maxDegreeOfParallelism)
+		int maxDegreeOfParallelism,
+		IReadOnlyCollection<string>? columnNames = null)
 	{
-		return _connectionBroker.BulkInsertAsync(destinationTable, saveAction, batchSize, maxDegreeOfParallelism);
+		return _connectionBroker.BulkInsertAsync(
+			destinationTable,
+			saveAction,
+			batchSize,
+			maxDegreeOfParallelism,
+			columnNames);
 	}
 }
