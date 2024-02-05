@@ -30,7 +30,7 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 	public async Task NoMigrations_ApplySingleContextMigrations_MigrationsTableCreated()
 	{
 		SetupMigrations<TestContext_1>(Enumerable.Empty<ClickHouseMigration>().ToArray());
-		SetupAppliedMigrations(Enumerable.Empty<AppliedMigration>().ToArray());
+		SetupAppliedMigrations([]);
 
 
 		await GetService<IClickHouseMigrator<TestContext_1>>().ApplyMigrationsAsync();
@@ -60,7 +60,7 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration"));
 
 		SetupMigrations<TestContext_1>(migrationMock.Object);
-		SetupAppliedMigrations(Enumerable.Empty<AppliedMigration>().ToArray());
+		SetupAppliedMigrations([]);
 
 
 		await GetService<IClickHouseMigrator<TestContext_1>>().ApplyMigrationsAsync();
@@ -76,6 +76,139 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 			$"insert into {MigrationsDatabaseName}.db_migrations_history values "
 			+ $"({_1_FirstMigration.MigrationIndex}, '{_1_FirstMigration.MigrationName}', 0)",
 			connectionTracker.GetRecord(5).Sql);
+	}
+
+	[TestMethod]
+	public async Task TwoContexts_OneMigrationToApplyForEach_ApplySingleContextMigrations_MigrationApplied()
+	{
+		Mock<_1_FirstMigration> firstMigrationMock = new();
+		firstMigrationMock
+			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
+			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration 1"));
+
+		Mock<_2_SecondMigration> secondMigrationMock = new();
+		secondMigrationMock
+			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
+			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration 2"));
+
+		SetupMigrations<TestContext_1>(firstMigrationMock.Object);
+		SetupMigrations<TestContext_2>(secondMigrationMock.Object);
+		SetupAppliedMigrations([]);
+
+
+		await GetService<IClickHouseMigrator<TestContext_1>>().ApplyMigrationsAsync();
+
+
+		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
+
+		Assert.AreEqual(5, connectionTracker.RecordsCount);
+
+		Assert.AreEqual("apply migration 1", connectionTracker.GetRecord(4).Sql);
+
+		Assert.AreEqual(
+			$"insert into {MigrationsDatabaseName}.db_migrations_history values "
+			+ $"({_1_FirstMigration.MigrationIndex}, '{_1_FirstMigration.MigrationName}', 0)",
+			connectionTracker.GetRecord(5).Sql);
+	}
+
+	[TestMethod]
+	public async Task TwoContexts_OneMigrationToApplyForEach_ApplyBothContextMigrations_MigrationsApplied()
+	{
+		Mock<_1_FirstMigration> firstMigrationMock = new();
+		firstMigrationMock
+			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
+			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration 1"));
+
+		Mock<_2_SecondMigration> secondMigrationMock = new();
+		secondMigrationMock
+			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
+			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration 2"));
+
+		SetupMigrations<TestContext_1>(firstMigrationMock.Object);
+		SetupMigrations<TestContext_2>(secondMigrationMock.Object);
+		SetupAppliedMigrations([]);
+
+
+		await GetService<IClickHouseMigrator<TestContext_1>>().ApplyMigrationsAsync();
+		await GetService<IClickHouseMigrator<TestContext_2>>().ApplyMigrationsAsync();
+
+
+		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
+
+		Assert.AreEqual(10, connectionTracker.RecordsCount);
+
+		Assert.AreEqual("apply migration 1", connectionTracker.GetRecord(4).Sql);
+
+		Assert.AreEqual(
+			$"insert into {MigrationsDatabaseName}.db_migrations_history values "
+			+ $"({_1_FirstMigration.MigrationIndex}, '{_1_FirstMigration.MigrationName}', 0)",
+			connectionTracker.GetRecord(5).Sql);
+
+		Assert.AreEqual("apply migration 2", connectionTracker.GetRecord(9).Sql);
+
+		Assert.AreEqual(
+			$"insert into {MigrationsDatabaseName}.db_migrations_history values "
+			+ $"({_2_SecondMigration.MigrationIndex}, '{_2_SecondMigration.MigrationName}', 0)",
+			connectionTracker.GetRecord(10).Sql);
+	}
+
+	[TestMethod]
+	public async Task TwoContexts_OneIsUpToDate_ApplyBothContextMigrations_SecondContextMigrationsApplied()
+	{
+		Mock<_1_FirstMigration> firstMigrationMock = new();
+		firstMigrationMock
+			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
+			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration 1"));
+
+		Mock<_2_SecondMigration> secondMigrationMock = new();
+		secondMigrationMock
+			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
+			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration 2"));
+
+		SetupMigrations<TestContext_1>(firstMigrationMock.Object);
+		SetupMigrations<TestContext_2>(secondMigrationMock.Object);
+		SetupAppliedMigrations([_1_FirstMigration.AsApplied()]);
+
+
+		await GetService<IClickHouseMigrator<TestContext_1>>().ApplyMigrationsAsync();
+		await GetService<IClickHouseMigrator<TestContext_2>>().ApplyMigrationsAsync();
+
+
+		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
+
+		Assert.AreEqual(0, connectionTracker.GetRecordsBySql("apply migration 1").Count());
+		Assert.AreEqual(1, connectionTracker.GetRecordsBySql("apply migration 2").Count());
+	}
+
+	[TestMethod]
+	public async Task TwoContexts_SameMigrationToApply_ApplyBothContextMigrations_MigrationAppliedOnce()
+	{
+		Mock<_1_FirstMigration> firstMigrationMock = new();
+		firstMigrationMock
+			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
+			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration 1"));
+
+		SetupMigrations<TestContext_1>(firstMigrationMock.Object);
+		SetupMigrations<TestContext_2>(firstMigrationMock.Object);
+		SetupAppliedMigrations([]);
+		MockExecuteNonQuery<ClickHouseMigrationContext>(
+			sql => sql == $"insert into {MigrationsDatabaseName}.db_migrations_history values "
+				+ $"({_1_FirstMigration.MigrationIndex}, '{_1_FirstMigration.MigrationName}', 0)",
+			() =>
+			{
+				SetupAppliedMigrations([_1_FirstMigration.AsApplied()]);
+
+				return 1;
+			});
+
+
+		await GetService<IClickHouseMigrator<TestContext_1>>().ApplyMigrationsAsync();
+		await GetService<IClickHouseMigrator<TestContext_2>>().ApplyMigrationsAsync();
+
+
+		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
+
+		Assert.AreEqual(1, connectionTracker.GetRecordsBySql("apply migration 1").Count());
 	}
 
 	private void SetupMigrations<TContext>(params ClickHouseMigration[] migrations)
