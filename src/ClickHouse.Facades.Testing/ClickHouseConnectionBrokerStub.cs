@@ -29,48 +29,76 @@ internal class ClickHouseConnectionBrokerStub<TContext> : ClickHouseConnectionBr
 		throw new NotImplementedException();
 	}
 
-	internal override Task<int> ExecuteNonQueryAsync(string statement, CancellationToken cancellationToken)
+	internal override Task<int> ExecuteNonQueryAsync(
+		string statement,
+		Dictionary<string, object>? parameters,
+		CancellationToken cancellationToken)
 	{
 		var result = _responseProducer.TryGetResponse(TestQueryType.ExecuteNonQuery, statement, out var response)
 			? (int) response!
 			: 0;
 
-		_tracker.Add(new ClickHouseTestResponse(TestQueryType.ExecuteNonQuery, statement, result));
+		_tracker.Add(new ClickHouseTestResponse(
+			TestQueryType.ExecuteNonQuery,
+			statement,
+			parameters,
+			result));
 
 		return Task.FromResult(result);
 	}
 
-	internal override Task<object> ExecuteScalarAsync(string query, CancellationToken cancellationToken)
+	internal override Task<object> ExecuteScalarAsync(
+		string query,
+		Dictionary<string, object>? parameters,
+		CancellationToken cancellationToken)
 	{
 		var result = _responseProducer.TryGetResponse(TestQueryType.ExecuteScalar, query, out var response)
 			? response!
 			: 0;
 
-		_tracker.Add(new ClickHouseTestResponse(TestQueryType.ExecuteScalar, query, result));
+		_tracker.Add(new ClickHouseTestResponse(
+			TestQueryType.ExecuteScalar,
+			query,
+			parameters,
+			result));
 
 		return Task.FromResult(result);
 	}
 
-	internal override Task<DbDataReader> ExecuteReaderAsync(string query, CancellationToken cancellationToken)
+	internal override Task<DbDataReader> ExecuteReaderAsync(
+		string query,
+		Dictionary<string, object>? parameters,
+		CancellationToken cancellationToken)
 	{
 		var result = _responseProducer
 			.TryGetResponse(TestQueryType.ExecuteReader, query, out var response)
 			? (DataTable) response!
 			: new DataTable();
 
-		_tracker.Add(new ClickHouseTestResponse(TestQueryType.ExecuteReader, query, result));
+		_tracker.Add(new ClickHouseTestResponse(
+			TestQueryType.ExecuteReader,
+			query,
+			parameters,
+			result));
 
 		return Task.FromResult((DbDataReader) new DataTableReader(result));
 	}
 
-	internal override DataTable ExecuteDataTable(string query, CancellationToken cancellationToken)
+	internal override DataTable ExecuteDataTable(
+		string query,
+		Dictionary<string, object>? parameters,
+		CancellationToken cancellationToken)
 	{
 		var result = _responseProducer
 			.TryGetResponse(TestQueryType.ExecuteReader, query, out var response)
 			? (DataTable) response!
 			: new DataTable();
 
-		_tracker.Add(new ClickHouseTestResponse(TestQueryType.ExecuteReader, query, result));
+		_tracker.Add(new ClickHouseTestResponse(
+			TestQueryType.ExecuteReader,
+			query,
+			parameters,
+			result));
 
 		return result;
 	}
