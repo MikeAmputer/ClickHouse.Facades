@@ -94,4 +94,27 @@ limit 1
 			cancellationToken: cancellationToken);
 	}
 	#endregion
+
+	#region Parametrized
+	public async Task InsertOrder(
+		int userId,
+		int orderId,
+		decimal price,
+		CancellationToken cancellationToken = default)
+	{
+		await ExecuteNonQueryAsync(
+			InsertOrderSql,
+			new {userId, orderId, price},
+			cancellationToken);
+	}
+
+	private const string InsertOrderSql = @"
+insert into example_orders
+
+select
+	{userId:UInt32} as user_id,
+	{orderId:UInt64} as order_id,
+	{price:Decimal64(6)} as price
+";
+	#endregion
 }

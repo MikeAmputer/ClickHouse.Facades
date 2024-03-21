@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using ClickHouse.Client.ADO;
 using ClickHouse.Client.Copy;
 using ClickHouse.Facades.Utility;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace ClickHouse.Facades;
 
@@ -29,7 +30,15 @@ public abstract class ClickHouseFacade<TContext>
 
 	protected Task<object> ExecuteScalarAsync(string query, CancellationToken cancellationToken = default)
 	{
-		return _connectionBroker.ExecuteScalarAsync(query, cancellationToken);
+		return _connectionBroker.ExecuteScalarAsync(query, null, cancellationToken);
+	}
+
+	protected Task<object> ExecuteScalarAsync(
+		string query,
+		object parameters,
+		CancellationToken cancellationToken = default)
+	{
+		return _connectionBroker.ExecuteScalarAsync(query, parameters.DeconstructToDictionary(), cancellationToken);
 	}
 
 	/// <exception cref="System.InvalidCastException">Unable to cast object to type T.</exception>
@@ -40,14 +49,44 @@ public abstract class ClickHouseFacade<TContext>
 		return (T) result;
 	}
 
+	/// <exception cref="System.InvalidCastException">Unable to cast object to type T.</exception>
+	protected async Task<T> ExecuteScalarAsync<T>(
+		string query,
+		object parameters,
+		CancellationToken cancellationToken = default)
+	{
+		var result = await ExecuteScalarAsync(query, parameters, cancellationToken);
+
+		return (T) result;
+	}
+
 	protected Task<int> ExecuteNonQueryAsync(string statement, CancellationToken cancellationToken = default)
 	{
-		return _connectionBroker.ExecuteNonQueryAsync(statement, cancellationToken);
+		return _connectionBroker.ExecuteNonQueryAsync(statement, null, cancellationToken);
+	}
+
+	protected Task<int> ExecuteNonQueryAsync(
+		string statement,
+		object parameters,
+		CancellationToken cancellationToken = default)
+	{
+		return _connectionBroker.ExecuteNonQueryAsync(
+			statement,
+			parameters.DeconstructToDictionary(),
+			cancellationToken);
 	}
 
 	protected Task<DbDataReader> ExecuteReaderAsync(string query, CancellationToken cancellationToken = default)
 	{
-		return _connectionBroker.ExecuteReaderAsync(query, cancellationToken);
+		return _connectionBroker.ExecuteReaderAsync(query, null, cancellationToken);
+	}
+
+	protected Task<DbDataReader> ExecuteReaderAsync(
+		string query,
+		object parameters,
+		CancellationToken cancellationToken = default)
+	{
+		return _connectionBroker.ExecuteReaderAsync(query, parameters.DeconstructToDictionary(), cancellationToken);
 	}
 
 	protected async IAsyncEnumerable<T> ExecuteQueryAsync<T>(
@@ -68,9 +107,36 @@ public abstract class ClickHouseFacade<TContext>
 		}
 	}
 
+	protected async IAsyncEnumerable<T> ExecuteQueryAsync<T>(
+		string query,
+		object parameters,
+		Func<DbDataReader, T> rowSelector,
+		[EnumeratorCancellation] CancellationToken cancellationToken = default)
+	{
+		await using var reader = await ExecuteReaderAsync(query, parameters, cancellationToken);
+
+		if (!reader.HasRows)
+		{
+			yield break;
+		}
+
+		while (await reader.ReadAsync(cancellationToken))
+		{
+			yield return rowSelector(reader);
+		}
+	}
+
 	protected DataTable ExecuteDataTable(string query, CancellationToken cancellationToken = default)
 	{
-		return _connectionBroker.ExecuteDataTable(query, cancellationToken);
+		return _connectionBroker.ExecuteDataTable(query, null, cancellationToken);
+	}
+
+	protected DataTable ExecuteDataTable(
+		string query,
+		object parameters,
+		CancellationToken cancellationToken = default)
+	{
+		return _connectionBroker.ExecuteDataTable(query, parameters.DeconstructToDictionary(), cancellationToken);
 	}
 
 	protected Task<long> BulkInsertAsync(

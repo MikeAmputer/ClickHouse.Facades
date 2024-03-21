@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Data.Common;
 using ClickHouse.Client.ADO;
+using ClickHouse.Client.ADO.Adapters;
 using ClickHouse.Client.Copy;
 using ClickHouse.Client.Utility;
 using ClickHouse.Facades.Utility;
@@ -39,36 +40,70 @@ internal class ClickHouseConnectionBroker
 		return _connection.CreateCommand();
 	}
 
-	internal virtual Task<object> ExecuteScalarAsync(string query, CancellationToken cancellationToken)
+	internal virtual async Task<object> ExecuteScalarAsync(
+		string query,
+		Dictionary<string, object>? parameters,
+		CancellationToken cancellationToken)
 	{
 		ThrowIfNotConnected();
 		cancellationToken.ThrowIfCancellationRequested();
 
-		return _connection.ExecuteScalarAsync(query);
+		await using var command = CreateCommand();
+		command.CommandText = query;
+		SetParameters(command, parameters);
+
+		return await command.ExecuteScalarAsync(cancellationToken);
 	}
 
-	internal virtual Task<int> ExecuteNonQueryAsync(string statement, CancellationToken cancellationToken)
+	internal virtual async Task<int> ExecuteNonQueryAsync(
+		string statement,
+		Dictionary<string, object>? parameters,
+		CancellationToken cancellationToken)
 	{
 		ThrowIfNotConnected();
 		cancellationToken.ThrowIfCancellationRequested();
 
-		return _connection.ExecuteStatementAsync(statement);
+		await using var command = CreateCommand();
+		command.CommandText = statement;
+		SetParameters(command, parameters);
+
+		return await command.ExecuteNonQueryAsync(cancellationToken);
 	}
 
-	internal virtual Task<DbDataReader> ExecuteReaderAsync(string query, CancellationToken cancellationToken)
+	internal virtual async Task<DbDataReader> ExecuteReaderAsync(
+		string query,
+		Dictionary<string, object>? parameters,
+		CancellationToken cancellationToken)
 	{
 		ThrowIfNotConnected();
 		cancellationToken.ThrowIfCancellationRequested();
 
-		return _connection.ExecuteReaderAsync(query);
+		await using var command = CreateCommand();
+		command.CommandText = query;
+		SetParameters(command, parameters);
+
+		return await command.ExecuteReaderAsync(cancellationToken);
 	}
 
-	internal virtual DataTable ExecuteDataTable(string query, CancellationToken cancellationToken)
+	internal virtual DataTable ExecuteDataTable(
+		string query,
+		Dictionary<string, object>? parameters,
+		CancellationToken cancellationToken)
 	{
 		ThrowIfNotConnected();
 		cancellationToken.ThrowIfCancellationRequested();
 
-		return _connection.ExecuteDataTable(query);
+		using var command = CreateCommand();
+		using var adapter = new ClickHouseDataAdapter();
+
+		command.CommandText = query;
+		SetParameters(command, parameters);
+
+		adapter.SelectCommand = command;
+
+		var dataTable = new DataTable();
+		adapter.Fill(dataTable);
+		return dataTable;
 	}
 
 	internal virtual async Task<long> BulkInsertAsync(
@@ -110,6 +145,19 @@ internal class ClickHouseConnectionBroker
 		await saveAction(bulkCopyInterface);
 
 		return bulkCopyInterface.RowsWritten;
+	}
+
+	private void SetParameters(ClickHouseCommand command, Dictionary<string, object>? parameters)
+	{
+		if (parameters == null)
+		{
+			return;
+		}
+
+		foreach (var (key, value) in parameters)
+		{
+			command.AddParameter(key, value);
+		}
 	}
 
 	private void ThrowIfNotConnected()
