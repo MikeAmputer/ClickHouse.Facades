@@ -33,7 +33,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="ClickHouse.Client" Version="7.2.2" />
+		<PackageReference Include="ClickHouse.Client" Version="7.3.0" />
 		<PackageReference Include="System.Linq.Async" Version="6.0.1" />
 	</ItemGroup>
 
