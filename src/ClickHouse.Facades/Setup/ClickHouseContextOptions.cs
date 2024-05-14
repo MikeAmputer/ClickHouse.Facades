@@ -13,5 +13,5 @@ public sealed class ClickHouseContextOptions<TContext>
 	internal string? HttpClientName { get; set; }
 
 	internal ClickHouseFacadeFactory<TContext> FacadeFactory { get; set; } = null!;
-	internal Func<ClickHouseConnection, ClickHouseConnectionBroker> ConnectionBrokerProvider { get; set; } = null!;
+	internal Func<ClickHouseConnection, IClickHouseConnectionBroker> ConnectionBrokerProvider { get; set; } = null!;
 }

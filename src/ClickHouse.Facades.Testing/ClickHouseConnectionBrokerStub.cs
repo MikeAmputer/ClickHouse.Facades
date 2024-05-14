@@ -6,30 +6,28 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ClickHouse.Facades.Testing;
 
-internal class ClickHouseConnectionBrokerStub<TContext> : ClickHouseConnectionBroker
+internal class ClickHouseConnectionBrokerStub<TContext> : IClickHouseConnectionBroker
 	where TContext : ClickHouseContext<TContext>
 {
 	private readonly ClickHouseConnectionTracker<TContext> _tracker;
 	private readonly ClickHouseConnectionResponseProducer<TContext> _responseProducer;
 
-	public ClickHouseConnectionBrokerStub(
-		IServiceProvider serviceProvider,
-		ClickHouseConnection connection) : base(connection, new CommandExecutionStrategyStub())
+	public ClickHouseConnectionBrokerStub(IServiceProvider serviceProvider)
 	{
 		_tracker = serviceProvider.GetRequiredService<ClickHouseConnectionTracker<TContext>>();
 		_responseProducer = serviceProvider.GetRequiredService<ClickHouseConnectionResponseProducer<TContext>>();
 	}
 
-	internal override string? ServerVersion => _responseProducer.ServerVersion;
+	public string? ServerVersion => _responseProducer.ServerVersion;
 
-	internal override string? ServerTimezone => _responseProducer.ServerTimezone;
+	public string? ServerTimezone => _responseProducer.ServerTimezone;
 
-	internal override ClickHouseCommand CreateCommand()
+	public ClickHouseCommand CreateCommand()
 	{
 		throw new NotImplementedException();
 	}
 
-	internal override Task<int> ExecuteNonQueryAsync(
+	public Task<int> ExecuteNonQueryAsync(
 		string statement,
 		Dictionary<string, object>? parameters,
 		CancellationToken cancellationToken)
@@ -47,7 +45,7 @@ internal class ClickHouseConnectionBrokerStub<TContext> : ClickHouseConnectionBr
 		return Task.FromResult(result);
 	}
 
-	internal override Task<object> ExecuteScalarAsync(
+	public Task<object> ExecuteScalarAsync(
 		string query,
 		Dictionary<string, object>? parameters,
 		CancellationToken cancellationToken)
@@ -65,7 +63,7 @@ internal class ClickHouseConnectionBrokerStub<TContext> : ClickHouseConnectionBr
 		return Task.FromResult(result);
 	}
 
-	internal override Task<DbDataReader> ExecuteReaderAsync(
+	public Task<DbDataReader> ExecuteReaderAsync(
 		string query,
 		Dictionary<string, object>? parameters,
 		CancellationToken cancellationToken)
@@ -84,7 +82,7 @@ internal class ClickHouseConnectionBrokerStub<TContext> : ClickHouseConnectionBr
 		return Task.FromResult((DbDataReader) new DataTableReader(result));
 	}
 
-	internal override DataTable ExecuteDataTable(
+	public DataTable ExecuteDataTable(
 		string query,
 		Dictionary<string, object>? parameters,
 		CancellationToken cancellationToken)
@@ -103,7 +101,7 @@ internal class ClickHouseConnectionBrokerStub<TContext> : ClickHouseConnectionBr
 		return result;
 	}
 
-	internal override Task<long> BulkInsertAsync(
+	public Task<long> BulkInsertAsync(
 		string destinationTable,
 		Func<ClickHouseBulkCopy, Task> saveAction,
 		int batchSize,

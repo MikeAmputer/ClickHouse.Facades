@@ -8,7 +8,7 @@ using ClickHouse.Facades.Utility;
 
 namespace ClickHouse.Facades;
 
-internal class ClickHouseConnectionBroker
+internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 {
 	private const string UseSessionConnectionStringParameter = "usesession";
 
@@ -36,18 +36,18 @@ internal class ClickHouseConnectionBroker
 			.Contains(new KeyValuePair<string, string?>(UseSessionConnectionStringParameter, true.ToString()));
 	}
 
-	internal virtual string? ServerVersion => _connection.ServerVersion;
+	public string? ServerVersion => _connection.ServerVersion;
 
-	internal virtual string? ServerTimezone => _connection.ServerTimezone;
+	public string? ServerTimezone => _connection.ServerTimezone;
 
-	internal virtual ClickHouseCommand CreateCommand()
+	public ClickHouseCommand CreateCommand()
 	{
 		ThrowIfNotConnected();
 
 		return _connection.CreateCommand();
 	}
 
-	internal virtual async Task<object> ExecuteScalarAsync(
+	public async Task<object> ExecuteScalarAsync(
 		string query,
 		Dictionary<string, object>? parameters,
 		CancellationToken cancellationToken)
@@ -61,7 +61,7 @@ internal class ClickHouseConnectionBroker
 		return await _commandExecutionStrategy.ExecuteScalarAsync(_connection, command, cancellationToken);
 	}
 
-	internal virtual async Task<int> ExecuteNonQueryAsync(
+	public async Task<int> ExecuteNonQueryAsync(
 		string statement,
 		Dictionary<string, object>? parameters,
 		CancellationToken cancellationToken)
@@ -76,7 +76,7 @@ internal class ClickHouseConnectionBroker
 		return await _commandExecutionStrategy.ExecuteNonQueryAsync(_connection, command, cancellationToken);
 	}
 
-	internal virtual async Task<DbDataReader> ExecuteReaderAsync(
+	public async Task<DbDataReader> ExecuteReaderAsync(
 		string query,
 		Dictionary<string, object>? parameters,
 		CancellationToken cancellationToken)
@@ -91,7 +91,7 @@ internal class ClickHouseConnectionBroker
 		return await _commandExecutionStrategy.ExecuteDataReaderAsync(_connection, command, cancellationToken);
 	}
 
-	internal virtual DataTable ExecuteDataTable(
+	public DataTable ExecuteDataTable(
 		string query,
 		Dictionary<string, object>? parameters,
 		CancellationToken cancellationToken)
@@ -113,7 +113,7 @@ internal class ClickHouseConnectionBroker
 		return dataTable;
 	}
 
-	internal virtual async Task<long> BulkInsertAsync(
+	public async Task<long> BulkInsertAsync(
 		string destinationTable,
 		Func<ClickHouseBulkCopy, Task> saveAction,
 		int batchSize,

@@ -3,7 +3,7 @@ using ClickHouse.Client.ADO;
 
 namespace ClickHouse.Facades;
 
-public class DefaultCommandExecutionStrategy : ICommandExecutionStrategy
+internal class DefaultCommandExecutionStrategy : ICommandExecutionStrategy
 {
 	public Task<int> ExecuteNonQueryAsync(
 		ClickHouseConnection connection,
