@@ -21,14 +21,14 @@ jobs:
       run: dotnet test src/ClickHouse.Facades.Tests/ClickHouse.Facades.Tests.csproj --logger trx --results-directory "TestResults"
 
     - name: Upload Test Results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-results
         path: TestResults
       if: ${{ always() }}
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: facades-package
         path: src/ClickHouse.Facades/bin/Release/ClickHouse.Facades.*nupkg
@@ -39,7 +39,7 @@ jobs:
     name: Push to NuGet.org
     steps:
     - name: Download Artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: facades-package
       
@@ -52,7 +52,7 @@ jobs:
     needs: [push-nuget-org]
     steps:
     - name: Download Artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: facades-package
 
