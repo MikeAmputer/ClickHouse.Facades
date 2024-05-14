@@ -40,5 +40,6 @@ static IHostBuilder CreateHostBuilder(string[] args) =>
 
 			services.AddClickHouseContext<ExampleContext, ExampleContextFactory>(
 				builder => builder
-					.AddFacade<OrdersFacade>());
+					.AddFacade<OrdersFacade>(),
+				commandExecutionStrategy: CommandExecutionStrategy.Cancelable);
 		});

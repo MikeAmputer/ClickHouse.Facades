@@ -5,7 +5,7 @@ using ClickHouse.Client.Utility;
 
 namespace ClickHouse.Facades;
 
-public class CancellableCommandExecutionStrategy : ICommandExecutionStrategy
+public class CancelableCommandExecutionStrategy : ICommandExecutionStrategy
 {
 	public Task<int> ExecuteNonQueryAsync(
 		ClickHouseConnection connection,
