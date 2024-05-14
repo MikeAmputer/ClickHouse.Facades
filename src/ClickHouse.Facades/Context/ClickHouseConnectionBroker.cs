@@ -14,15 +14,22 @@ internal class ClickHouseConnectionBroker
 
 	private readonly ClickHouseConnection _connection;
 	private readonly bool _sessionEnabled;
+	private readonly ICommandExecutionStrategy _commandExecutionStrategy;
 
-	public ClickHouseConnectionBroker(ClickHouseConnection connection)
+	public ClickHouseConnectionBroker(
+		ClickHouseConnection connection,
+		ICommandExecutionStrategy commandExecutionStrategy)
 	{
 		if (_connection != null)
 		{
 			throw new InvalidOperationException($"{GetType()} is already connected.");
 		}
 
-		_connection = connection ?? throw new ArgumentNullException(nameof(connection));
+		_connection = connection
+			?? throw new ArgumentNullException(nameof(connection));
+
+		_commandExecutionStrategy = commandExecutionStrategy
+			?? throw new ArgumentNullException(nameof(commandExecutionStrategy));
 
 		_sessionEnabled = connection.ConnectionString
 			.GetConnectionStringParameters()
@@ -46,13 +53,12 @@ internal class ClickHouseConnectionBroker
 		CancellationToken cancellationToken)
 	{
 		ThrowIfNotConnected();
-		cancellationToken.ThrowIfCancellationRequested();
 
 		await using var command = CreateCommand();
 		command.CommandText = query;
 		SetParameters(command, parameters);
 
-		return await command.ExecuteScalarAsync(cancellationToken);
+		return await _commandExecutionStrategy.ExecuteScalarAsync(_connection, command, cancellationToken);
 	}
 
 	internal virtual async Task<int> ExecuteNonQueryAsync(
@@ -67,7 +73,7 @@ internal class ClickHouseConnectionBroker
 		command.CommandText = statement;
 		SetParameters(command, parameters);
 
-		return await command.ExecuteNonQueryAsync(cancellationToken);
+		return await _commandExecutionStrategy.ExecuteNonQueryAsync(_connection, command, cancellationToken);
 	}
 
 	internal virtual async Task<DbDataReader> ExecuteReaderAsync(
@@ -82,7 +88,7 @@ internal class ClickHouseConnectionBroker
 		command.CommandText = query;
 		SetParameters(command, parameters);
 
-		return await command.ExecuteReaderAsync(cancellationToken);
+		return await _commandExecutionStrategy.ExecuteDataReaderAsync(_connection, command, cancellationToken);
 	}
 
 	internal virtual DataTable ExecuteDataTable(
@@ -103,6 +109,7 @@ internal class ClickHouseConnectionBroker
 
 		var dataTable = new DataTable();
 		adapter.Fill(dataTable);
+
 		return dataTable;
 	}
 

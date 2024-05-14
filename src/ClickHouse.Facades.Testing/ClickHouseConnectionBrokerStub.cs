@@ -14,7 +14,7 @@ internal class ClickHouseConnectionBrokerStub<TContext> : ClickHouseConnectionBr
 
 	public ClickHouseConnectionBrokerStub(
 		IServiceProvider serviceProvider,
-		ClickHouseConnection connection) : base(connection)
+		ClickHouseConnection connection) : base(connection, new CommandExecutionStrategyStub())
 	{
 		_tracker = serviceProvider.GetRequiredService<ClickHouseConnectionTracker<TContext>>();
 		_responseProducer = serviceProvider.GetRequiredService<ClickHouseConnectionResponseProducer<TContext>>();
