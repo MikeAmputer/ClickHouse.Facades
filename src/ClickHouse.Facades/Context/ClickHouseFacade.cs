@@ -11,9 +11,9 @@ namespace ClickHouse.Facades;
 public abstract class ClickHouseFacade<TContext>
 	where TContext : ClickHouseContext<TContext>
 {
-	private ClickHouseConnectionBroker _connectionBroker = null!;
+	private IClickHouseConnectionBroker _connectionBroker = null!;
 
-	internal void SetConnectionBroker(ClickHouseConnectionBroker connectionBroker)
+	internal void SetConnectionBroker(IClickHouseConnectionBroker connectionBroker)
 	{
 		if (_connectionBroker != null)
 		{

@@ -18,7 +18,7 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 	private OptionalValue<string> _httpClientName;
 
 	private OptionalValue<ClickHouseFacadeFactory<TContext>> _facadeFactory;
-	private OptionalValue<Func<ClickHouseConnection, ClickHouseConnectionBroker>> _connectionBrokerProvider;
+	private OptionalValue<Func<ClickHouseConnection, IClickHouseConnectionBroker>> _connectionBrokerProvider;
 
 	public ClickHouseContextOptionsBuilder<TContext> WithHttpClientFactory(
 		IHttpClientFactory httpClientFactory,
@@ -101,7 +101,7 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 	}
 
 	internal ClickHouseContextOptionsBuilder<TContext> WithConnectionBrokerProvider(
-		Func<ClickHouseConnection, ClickHouseConnectionBroker> connectionBrokerProvider)
+		Func<ClickHouseConnection, IClickHouseConnectionBroker> connectionBrokerProvider)
 	{
 		ExceptionHelpers.ThrowIfNull(connectionBrokerProvider);
 

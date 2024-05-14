@@ -7,7 +7,7 @@ public abstract class ClickHouseContext<TContext> : IDisposable, IAsyncDisposabl
 {
 	private bool _initialized = false;
 	private ClickHouseConnection? _connection = null;
-	private ClickHouseConnectionBroker _connectionBroker = null!;
+	private IClickHouseConnectionBroker _connectionBroker = null!;
 	private ClickHouseFacadeFactory<TContext> _facadeFactory = null!;
 	private readonly Dictionary<Type, object> _facades = new();
 

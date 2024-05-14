@@ -14,7 +14,7 @@ internal class ClickHouseFacadeFactory<TContext>
 		_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 	}
 
-	internal TFacade CreateFacade<TFacade>(ClickHouseConnectionBroker connectionBroker)
+	internal TFacade CreateFacade<TFacade>(IClickHouseConnectionBroker connectionBroker)
 		where TFacade : ClickHouseFacade<TContext>
 	{
 		if (_registry.Contains<TFacade>())
@@ -28,7 +28,7 @@ internal class ClickHouseFacadeFactory<TContext>
 		throw new InvalidOperationException($"Facade of type {typeof(TFacade)} was not found.");
 	}
 
-	internal TAbstraction CreateFacadeAbstraction<TAbstraction>(ClickHouseConnectionBroker connectionBroker)
+	internal TAbstraction CreateFacadeAbstraction<TAbstraction>(IClickHouseConnectionBroker connectionBroker)
 		where TAbstraction : class
 	{
 		if (_registry.ContainsAbstraction<TAbstraction>())

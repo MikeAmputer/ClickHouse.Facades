@@ -8,54 +8,60 @@ using ClickHouse.Facades.Utility;
 
 namespace ClickHouse.Facades;
 
-internal class ClickHouseConnectionBroker
+internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 {
 	private const string UseSessionConnectionStringParameter = "usesession";
 
 	private readonly ClickHouseConnection _connection;
 	private readonly bool _sessionEnabled;
+	private readonly ICommandExecutionStrategy _commandExecutionStrategy;
 
-	public ClickHouseConnectionBroker(ClickHouseConnection connection)
+	public ClickHouseConnectionBroker(
+		ClickHouseConnection connection,
+		ICommandExecutionStrategy commandExecutionStrategy)
 	{
 		if (_connection != null)
 		{
 			throw new InvalidOperationException($"{GetType()} is already connected.");
 		}
 
-		_connection = connection ?? throw new ArgumentNullException(nameof(connection));
+		_connection = connection
+			?? throw new ArgumentNullException(nameof(connection));
+
+		_commandExecutionStrategy = commandExecutionStrategy
+			?? throw new ArgumentNullException(nameof(commandExecutionStrategy));
 
 		_sessionEnabled = connection.ConnectionString
 			.GetConnectionStringParameters()
 			.Contains(new KeyValuePair<string, string?>(UseSessionConnectionStringParameter, true.ToString()));
 	}
 
-	internal virtual string? ServerVersion => _connection.ServerVersion;
+	public string? ServerVersion => _connection.ServerVersion;
 
-	internal virtual string? ServerTimezone => _connection.ServerTimezone;
+	public string? ServerTimezone => _connection.ServerTimezone;
 
-	internal virtual ClickHouseCommand CreateCommand()
+	public ClickHouseCommand CreateCommand()
 	{
 		ThrowIfNotConnected();
 
 		return _connection.CreateCommand();
 	}
 
-	internal virtual async Task<object> ExecuteScalarAsync(
+	public async Task<object> ExecuteScalarAsync(
 		string query,
 		Dictionary<string, object>? parameters,
 		CancellationToken cancellationToken)
 	{
 		ThrowIfNotConnected();
-		cancellationToken.ThrowIfCancellationRequested();
 
 		await using var command = CreateCommand();
 		command.CommandText = query;
 		SetParameters(command, parameters);
 
-		return await command.ExecuteScalarAsync(cancellationToken);
+		return await _commandExecutionStrategy.ExecuteScalarAsync(_connection, command, cancellationToken);
 	}
 
-	internal virtual async Task<int> ExecuteNonQueryAsync(
+	public async Task<int> ExecuteNonQueryAsync(
 		string statement,
 		Dictionary<string, object>? parameters,
 		CancellationToken cancellationToken)
@@ -67,10 +73,10 @@ internal class ClickHouseConnectionBroker
 		command.CommandText = statement;
 		SetParameters(command, parameters);
 
-		return await command.ExecuteNonQueryAsync(cancellationToken);
+		return await _commandExecutionStrategy.ExecuteNonQueryAsync(_connection, command, cancellationToken);
 	}
 
-	internal virtual async Task<DbDataReader> ExecuteReaderAsync(
+	public async Task<DbDataReader> ExecuteReaderAsync(
 		string query,
 		Dictionary<string, object>? parameters,
 		CancellationToken cancellationToken)
@@ -82,10 +88,10 @@ internal class ClickHouseConnectionBroker
 		command.CommandText = query;
 		SetParameters(command, parameters);
 
-		return await command.ExecuteReaderAsync(cancellationToken);
+		return await _commandExecutionStrategy.ExecuteDataReaderAsync(_connection, command, cancellationToken);
 	}
 
-	internal virtual DataTable ExecuteDataTable(
+	public DataTable ExecuteDataTable(
 		string query,
 		Dictionary<string, object>? parameters,
 		CancellationToken cancellationToken)
@@ -103,10 +109,11 @@ internal class ClickHouseConnectionBroker
 
 		var dataTable = new DataTable();
 		adapter.Fill(dataTable);
+
 		return dataTable;
 	}
 
-	internal virtual async Task<long> BulkInsertAsync(
+	public async Task<long> BulkInsertAsync(
 		string destinationTable,
 		Func<ClickHouseBulkCopy, Task> saveAction,
 		int batchSize,

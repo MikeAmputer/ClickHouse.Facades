@@ -11,6 +11,7 @@ Raw SQL migrations and contexts for [ClickHouse](https://github.com/ClickHouse/C
 - **Contexts:** provides a way to work with ClickHouse contexts, allowing you to organize your database operations in a structured manner.
   - Per context migrations, allowing separate migration management for distinct packages or components
   - Parametrized queries (anonyomous type parameters supported)
+  - Query cancellation by termination on ClickHouse side
   - Provides all the features of the ClickHouse.Client package
   - Fully async contract
 - **Testing toolkit:** seamlessly integrate unit testing into your ClickHouse.Facades components using the dedicated [ClickHouse.Facades.Testing](https://github.com/MikeAmputer/ClickHouse.Facades/tree/master/src/ClickHouse.Facades.Testing) package. Test ClickHouse contexts and facades effectively, mock facades or specific database requests, and monitor interactions with the ClickHouse database using the provided testing tools.

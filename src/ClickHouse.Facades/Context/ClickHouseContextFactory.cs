@@ -6,11 +6,11 @@ public abstract class ClickHouseContextFactory<TContext> : IClickHouseContextFac
 	where TContext : ClickHouseContext<TContext>, new()
 {
 	private ClickHouseFacadeFactory<TContext> _facadeFactory = null!;
-	private Func<ClickHouseConnection, ClickHouseConnectionBroker> _connectionBrokerProvider = null!;
+	private Func<ClickHouseConnection, IClickHouseConnectionBroker> _connectionBrokerProvider = null!;
 
 	internal ClickHouseContextFactory<TContext> Setup(
 		ClickHouseFacadeFactory<TContext> facadeFactory,
-		Func<ClickHouseConnection, ClickHouseConnectionBroker> connectionBrokerProvider)
+		Func<ClickHouseConnection, IClickHouseConnectionBroker> connectionBrokerProvider)
 	{
 		_facadeFactory = facadeFactory ?? throw new ArgumentNullException(nameof(facadeFactory));
 		_connectionBrokerProvider = connectionBrokerProvider
