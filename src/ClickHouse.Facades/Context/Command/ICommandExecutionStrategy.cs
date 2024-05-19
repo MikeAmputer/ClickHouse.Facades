@@ -1,4 +1,5 @@
 ﻿using System.Data.Common;
+using ClickHouse.Client;
 using ClickHouse.Client.ADO;
 
 namespace ClickHouse.Facades;
@@ -13,17 +14,17 @@ internal interface ICommandExecutionStrategy
 	};
 
 	Task<int> ExecuteNonQueryAsync(
-		ClickHouseConnection connection,
+		IClickHouseConnection connection,
 		ClickHouseCommand command,
 		CancellationToken cancellationToken);
 
 	Task<object> ExecuteScalarAsync(
-		ClickHouseConnection connection,
+		IClickHouseConnection connection,
 		ClickHouseCommand command,
 		CancellationToken cancellationToken);
 
 	Task<DbDataReader> ExecuteDataReaderAsync(
-		ClickHouseConnection connection,
+		IClickHouseConnection connection,
 		ClickHouseCommand command,
 		CancellationToken cancellationToken);
 }
