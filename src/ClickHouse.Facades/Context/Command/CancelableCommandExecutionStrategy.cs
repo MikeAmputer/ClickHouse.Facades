@@ -8,62 +8,55 @@ namespace ClickHouse.Facades;
 internal class CancelableCommandExecutionStrategy : ICommandExecutionStrategy
 {
 	public Task<int> ExecuteNonQueryAsync(
-		ClickHouseConnection connection,
+		IClickHouseConnection connection,
 		ClickHouseCommand command,
-		CancellationToken cancellationToken)
-	{
-		cancellationToken.ThrowIfCancellationRequested();
-
-		command.QueryId = GenerateQueryId();
-
-		var result = command.ExecuteNonQueryAsync(cancellationToken);
-
-		return Execute(connection, command, result, cancellationToken);
-	}
+		CancellationToken cancellationToken) =>
+		Execute(
+			connection,
+			command,
+			(cmd, ct) => cmd.ExecuteNonQueryAsync(ct),
+			cancellationToken);
 
 	public Task<object> ExecuteScalarAsync(
-		ClickHouseConnection connection,
+		IClickHouseConnection connection,
 		ClickHouseCommand command,
-		CancellationToken cancellationToken)
-	{
-		cancellationToken.ThrowIfCancellationRequested();
-
-		command.QueryId = GenerateQueryId();
-
-		var result = command.ExecuteScalarAsync(cancellationToken);
-
-		return Execute(connection, command, result, cancellationToken);
-	}
+		CancellationToken cancellationToken) =>
+		Execute(
+			connection,
+			command,
+			(cmd, ct) => cmd.ExecuteScalarAsync(ct),
+			cancellationToken);
 
 	public Task<DbDataReader> ExecuteDataReaderAsync(
-		ClickHouseConnection connection,
+		IClickHouseConnection connection,
 		ClickHouseCommand command,
-		CancellationToken cancellationToken)
-	{
-		cancellationToken.ThrowIfCancellationRequested();
-
-		command.QueryId = GenerateQueryId();
-
-		var result = command.ExecuteReaderAsync(cancellationToken);
-
-		return Execute(connection, command, result, cancellationToken);
-	}
+		CancellationToken cancellationToken) =>
+		Execute(
+			connection,
+			command,
+			(cmd, ct) => cmd.ExecuteReaderAsync(ct),
+			cancellationToken);
 
 	private static Task<T> Execute<T>(
 		IClickHouseConnection connection,
 		ClickHouseCommand command,
-		Task<T> result,
+		Func<ClickHouseCommand, CancellationToken, Task<T>> resultTaskProvider,
 		CancellationToken cancellationToken)
 	{
+		cancellationToken.ThrowIfCancellationRequested();
+
+		command.QueryId = GenerateQueryId();
+
+		var cancelableTask = resultTaskProvider(command, cancellationToken);
+
 		if (cancellationToken == CancellationToken.None)
 		{
-			return result;
+			return cancelableTask;
 		}
 
-		result
+		cancelableTask
 			.ContinueWith(_ =>
 				{
-					Console.WriteLine(command.QueryId);
 					KillQuery(connection, command.QueryId);
 				},
 				CancellationToken.None,
@@ -71,7 +64,7 @@ internal class CancelableCommandExecutionStrategy : ICommandExecutionStrategy
 				TaskScheduler.Current)
 			.ConfigureAwait(false);
 
-		return result;
+		return cancelableTask;
 	}
 
 	private static string GenerateQueryId() => Guid.NewGuid().ToString();
