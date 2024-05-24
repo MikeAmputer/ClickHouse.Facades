@@ -8,7 +8,8 @@ dotnet new install ClickHouse.Facades.Templates
 
 To update the template, use the `update` subcommand.
 To uninstall the template, use the `uninstall` subcommand.
-([Microsoft 'dotnet new' docs](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-new))
+
+[dotnet new - Microsoft docs](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-new)
 
 ## Usage
 ```
