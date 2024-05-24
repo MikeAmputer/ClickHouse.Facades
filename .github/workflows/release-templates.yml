@@ -24,4 +24,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: templates-package
-        path: src/ClickHouse.Facades.Templates/bin/Release/ClickHouse.Facades.Templates.nupkg
+        path: src/ClickHouse.Facades.Templates/bin/Release/ClickHouse.Facades.Templates.${{ github.event.inputs.version }}.nupkg
