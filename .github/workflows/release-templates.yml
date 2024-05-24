@@ -1,0 +1,27 @@
+name: Manual templates release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Dotnet Restore
+      run: dotnet restore src/ClickHouse.Facades.Templates/ClickHouse.Facades.Templates.csproj
+
+    - name: Dotnet Build
+      run: dotnet build src/ClickHouse.Facades.Templates/ClickHouse.Facades.Templates.csproj --configuration Release /p:Version=${{ github.event.inputs.version }} --no-restore
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: templates-package
+        path: src/ClickHouse.Facades.Templates/bin/Release/ClickHouse.Facades.Templates.nupkg
