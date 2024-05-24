@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<PackageType>Template</PackageType>
+		<PackageId>ClickHouse.Facades.Templates</PackageId>
+		<Title>ClickHouse.Facades Templates</Title>
+		<Authors>Pavel Kravtsov</Authors>
+		<Description>Create new migration template for ClickHouse.Facades.</Description>
+		<PackageTags>clickhouse, migrations, templates</PackageTags>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/MikeAmputer/ClickHouse.Facades</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/MikeAmputer/ClickHouse.Facades</RepositoryUrl>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+		<IncludeContentInPack>true</IncludeContentInPack>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<ContentTargetFolders>content</ContentTargetFolders>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Include="templates\**\*" Exclude="templates\**\bin\**;templates\**\obj\**" />
+		<Compile Remove="**\*" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="README.md" Link="README.md" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+</Project>

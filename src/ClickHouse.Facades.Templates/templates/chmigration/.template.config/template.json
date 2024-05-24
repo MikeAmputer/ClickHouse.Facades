@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Pavel Kravtsov",
+  "classifications": [
+    "clickhouse",
+    "migrations",
+    "facades"
+  ],
+  "identity": "ClickHouse.Facades.Templates.Migration",
+  "name": "ClickHouse Migration Template",
+  "shortName": "chmigration",
+  "defaultName": "Migration_Template",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "sourceName": "MigrationTemplate",
+  "preferNameDirectory": false,
+  "symbols": {
+    "index": {
+      "type": "parameter",
+      "datatype": "integer",
+      "defaultValue": "1",
+      "replaces": "$index$"
+    },
+    "title": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "NewMigration",
+      "replaces": "$title$",
+      "isRequired": true
+    },
+    "dir": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "Migrations/ClickHouse"
+    },
+    "namespace": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "Migrations.ClickHouse"
+    },
+    "createdDate": {
+      "type": "generated",
+      "generator": "now",
+      "parameters": {
+        "format": "yyyyMMddHHmmss",
+        "utc": true
+      }
+    },
+    "targetIndex": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "index",
+        "fallbackVariableName": "createdDate"
+      },
+      "replaces": "$index$"
+    },
+    "defaultNamespace": {
+      "type": "bind",
+      "binding": "msbuild:RootNamespace",
+      "defaultValue": ""
+    },
+    "generatedNamespace": {
+      "type": "generated",
+      "generator": "join",
+      "parameters": {
+        "symbols": [
+          {
+            "type": "ref",
+            "value": "defaultNamespace"
+          },
+          {
+            "type": "const",
+            "value": "Migrations.ClickHouse"
+          }
+        ],
+        "separator": "."
+      }
+    },
+    "targetNamespace": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "namespace",
+        "fallbackVariableName": "generatedNamespace"
+      },
+      "replaces": "$namespace$"
+    },
+    "fileName": {
+      "type": "generated",
+      "generator": "join",
+      "parameters": {
+        "symbols": [
+          {
+            "type": "ref",
+            "value": "targetIndex"
+          },
+          {
+            "type": "ref",
+            "value": "title"
+          }
+        ],
+        "separator": "_"
+      }
+    },
+    "name": {
+      "type": "generated",
+      "generator": "join",
+      "fileRename": "",
+      "parameters": {
+        "symbols": [
+          {
+            "type": "ref",
+            "value": "dir"
+          },
+          {
+            "type": "ref",
+            "value": "fileName"
+          }
+        ],
+        "separator": "/"
+      }
+    }
+  },
+  "constraints": {
+    "CSharp": {
+      "type": "project-capability",
+      "args": "CSharp"
+    }
+  }
+}
