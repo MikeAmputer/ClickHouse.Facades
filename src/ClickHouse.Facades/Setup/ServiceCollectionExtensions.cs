@@ -46,8 +46,7 @@ public static class ServiceCollectionExtensions
 	public static IServiceCollection AddClickHouseContext<TContext, TContextFactory>(
 		this IServiceCollection services,
 		Action<ClickHouseContextServiceBuilder<TContext>> builderAction,
-		ServiceLifetime factoryLifetime = ServiceLifetime.Singleton,
-		CommandExecutionStrategy commandExecutionStrategy = CommandExecutionStrategy.Default)
+		ServiceLifetime factoryLifetime = ServiceLifetime.Singleton)
 		where TContext : ClickHouseContext<TContext>, new()
 		where TContextFactory : ClickHouseContextFactory<TContext>
 	{
@@ -65,9 +64,9 @@ public static class ServiceCollectionExtensions
 				.CreateInstance<TContextFactory>(serviceProvider)
 				.Setup(
 					serviceProvider.GetRequiredService<ClickHouseFacadeFactory<TContext>>(),
-					connection => new ClickHouseConnectionBroker(
+					(connection, commandExecutionStrategy) => new ClickHouseConnectionBroker(
 						connection,
-						ICommandExecutionStrategy.Pick(commandExecutionStrategy))),
+						commandExecutionStrategy)),
 			factoryLifetime);
 
 		services.Add(descriptor);
