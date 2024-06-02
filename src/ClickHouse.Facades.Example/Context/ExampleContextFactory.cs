@@ -16,6 +16,7 @@ public class ExampleContextFactory : ClickHouseContextFactory<ExampleContext>
 	protected override void SetupContextOptions(ClickHouseContextOptionsBuilder<ExampleContext> optionsBuilder)
 	{
 		optionsBuilder
-			.WithConnectionString(_connectionString);
+			.WithConnectionString(_connectionString)
+			.WithCommandExecutionStrategy(CommandExecutionStrategy.Cancelable);
 	}
 }

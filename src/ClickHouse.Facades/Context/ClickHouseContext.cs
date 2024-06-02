@@ -92,7 +92,11 @@ public abstract class ClickHouseContext<TContext> : IDisposable, IAsyncDisposabl
 		ThrowIfInitialized();
 
 		_connection = CreateConnection(options);
-		_connectionBroker = options.ConnectionBrokerProvider(_connection);
+
+		_connectionBroker = options.ConnectionBrokerProvider(
+			_connection,
+			ICommandExecutionStrategy.Pick(options.CommandExecutionStrategy));
+
 		_facadeFactory = options.FacadeFactory;
 		_allowDatabaseChanges = options.AllowDatabaseChanges;
 

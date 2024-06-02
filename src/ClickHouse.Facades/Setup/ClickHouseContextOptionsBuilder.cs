@@ -18,7 +18,20 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 	private OptionalValue<string> _httpClientName;
 
 	private OptionalValue<ClickHouseFacadeFactory<TContext>> _facadeFactory;
-	private OptionalValue<Func<ClickHouseConnection, IClickHouseConnectionBroker>> _connectionBrokerProvider;
+
+	private OptionalValue<
+		Func<ClickHouseConnection, ICommandExecutionStrategy, IClickHouseConnectionBroker>> _connectionBrokerProvider;
+
+	private OptionalValue<CommandExecutionStrategy> _commandExecutionStrategy;
+
+	public ClickHouseContextOptionsBuilder<TContext> WithCommandExecutionStrategy(
+		CommandExecutionStrategy commandExecutionStrategy)
+	{
+		return WithPropertyValue(
+			builder => builder._commandExecutionStrategy,
+			(builder, value) => builder._commandExecutionStrategy = value,
+			commandExecutionStrategy);
+	}
 
 	public ClickHouseContextOptionsBuilder<TContext> WithHttpClientFactory(
 		IHttpClientFactory httpClientFactory,
@@ -101,7 +114,7 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 	}
 
 	internal ClickHouseContextOptionsBuilder<TContext> WithConnectionBrokerProvider(
-		Func<ClickHouseConnection, IClickHouseConnectionBroker> connectionBrokerProvider)
+		Func<ClickHouseConnection, ICommandExecutionStrategy, IClickHouseConnectionBroker> connectionBrokerProvider)
 	{
 		ExceptionHelpers.ThrowIfNull(connectionBrokerProvider);
 
@@ -129,6 +142,7 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 			HttpClientName = _httpClientName.OrDefault(),
 			FacadeFactory = _facadeFactory.NotNullOrThrow(),
 			ConnectionBrokerProvider = _connectionBrokerProvider.NotNullOrThrow(),
+			CommandExecutionStrategy = _commandExecutionStrategy.OrElseValue(CommandExecutionStrategy.Default),
 		};
 	}
 
