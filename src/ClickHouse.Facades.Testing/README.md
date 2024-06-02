@@ -78,3 +78,5 @@ public async Task My_Test()
     Assert.AreEqual(2, connectionTracker.RecordsCount);
 }
 ```
+
+> ***Note:*** To test your code that uses facades, it is not necessary to inherit from the `ClickHouseFacadesTestsCore` class. It is sufficient to use facades through abstractions, register the context via `services.AddClickHouseTestContext`, and replace the facade abstraction in the service collection with a prepared mock, as done in `ClickHouseFacadesTestsCore.MockFacadeAbstraction`.
