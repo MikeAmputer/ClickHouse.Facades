@@ -39,4 +39,6 @@ internal interface IClickHouseConnectionBroker
 		int batchSize,
 		int maxDegreeOfParallelism,
 		IReadOnlyCollection<string>? columnNames = null);
+
+	Task SetSessionParameter(string parameterName, object value);
 }

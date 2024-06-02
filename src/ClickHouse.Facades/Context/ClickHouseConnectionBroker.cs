@@ -52,7 +52,7 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 		Dictionary<string, object>? parameters,
 		CancellationToken cancellationToken)
 	{
-		ThrowIfNotConnected();
+		cancellationToken.ThrowIfCancellationRequested();
 
 		await using var command = CreateCommand();
 		command.CommandText = query;
@@ -66,7 +66,6 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 		Dictionary<string, object>? parameters,
 		CancellationToken cancellationToken)
 	{
-		ThrowIfNotConnected();
 		cancellationToken.ThrowIfCancellationRequested();
 
 		await using var command = CreateCommand();
@@ -81,7 +80,6 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 		Dictionary<string, object>? parameters,
 		CancellationToken cancellationToken)
 	{
-		ThrowIfNotConnected();
 		cancellationToken.ThrowIfCancellationRequested();
 
 		await using var command = CreateCommand();
@@ -96,7 +94,6 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 		Dictionary<string, object>? parameters,
 		CancellationToken cancellationToken)
 	{
-		ThrowIfNotConnected();
 		cancellationToken.ThrowIfCancellationRequested();
 
 		using var command = CreateCommand();
@@ -152,6 +149,17 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 		await saveAction(bulkCopyInterface);
 
 		return bulkCopyInterface.RowsWritten;
+	}
+
+	public Task SetSessionParameter(string parameterName, object value)
+	{
+		if (!_sessionEnabled)
+		{
+			throw new InvalidOperationException(
+				"Unable to set session parameter while sessions are not enabled in the current context.");
+		}
+
+		return _connection.ExecuteStatementAsync($"set {parameterName} = '{value}'");
 	}
 
 	private void SetParameters(ClickHouseCommand command, Dictionary<string, object>? parameters)

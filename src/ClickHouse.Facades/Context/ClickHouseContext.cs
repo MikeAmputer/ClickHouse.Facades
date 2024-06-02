@@ -87,6 +87,11 @@ public abstract class ClickHouseContext<TContext> : IDisposable, IAsyncDisposabl
 		_connection!.ChangeDatabase(databaseName);
 	}
 
+	public Task SetSessionParameter(string parameterName, object value)
+	{
+		return _connectionBroker.SetSessionParameter(parameterName, value);
+	}
+
 	internal void Initialize(ClickHouseContextOptions<TContext> options)
 	{
 		ThrowIfInitialized();
