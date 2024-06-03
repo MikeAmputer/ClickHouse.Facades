@@ -19,7 +19,7 @@ Raw SQL migrations and contexts for [ClickHouse](https://github.com/ClickHouse/C
 
 ## Migrations Usage
 Implement `IClickHouseMigrationInstructions` and `IClickHouseMigrationsLocator`
-([example](https://github.com/MikeAmputer/ClickHouse.Facades/tree/master/src/ClickHouse.Facades.Example/Migrations/Settings))
+([example](https://github.com/MikeAmputer/ClickHouse.Facades/tree/master/examples/Example.Simple/Migrations/Settings))
 and register them as DI services
 ```csharp
 services.AddClickHouseMigrations<ClickHouseMigrationInstructions, ClickHouseMigrationsLocator>();
@@ -50,7 +50,7 @@ The index of `ClickHouseMigrationAttribute` is used to order migrations. It's be
 
 ## Context Usage
 Implement the following class inheritors: `ClickHouseContext<TContext>`, `ClickHouseContextFactory<TContext>`, `ClickHouseFacade<TContext>`
-([example](https://github.com/MikeAmputer/ClickHouse.Facades/tree/master/src/ClickHouse.Facades.Example/Context))
+([example](https://github.com/MikeAmputer/ClickHouse.Facades/tree/master/examples/Example.Simple/Context))
 and register them as DI services
 ```csharp
 services.AddClickHouseContext<ExampleContext, ExampleContextFactory>(builder => builder
