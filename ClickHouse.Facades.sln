@@ -2,13 +2,17 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClickHouse.Facades", "src\ClickHouse.Facades\ClickHouse.Facades.csproj", "{F58DD7A0-090D-4D9E-9C55-09635DCD46AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClickHouse.Facades.Example", "src\ClickHouse.Facades.Example\ClickHouse.Facades.Example.csproj", "{A7555176-F42B-4DD3-8810-E16CFE4378BB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Simple", "examples\Example.Simple\Example.Simple.csproj", "{A7555176-F42B-4DD3-8810-E16CFE4378BB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClickHouse.Facades.Tests", "src\ClickHouse.Facades.Tests\ClickHouse.Facades.Tests.csproj", "{EE903EEE-DD9E-4402-B758-0E2B13363138}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClickHouse.Facades.Testing", "src\ClickHouse.Facades.Testing\ClickHouse.Facades.Testing.csproj", "{677931CB-3677-44A0-A358-0C32ADAC479A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClickHouse.Facades.Templates", "src\ClickHouse.Facades.Templates\ClickHouse.Facades.Templates.csproj", "{698D841F-348F-4D71-B9AD-0DCBF8BDD543}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{0C33A3F6-D5BB-440A-BBB7-9DBE63EF3552}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Keeper", "examples\Example.Keeper\Example.Keeper.csproj", "{63B5107F-CDEE-4CA3-A03A-224A37692DB7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,5 +40,13 @@ Global
 		{698D841F-348F-4D71-B9AD-0DCBF8BDD543}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{698D841F-348F-4D71-B9AD-0DCBF8BDD543}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{698D841F-348F-4D71-B9AD-0DCBF8BDD543}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63B5107F-CDEE-4CA3-A03A-224A37692DB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63B5107F-CDEE-4CA3-A03A-224A37692DB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63B5107F-CDEE-4CA3-A03A-224A37692DB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63B5107F-CDEE-4CA3-A03A-224A37692DB7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A7555176-F42B-4DD3-8810-E16CFE4378BB} = {0C33A3F6-D5BB-440A-BBB7-9DBE63EF3552}
+		{63B5107F-CDEE-4CA3-A03A-224A37692DB7} = {0C33A3F6-D5BB-440A-BBB7-9DBE63EF3552}
 	EndGlobalSection
 EndGlobal
