@@ -1,15 +1,17 @@
 version: "3.9"
-name: clickhouse-facades-example
+name: clickhouse-facades-example-keeper
 
 services:
-  example-clickhouse:
+  clickhouse:
     image: clickhouse/clickhouse-server:latest
     platform: linux/amd64
-    container_name: example-clickhouse
+    container_name: keeper-example-clickhouse
     restart: unless-stopped
     environment:
       - CLICKHOUSE_USER=example
       - CLICKHOUSE_PASSWORD=example
       - CLICKHOUSE_DB=facades_example
     ports:
-      - "38123:8123"
+      - "38200:8123"
+    volumes:
+      - ./keeper-config.xml:/etc/clickhouse-server/config.d/keeper-config.xml
