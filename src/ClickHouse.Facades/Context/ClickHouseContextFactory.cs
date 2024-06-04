@@ -21,7 +21,7 @@ public abstract class ClickHouseContextFactory<TContext> : IClickHouseContextFac
 		return this;
 	}
 
-	public TContext CreateContext()
+	public async Task<TContext> CreateContextAsync()
 	{
 		var builder = ClickHouseContextOptionsBuilder<TContext>.Create;
 
@@ -33,7 +33,7 @@ public abstract class ClickHouseContextFactory<TContext> : IClickHouseContextFac
 			.Build();
 
 		var context = new TContext();
-		context.Initialize(contextOptions);
+		await context.Initialize(contextOptions);
 
 		return context;
 	}

@@ -6,9 +6,10 @@ namespace ClickHouse.Facades;
 public static class ClickHouseRetryHelpers
 {
 	public static async Task<TResult> ExecuteAsync<TContext, TResult>(
-		Func<TContext> contextProvider,
+		Func<Task<TContext>> contextProvider,
 		Func<TContext, Task<TResult>> action,
 		Func<int, TimeSpan> retryDelayProvider,
+		Func<ClickHouseServerException, bool>? transientExceptionSelector = null,
 		Action<ClickHouseServerException>? exceptionHandler = null,
 		int retryCount = 3,
 		CancellationToken cancellationToken = default)
@@ -25,13 +26,18 @@ public static class ClickHouseRetryHelpers
 
 			try
 			{
-				await using var context = contextProvider();
+				await using var context = await contextProvider();
 
 				return await action(context);
 			}
 			catch (ClickHouseServerException e)
 			{
 				if (attemptNumber >= retryCount + 1)
+				{
+					throw;
+				}
+
+				if (transientExceptionSelector != null && !transientExceptionSelector(e))
 				{
 					throw;
 				}
@@ -45,9 +51,10 @@ public static class ClickHouseRetryHelpers
 	}
 
 	public static Task ExecuteAsync<TContext>(
-		Func<TContext> contextProvider,
+		Func<Task<TContext>> contextProvider,
 		Func<TContext, Task> action,
 		Func<int, TimeSpan> retryDelayProvider,
+		Func<ClickHouseServerException, bool>? transientExceptionSelector = null,
 		Action<ClickHouseServerException>? exceptionHandler = null,
 		int retryCount = 3,
 		CancellationToken cancellationToken = default)
@@ -62,6 +69,7 @@ public static class ClickHouseRetryHelpers
 				return 0;
 			},
 			retryDelayProvider,
+			transientExceptionSelector,
 			exceptionHandler,
 			retryCount,
 			cancellationToken);
@@ -71,15 +79,17 @@ public static class ClickHouseRetryHelpers
 		IClickHouseContextFactory<TContext> contextFactory,
 		Func<TContext, Task<TResult>> action,
 		Func<int, TimeSpan> retryDelayProvider,
+		Func<ClickHouseServerException, bool>? transientExceptionSelector = null,
 		Action<ClickHouseServerException>? exceptionHandler = null,
 		int retryCount = 3,
 		CancellationToken cancellationToken = default)
 		where TContext : ClickHouseContext<TContext>
 	{
 		return ExecuteAsync(
-			contextFactory.CreateContext,
+			contextFactory.CreateContextAsync,
 			action,
 			retryDelayProvider,
+			transientExceptionSelector,
 			exceptionHandler,
 			retryCount,
 			cancellationToken);
@@ -89,15 +99,17 @@ public static class ClickHouseRetryHelpers
 		IClickHouseContextFactory<TContext> contextFactory,
 		Func<TContext, Task> action,
 		Func<int, TimeSpan> retryDelayProvider,
+		Func<ClickHouseServerException, bool>? transientExceptionSelector = null,
 		Action<ClickHouseServerException>? exceptionHandler = null,
 		int retryCount = 3,
 		CancellationToken cancellationToken = default)
 		where TContext : ClickHouseContext<TContext>
 	{
 		return ExecuteAsync(
-			contextFactory.CreateContext,
+			contextFactory.CreateContextAsync,
 			action,
 			retryDelayProvider,
+			transientExceptionSelector,
 			exceptionHandler,
 			retryCount,
 			cancellationToken);

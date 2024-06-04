@@ -111,7 +111,22 @@ internal class ClickHouseConnectionBrokerStub<TContext> : IClickHouseConnectionB
 		throw new NotImplementedException();
 	}
 
-	public Task SetSessionParameter(string parameterName, object value)
+	public Task SetSessionParameterAsync(string parameterName, object value)
+	{
+		return Task.CompletedTask;
+	}
+
+	public Task BeginTransactionAsync()
+	{
+		return Task.CompletedTask;
+	}
+
+	public Task CommitTransactionAsync()
+	{
+		return Task.CompletedTask;
+	}
+
+	public Task RollbackTransactionAsync()
 	{
 		return Task.CompletedTask;
 	}
