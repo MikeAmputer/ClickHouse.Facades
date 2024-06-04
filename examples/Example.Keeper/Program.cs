@@ -13,7 +13,7 @@ await serviceProvider.ClickHouseMigrateAsync();
 
 
 var contextFactory = serviceProvider.GetRequiredService<IClickHouseContextFactory<ExampleContext>>();
-await using var context = contextFactory.CreateContext();
+await using var context = await contextFactory.CreateContextAsync();
 var facade = context.ExampleFacade;
 
 await facade.Truncate();

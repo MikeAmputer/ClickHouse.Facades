@@ -151,7 +151,7 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 		return bulkCopyInterface.RowsWritten;
 	}
 
-	public Task SetSessionParameter(string parameterName, object value)
+	public Task SetSessionParameterAsync(string parameterName, object value)
 	{
 		if (!_sessionEnabled)
 		{
@@ -160,6 +160,48 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 		}
 
 		return _connection.ExecuteStatementAsync($"set {parameterName} = '{value}'");
+	}
+
+	public async Task BeginTransactionAsync()
+	{
+		if (!_sessionEnabled)
+		{
+			throw new InvalidOperationException(
+				"Transactions unavailable while sessions are not enabled in the current context.");
+		}
+
+		await using var command = CreateCommand();
+		command.CommandText = "BEGIN TRANSACTION";
+
+		await command.ExecuteNonQueryAsync();
+	}
+
+	public async Task CommitTransactionAsync()
+	{
+		if (!_sessionEnabled)
+		{
+			throw new InvalidOperationException(
+				"Transactions unavailable while sessions are not enabled in the current context.");
+		}
+
+		await using var command = CreateCommand();
+		command.CommandText = "COMMIT";
+
+		await command.ExecuteNonQueryAsync();
+	}
+
+	public async Task RollbackTransactionAsync()
+	{
+		if (!_sessionEnabled)
+		{
+			throw new InvalidOperationException(
+				"Transactions unavailable while sessions are not enabled in the current context.");
+		}
+
+		await using var command = CreateCommand();
+		command.CommandText = "ROLLBACK";
+
+		await command.ExecuteNonQueryAsync();
 	}
 
 	private void SetParameters(ClickHouseCommand command, Dictionary<string, object>? parameters)

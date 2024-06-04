@@ -17,6 +17,8 @@ public class ExampleContextFactory : ClickHouseContextFactory<ExampleContext>
 	{
 		optionsBuilder
 			.WithConnectionString(_connectionString)
-			.ForceSessions();
+			.ForceSessions()
+			.SetupTransactions(options => options
+				.AllowMultipleTransactions());
 	}
 }

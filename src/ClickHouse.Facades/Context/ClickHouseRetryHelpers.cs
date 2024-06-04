@@ -6,7 +6,7 @@ namespace ClickHouse.Facades;
 public static class ClickHouseRetryHelpers
 {
 	public static async Task<TResult> ExecuteAsync<TContext, TResult>(
-		Func<TContext> contextProvider,
+		Func<Task<TContext>> contextProvider,
 		Func<TContext, Task<TResult>> action,
 		Func<int, TimeSpan> retryDelayProvider,
 		Action<ClickHouseServerException>? exceptionHandler = null,
@@ -25,7 +25,7 @@ public static class ClickHouseRetryHelpers
 
 			try
 			{
-				await using var context = contextProvider();
+				await using var context = await contextProvider();
 
 				return await action(context);
 			}
@@ -45,7 +45,7 @@ public static class ClickHouseRetryHelpers
 	}
 
 	public static Task ExecuteAsync<TContext>(
-		Func<TContext> contextProvider,
+		Func<Task<TContext>> contextProvider,
 		Func<TContext, Task> action,
 		Func<int, TimeSpan> retryDelayProvider,
 		Action<ClickHouseServerException>? exceptionHandler = null,
@@ -77,7 +77,7 @@ public static class ClickHouseRetryHelpers
 		where TContext : ClickHouseContext<TContext>
 	{
 		return ExecuteAsync(
-			contextFactory.CreateContext,
+			contextFactory.CreateContextAsync,
 			action,
 			retryDelayProvider,
 			exceptionHandler,
@@ -95,7 +95,7 @@ public static class ClickHouseRetryHelpers
 		where TContext : ClickHouseContext<TContext>
 	{
 		return ExecuteAsync(
-			contextFactory.CreateContext,
+			contextFactory.CreateContextAsync,
 			action,
 			retryDelayProvider,
 			exceptionHandler,
