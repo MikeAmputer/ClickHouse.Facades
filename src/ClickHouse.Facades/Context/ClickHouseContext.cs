@@ -2,12 +2,14 @@
 
 namespace ClickHouse.Facades;
 
-public abstract class ClickHouseContext<TContext> : IDisposable, IAsyncDisposable
+public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 	where TContext : ClickHouseContext<TContext>
 {
 	private bool _initialized = false;
 	private ClickHouseConnection? _connection = null;
 	private IClickHouseConnectionBroker _connectionBroker = null!;
+	private TransactionBroker _transactionBroker = null!;
+
 	private ClickHouseFacadeFactory<TContext> _facadeFactory = null!;
 	private readonly Dictionary<Type, object> _facades = new();
 
@@ -87,12 +89,27 @@ public abstract class ClickHouseContext<TContext> : IDisposable, IAsyncDisposabl
 		_connection!.ChangeDatabase(databaseName);
 	}
 
-	public Task SetSessionParameter(string parameterName, object value)
+	public Task SetSessionParameterAsync(string parameterName, object value)
 	{
-		return _connectionBroker.SetSessionParameter(parameterName, value);
+		return _connectionBroker.SetSessionParameterAsync(parameterName, value);
 	}
 
-	internal void Initialize(ClickHouseContextOptions<TContext> options)
+	public Task BeginTransactionAsync()
+	{
+		return _transactionBroker.BeginAsync();
+	}
+
+	public Task CommitTransactionAsync()
+	{
+		return _transactionBroker.CommitAsync();
+	}
+
+	public Task RollbackTransactionAsync()
+	{
+		return _transactionBroker.RollbackAsync();
+	}
+
+	internal async Task Initialize(ClickHouseContextOptions<TContext> options)
 	{
 		ThrowIfInitialized();
 
@@ -104,6 +121,8 @@ public abstract class ClickHouseContext<TContext> : IDisposable, IAsyncDisposabl
 
 		_facadeFactory = options.FacadeFactory;
 		_allowDatabaseChanges = options.AllowDatabaseChanges;
+
+		_transactionBroker = await TransactionBroker.Create(_connectionBroker, options.TransactionBrokerOptions);
 
 		_initialized = true;
 	}
@@ -142,15 +161,12 @@ public abstract class ClickHouseContext<TContext> : IDisposable, IAsyncDisposabl
 		}
 	}
 
-	public void Dispose()
-	{
-		_connection?.Dispose();
-	}
-
 	public async ValueTask DisposeAsync()
 	{
 		if (_connection != null)
 		{
+			// might use _connection while disposing
+			await _transactionBroker.DisposeAsync();
 			await _connection.DisposeAsync().ConfigureAwait(false);
 		}
 	}

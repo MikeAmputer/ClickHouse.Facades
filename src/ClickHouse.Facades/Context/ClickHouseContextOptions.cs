@@ -5,6 +5,11 @@ namespace ClickHouse.Facades;
 public sealed class ClickHouseContextOptions<TContext>
 	where TContext : ClickHouseContext<TContext>
 {
+	internal ClickHouseContextOptions()
+	{
+
+	}
+
 	internal string ConnectionString { get; set; } = "";
 	internal bool AllowDatabaseChanges { get; set; } = false;
 
@@ -20,5 +25,7 @@ public sealed class ClickHouseContextOptions<TContext>
 		set;
 	} = null!;
 
-	internal CommandExecutionStrategy CommandExecutionStrategy = CommandExecutionStrategy.Default;
+	internal CommandExecutionStrategy CommandExecutionStrategy { get; set; } = CommandExecutionStrategy.Default;
+
+	internal TransactionBrokerOptions TransactionBrokerOptions { get; set; } = null!;
 }

@@ -13,7 +13,7 @@ await serviceProvider.ClickHouseMigrateAsync();
 
 
 var contextFactory = serviceProvider.GetRequiredService<IClickHouseContextFactory<ExampleContext>>();
-await using var context = contextFactory.CreateContext();
+await using var context = await contextFactory.CreateContextAsync();
 
 await context.Orders.InsertRandomOrders();
 var topExpensesUser = await context.Orders.GetTopExpensesUser();

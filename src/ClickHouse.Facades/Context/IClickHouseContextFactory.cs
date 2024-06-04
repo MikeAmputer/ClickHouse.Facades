@@ -1,7 +1,7 @@
 ﻿namespace ClickHouse.Facades;
 
-public interface IClickHouseContextFactory<out TContext>
+public interface IClickHouseContextFactory<TContext>
 	where TContext : ClickHouseContext<TContext>
 {
-	TContext CreateContext();
+	Task<TContext> CreateContextAsync();
 }

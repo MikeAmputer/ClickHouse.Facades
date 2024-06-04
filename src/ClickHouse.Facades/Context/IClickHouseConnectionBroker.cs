@@ -40,5 +40,11 @@ internal interface IClickHouseConnectionBroker
 		int maxDegreeOfParallelism,
 		IReadOnlyCollection<string>? columnNames = null);
 
-	Task SetSessionParameter(string parameterName, object value);
+	Task SetSessionParameterAsync(string parameterName, object value);
+
+	Task BeginTransactionAsync();
+
+	Task CommitTransactionAsync();
+
+	Task RollbackTransactionAsync();
 }
