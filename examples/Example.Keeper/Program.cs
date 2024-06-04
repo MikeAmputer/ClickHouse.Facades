@@ -13,36 +13,44 @@ await serviceProvider.ClickHouseMigrateAsync();
 
 
 var contextFactory = serviceProvider.GetRequiredService<IClickHouseContextFactory<ExampleContext>>();
-await using var context = contextFactory.CreateContext();
-var facade = context.ExampleFacade;
 
-await facade.Truncate();
-var values = await facade.GetValues();
-Console.WriteLine(
-	$"Values count before transaction: {values.Length}");
+// retryable and transactional execution
+await ClickHouseRetryHelpers.ExecuteAsync(
+	contextFactory,
+	async context =>
+	{
+		var facade = context.ExampleFacade;
 
-await context.BeginTransactionAsync();
+		await facade.Truncate();
+		var values = await facade.GetValues();
+		Console.WriteLine(
+			$"Values count before transaction: {values.Length}");
 
-await facade.InsertValue(42);
-values = await facade.GetValues();
-Console.WriteLine(
-	$"Values count inside transaction: {values.Length}");
+		await context.BeginTransactionAsync();
 
-await context.RollbackTransactionAsync();
+		await facade.InsertValue(42);
+		values = await facade.GetValues();
+		Console.WriteLine(
+			$"Values count inside transaction: {values.Length}");
 
-values = await facade.GetValues();
-Console.WriteLine(
-	$"Values count after rollback: {values.Length}");
+		await context.RollbackTransactionAsync();
 
-await context.BeginTransactionAsync();
+		values = await facade.GetValues();
+		Console.WriteLine(
+			$"Values count after rollback: {values.Length}");
 
-await facade.InsertValue(42);
+		await context.BeginTransactionAsync();
 
-await context.CommitTransactionAsync();
+		await facade.InsertValue(42);
 
-values = await facade.GetValues();
-Console.WriteLine(
-	$"Values count after commit: {values.Length}");
+		await context.CommitTransactionAsync();
+
+		values = await facade.GetValues();
+		Console.WriteLine(
+			$"Values count after commit: {values.Length}");
+	},
+	retryAttempt => TimeSpan.FromSeconds(1 << retryAttempt),
+	exceptionHandler: ex => Console.WriteLine(ex.Message));
 
 
 static IHostBuilder CreateHostBuilder(string[] args) =>

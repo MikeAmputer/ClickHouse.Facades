@@ -18,7 +18,7 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 
 	public async Task ApplyMigrationsAsync(CancellationToken cancellationToken = default)
 	{
-		await using var context = _migrationContextFactory.CreateContext();
+		await using var context = await _migrationContextFactory.CreateContextAsync();
 
 		var facade = context.MigrationFacade;
 
@@ -37,7 +37,7 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 
 	public async Task RollbackAsync(ulong targetMigrationId, CancellationToken cancellationToken = default)
 	{
-		await using var context = _migrationContextFactory.CreateContext();
+		await using var context = await _migrationContextFactory.CreateContextAsync();
 
 		var facade = context.MigrationFacade;
 

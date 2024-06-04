@@ -24,6 +24,17 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 
 	private OptionalValue<CommandExecutionStrategy> _commandExecutionStrategy;
 
+	private OptionalValue<Action<TransactionBrokerOptionsBuilder>> _setupTransactionBrokerOptions;
+
+	public ClickHouseContextOptionsBuilder<TContext> SetupTransactions(
+		Action<TransactionBrokerOptionsBuilder> setup)
+	{
+		return WithPropertyValue(
+			builder => builder._setupTransactionBrokerOptions,
+			(builder, value) => builder._setupTransactionBrokerOptions = value,
+			setup);
+	}
+
 	public ClickHouseContextOptionsBuilder<TContext> WithCommandExecutionStrategy(
 		CommandExecutionStrategy commandExecutionStrategy)
 	{
@@ -133,6 +144,11 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 			connectionString = GetSessionConnectionString(connectionString);
 		}
 
+		var transactionBrokerOptionsBuilder = TransactionBrokerOptionsBuilder.Create;
+		_setupTransactionBrokerOptions.OrDefault()?.Invoke(transactionBrokerOptionsBuilder);
+
+		var transactionBrokerOptions = transactionBrokerOptionsBuilder.Build();
+
 		return new ClickHouseContextOptions<TContext>
 		{
 			ConnectionString = connectionString,
@@ -143,6 +159,7 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 			FacadeFactory = _facadeFactory.NotNullOrThrow(),
 			ConnectionBrokerProvider = _connectionBrokerProvider.NotNullOrThrow(),
 			CommandExecutionStrategy = _commandExecutionStrategy.OrElseValue(CommandExecutionStrategy.Default),
+			TransactionBrokerOptions = transactionBrokerOptions,
 		};
 	}
 
