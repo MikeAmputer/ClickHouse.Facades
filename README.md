@@ -61,7 +61,7 @@ services.AddClickHouseContext<ExampleContext, ExampleContextFactory>(builder => 
 ```
 Request `IClickHouseContextFactory<TContext>` service to create context
 ```csharp
-await using var context = contextFactory.CreateContext();
+await using var context = await contextFactory.CreateContextAsync();
 
 var ordersFacade = context.GetFacade<OrdersFacade>();
 
