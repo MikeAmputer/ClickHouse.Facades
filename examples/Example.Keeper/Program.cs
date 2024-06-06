@@ -15,42 +15,41 @@ await serviceProvider.ClickHouseMigrateAsync();
 var contextFactory = serviceProvider.GetRequiredService<IClickHouseContextFactory<ExampleContext>>();
 
 // retryable and transactional execution
-await ClickHouseRetryHelpers.ExecuteAsync(
-	contextFactory,
-	async context =>
-	{
-		var facade = context.ExampleFacade;
+await contextFactory.CreateRetryableExecutor()
+	.UpdateRetryPolicy(policy => policy.ExceptionHandler = ex => Console.WriteLine(ex.Message))
+	.ExecuteAsync(
+		async context =>
+		{
+			var facade = context.ExampleFacade;
 
-		await facade.Truncate();
-		var values = await facade.GetValues();
-		Console.WriteLine(
-			$"Values count before transaction: {values.Length}");
+			await facade.Truncate();
+			var values = await facade.GetValues();
+			Console.WriteLine(
+				$"Values count before transaction: {values.Length}");
 
-		await context.BeginTransactionAsync();
+			await context.BeginTransactionAsync();
 
-		await facade.InsertValue(42);
-		values = await facade.GetValues();
-		Console.WriteLine(
-			$"Values count inside transaction: {values.Length}");
+			await facade.InsertValue(42);
+			values = await facade.GetValues();
+			Console.WriteLine(
+				$"Values count inside transaction: {values.Length}");
 
-		await context.RollbackTransactionAsync();
+			await context.RollbackTransactionAsync();
 
-		values = await facade.GetValues();
-		Console.WriteLine(
-			$"Values count after rollback: {values.Length}");
+			values = await facade.GetValues();
+			Console.WriteLine(
+				$"Values count after rollback: {values.Length}");
 
-		await context.BeginTransactionAsync();
+			await context.BeginTransactionAsync();
 
-		await facade.InsertValue(42);
+			await facade.InsertValue(42);
 
-		await context.CommitTransactionAsync();
+			await context.CommitTransactionAsync();
 
-		values = await facade.GetValues();
-		Console.WriteLine(
-			$"Values count after commit: {values.Length}");
-	},
-	retryAttempt => TimeSpan.FromSeconds(1 << retryAttempt),
-	exceptionHandler: ex => Console.WriteLine(ex.Message));
+			values = await facade.GetValues();
+			Console.WriteLine(
+				$"Values count after commit: {values.Length}");
+		});
 
 
 static IHostBuilder CreateHostBuilder(string[] args) =>
