@@ -34,6 +34,6 @@ public class ExampleContextFactory : ClickHouseContextFactory<ExampleContext>
 			.ForceSessions()
 			.SetupTransactions(options => options
 				.AllowMultipleTransactions()
-				.AutoRollbackTransaction());
+				.AutoRollback());
 	}
 }

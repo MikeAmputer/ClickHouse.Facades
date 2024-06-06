@@ -23,7 +23,7 @@ public class TransactionBrokerOptionsBuilder : Builder<TransactionBrokerOptions,
 	/// <summary>
 	/// Automatically begin transaction on context creation.
 	/// </summary>
-	public TransactionBrokerOptionsBuilder AutoBeginTransaction()
+	public TransactionBrokerOptionsBuilder AutoBegin()
 	{
 		return WithPropertyValue(
 			builder => builder._autoBeginTransaction,
@@ -35,7 +35,7 @@ public class TransactionBrokerOptionsBuilder : Builder<TransactionBrokerOptions,
 	/// Automatically rollback active transaction on context disposal.
 	/// </summary>
 	/// <exception cref="InvalidOperationException">Auto-commit is enabled.</exception>
-	public TransactionBrokerOptionsBuilder AutoRollbackTransaction()
+	public TransactionBrokerOptionsBuilder AutoRollback()
 	{
 		if (_autoCommitTransaction.HasValue)
 		{
@@ -53,7 +53,7 @@ public class TransactionBrokerOptionsBuilder : Builder<TransactionBrokerOptions,
 	/// Automatically commit active transaction on context disposal.
 	/// </summary>
 	/// <exception cref="InvalidOperationException">Auto-rollback is enabled.</exception>
-	public TransactionBrokerOptionsBuilder AutoCommitTransaction()
+	public TransactionBrokerOptionsBuilder AutoCommit()
 	{
 		if (_autoRollbackTransaction.HasValue)
 		{
