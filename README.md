@@ -14,7 +14,7 @@ Raw SQL migrations and contexts for [ClickHouse](https://github.com/ClickHouse/C
   - Parametrized queries (anonymous type parameters supported)
   - Query cancellation by termination on ClickHouse side
   - Transactions support (keeper is required)
-  - Retryable contexts via ClickHouseRetryHelpers class
+  - Retryable contexts
   - Provides all the features of the ClickHouse.Client package
   - Fully async contract
 - **Testing toolkit:** seamlessly integrate unit testing into your ClickHouse.Facades components using the dedicated [ClickHouse.Facades.Testing](https://github.com/MikeAmputer/ClickHouse.Facades/tree/master/src/ClickHouse.Facades.Testing) package. Test ClickHouse contexts and facades effectively, mock facades or specific database requests, and monitor interactions with the ClickHouse database using the provided testing tools.

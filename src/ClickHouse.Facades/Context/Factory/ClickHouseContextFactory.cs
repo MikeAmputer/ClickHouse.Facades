@@ -38,5 +38,12 @@ public abstract class ClickHouseContextFactory<TContext> : IClickHouseContextFac
 		return context;
 	}
 
+	public IClickHouseRetryableExecutor<TContext> CreateRetryableExecutor()
+	{
+		return new ClickHouseRetryableExecutor<TContext>(this, DefaultRetryPolicy);
+	}
+
+	protected virtual ClickHouseRetryPolicy DefaultRetryPolicy => new();
+
 	protected abstract void SetupContextOptions(ClickHouseContextOptionsBuilder<TContext> optionsBuilder);
 }
