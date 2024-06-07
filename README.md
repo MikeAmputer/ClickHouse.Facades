@@ -72,4 +72,4 @@ You can create as many contexts as you need with any number of facades. Facades 
 > ***Note:*** You can perform migrations on your ClickHouse database without the necessity of implementing contexts.
 
 ## Documentation
-Documentation will be presented in [repository Wiki](https://github.com/MikeAmputer/ClickHouse.Facades/wiki) (WIP)
+Documentation is presented in [repository Wiki](https://github.com/MikeAmputer/ClickHouse.Facades/wiki) (WIP)
