@@ -10,7 +10,7 @@ Raw SQL migrations and contexts for [ClickHouse](https://github.com/ClickHouse/C
   - Fully async contract
   - [Migration template](https://github.com/MikeAmputer/ClickHouse.Facades/tree/master/src/ClickHouse.Facades.Templates) for .NET CLI
 - **Contexts:** provides a way to work with ClickHouse contexts, allowing you to organize your database operations in a structured manner.
-  - Per context migrations, allowing separate migration management for distinct packages or components
+  - Context-specific migrations, allowing separate migration management for distinct packages or components
   - Parametrized queries (anonymous type parameters supported)
   - Query cancellation by termination on ClickHouse side
   - Transactions support (keeper is required)
@@ -18,6 +18,7 @@ Raw SQL migrations and contexts for [ClickHouse](https://github.com/ClickHouse/C
   - Provides all the features of the ClickHouse.Client package
   - Fully async contract
 - **Testing toolkit:** seamlessly integrate unit testing into your ClickHouse.Facades components using the dedicated [ClickHouse.Facades.Testing](https://github.com/MikeAmputer/ClickHouse.Facades/tree/master/src/ClickHouse.Facades.Testing) package. Test ClickHouse contexts and facades effectively, mock facades or specific database requests, and monitor interactions with the ClickHouse database using the provided testing tools.
+- **Comprehensive documentation** presented in [repository Wiki](https://github.com/MikeAmputer/ClickHouse.Facades/wiki).
 
 ## Migrations Usage
 Implement `IClickHouseMigrationInstructions` and `IClickHouseMigrationsLocator`
@@ -70,6 +71,3 @@ await ordersFacade.GetOrders();
 You can create as many contexts as you need with any number of facades. Facades are built via DI and are stateful within context lifetime.
 
 > ***Note:*** You can perform migrations on your ClickHouse database without the necessity of implementing contexts.
-
-## Documentation
-Documentation is presented in [repository Wiki](https://github.com/MikeAmputer/ClickHouse.Facades/wiki).
