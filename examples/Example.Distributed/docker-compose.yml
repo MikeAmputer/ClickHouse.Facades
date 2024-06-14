@@ -1,0 +1,40 @@
+version: "3.9"
+name: clickhouse-facades-example-distributed
+
+services:
+  clickhouse-01:
+    image: clickhouse/clickhouse-server:latest
+    platform: linux/amd64
+    container_name: distributed-example-clickhouse-01
+    restart: unless-stopped
+    environment:
+      - CLICKHOUSE_USER=example
+      - CLICKHOUSE_PASSWORD=example
+    ports:
+      - "38300:8123"
+    volumes:
+      - ./keeper-config-01.xml:/etc/clickhouse-server/config.d/keeper-config.xml
+
+  clickhouse-02:
+    image: clickhouse/clickhouse-server:latest
+    platform: linux/amd64
+    container_name: distributed-example-clickhouse-02
+    restart: unless-stopped
+    environment:
+      - CLICKHOUSE_USER=example
+      - CLICKHOUSE_PASSWORD=example
+    ports:
+      - "38400:8123"
+    volumes:
+      - ./keeper-config-02.xml:/etc/clickhouse-server/config.d/keeper-config.xml
+
+  clickhouse-03:
+    image: clickhouse/clickhouse-server:latest
+    platform: linux/amd64
+    container_name: distributed-example-clickhouse-03
+    restart: unless-stopped
+    environment:
+      - CLICKHOUSE_USER=example
+      - CLICKHOUSE_PASSWORD=example
+    volumes:
+      - ./keeper-config-03.xml:/etc/clickhouse-server/config.d/keeper-config.xml

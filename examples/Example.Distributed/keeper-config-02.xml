@@ -1,0 +1,72 @@
+<clickhouse replace="true">
+
+	<display_name>node 2</display_name>
+
+	<zookeeper>
+		<node index="1">
+			<host>distributed-example-clickhouse-01</host>
+			<port>9181</port>
+		</node>
+		<node index="2">
+			<host>distributed-example-clickhouse-02</host>
+			<port>9181</port>
+		</node>
+		<node index="3">
+			<host>distributed-example-clickhouse-03</host>
+			<port>9181</port>
+		</node>
+	</zookeeper>
+
+	<keeper_server>
+		<tcp_port>9181</tcp_port>
+		<server_id>2</server_id>
+
+		<log_storage_path>/var/lib/clickhouse/coordination/log</log_storage_path>
+		<snapshot_storage_path>/var/lib/clickhouse/coordination/snapshots</snapshot_storage_path>
+
+		<coordination_settings>
+			<operation_timeout_ms>10000</operation_timeout_ms>
+			<session_timeout_ms>30000</session_timeout_ms>
+			<raft_logs_level>information</raft_logs_level>
+		</coordination_settings>
+
+		<raft_configuration>
+			<server>
+				<id>1</id>
+				<hostname>distributed-example-clickhouse-01</hostname>
+				<port>9234</port>
+			</server>
+			<server>
+				<id>2</id>
+				<hostname>distributed-example-clickhouse-02</hostname>
+				<port>9234</port>
+			</server>
+			<server>
+				<id>3</id>
+				<hostname>distributed-example-clickhouse-03</hostname>
+				<port>9234</port>
+			</server>
+		</raft_configuration>
+	</keeper_server>
+	
+	<remote_servers replace="true">
+		<example_cluster>
+			<secret>my$secret</secret>
+			<shard>
+				<internal_replication>true</internal_replication>
+				<replica>
+					<host>distributed-example-clickhouse-01</host>
+					<port>9000</port>
+				</replica>
+			</shard>
+			<shard>
+				<internal_replication>true</internal_replication>
+				<replica>
+					<host>distributed-example-clickhouse-02</host>
+					<port>9000</port>
+				</replica>
+			</shard>
+		</example_cluster>
+	</remote_servers>
+
+</clickhouse>
