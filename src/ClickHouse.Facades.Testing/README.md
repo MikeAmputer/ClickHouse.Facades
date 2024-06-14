@@ -32,6 +32,8 @@ public class YourTestClass : ClickHouseFacadesTestsCore
     }
 }
 ```
+If you use exposed factory type, pass optional parameter `exposedFactoryType` to `AddClickHouseTestContext` method.
+
 Now you have two ways to test your application: mock facade abstraction or mock database requests.
 #### Mock facade abstraction
 To use this approach you should register your facade with abstraction - `.AddFacade<IMyFacade, MyFacade>()`.

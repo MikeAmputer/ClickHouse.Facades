@@ -7,7 +7,9 @@ public static class ServiceCollectionExtensions
 {
 	public static IServiceCollection AddClickHouseTestContext<TContext, TContextFactory>(
 		this IServiceCollection services,
-		Action<ClickHouseContextServiceBuilder<TContext>> builderAction)
+		Action<ClickHouseContextServiceBuilder<TContext>> builderAction,
+		ServiceLifetime factoryLifetime = ServiceLifetime.Singleton,
+		Type? exposedFactoryType = null)
 		where TContext : ClickHouseContext<TContext>, new()
 		where TContextFactory : ClickHouseContextFactory<TContext>
 	{
@@ -26,7 +28,24 @@ public static class ServiceCollectionExtensions
 				.Setup(
 					serviceProvider.GetRequiredService<ClickHouseFacadeFactory<TContext>>(),
 					(_, _) => new ClickHouseConnectionBrokerStub<TContext>(serviceProvider)),
-			ServiceLifetime.Singleton);
+			factoryLifetime);
+
+		if (exposedFactoryType != null)
+		{
+			if (!typeof(TContextFactory).IsAssignableFrom(exposedFactoryType))
+			{
+				throw new InvalidOperationException(
+					$"The type '{exposedFactoryType.FullName}' cannot be cast to '{typeof(TContextFactory).FullName}'. " +
+					"Ensure that the specified type is compatible with the context factory type.");
+			}
+
+			var typedDescriptor = new ServiceDescriptor(
+				typeof(TContextFactory),
+				serviceProvider => serviceProvider.GetRequiredService<IClickHouseContextFactory<TContext>>(),
+				factoryLifetime);
+
+			services.Add(typedDescriptor);
+		}
 
 		services.Add(descriptor);
 
