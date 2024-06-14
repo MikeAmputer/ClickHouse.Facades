@@ -1,6 +1,6 @@
 ﻿namespace ClickHouse.Facades.Example;
 
-public class ExampleFacade : ClickHouseFacade<ExampleContext>
+public class TargetFacade : ClickHouseFacade<ExampleContext>
 {
 	public Task InsertValue(int value, CancellationToken cancellationToken = default)
 	{

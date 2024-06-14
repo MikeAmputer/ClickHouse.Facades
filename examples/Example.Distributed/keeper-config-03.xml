@@ -1,19 +1,10 @@
 <clickhouse replace="true">
 
-	<display_name>node 1</display_name>
-
-	<allow_experimental_transactions>1</allow_experimental_transactions>
-
-	<zookeeper>
-		<node>
-			<host>keeper-example-clickhouse</host>
-			<port>9181</port>
-		</node>
-	</zookeeper>
+	<display_name>node 3 quorum</display_name>
 
 	<keeper_server>
 		<tcp_port>9181</tcp_port>
-		<server_id>1</server_id>
+		<server_id>3</server_id>
 
 		<log_storage_path>/var/lib/clickhouse/coordination/log</log_storage_path>
 		<snapshot_storage_path>/var/lib/clickhouse/coordination/snapshots</snapshot_storage_path>
@@ -27,11 +18,20 @@
 		<raft_configuration>
 			<server>
 				<id>1</id>
-				<hostname>keeper-example-clickhouse</hostname>
+				<hostname>distributed-example-clickhouse-01</hostname>
+				<port>9234</port>
+			</server>
+			<server>
+				<id>2</id>
+				<hostname>distributed-example-clickhouse-02</hostname>
+				<port>9234</port>
+			</server>
+			<server>
+				<id>3</id>
+				<hostname>distributed-example-clickhouse-03</hostname>
 				<port>9234</port>
 			</server>
 		</raft_configuration>
-
 	</keeper_server>
 
 </clickhouse>
