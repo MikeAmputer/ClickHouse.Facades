@@ -19,14 +19,14 @@ await using (var context = await contextFactory.CreateContextAsync())
 	await context.TargetFacade.Truncate();
 }
 
-contextFactory.UseShardServer = true;
+contextFactory.NextShard();
 
 await using (var context = await contextFactory.CreateContextAsync())
 {
 	await context.TargetFacade.Truncate();
 }
 
-contextFactory.UseShardServer = false;
+contextFactory.NextShard();
 
 await using (var context = await contextFactory.CreateContextAsync())
 {
@@ -42,7 +42,7 @@ await using (var context = await contextFactory.CreateContextAsync())
 		$"Distributed values count: {distValues.Length}");
 }
 
-contextFactory.UseShardServer = true;
+contextFactory.NextShard();
 
 await using (var context = await contextFactory.CreateContextAsync())
 {
@@ -58,7 +58,7 @@ await using (var context = await contextFactory.CreateContextAsync())
 		$"Distributed values count: {distValues.Length}");
 }
 
-contextFactory.UseShardServer = true;
+contextFactory.NextShard();
 
 await using (var context = await contextFactory.CreateContextAsync())
 {
@@ -77,7 +77,7 @@ await using (var context = await contextFactory.CreateContextAsync())
 		$"Node 1 values count: {values.Length}");
 }
 
-contextFactory.UseShardServer = false;
+contextFactory.NextShard();
 
 await using (var context = await contextFactory.CreateContextAsync())
 {

@@ -7,7 +7,7 @@ public class ExampleContextFactory : ClickHouseContextFactory<ExampleContext>
 	private readonly string _connectionStringMain;
 	private readonly string _connectionStringShard;
 
-	public bool UseShardServer { get; set; } = false;
+	private bool _useShardServer = false;
 
 	public ExampleContextFactory(IOptions<ClickHouseMainConfig> mainConfig, IOptions<ClickHouseShardConfig> shardConfig)
 	{
@@ -18,10 +18,15 @@ public class ExampleContextFactory : ClickHouseContextFactory<ExampleContext>
 		_connectionStringShard = shardConfig.Value.ConnectionString;
 	}
 
+	public void NextShard()
+	{
+		_useShardServer = !_useShardServer;
+	}
+
 	protected override void SetupContextOptions(ClickHouseContextOptionsBuilder<ExampleContext> optionsBuilder)
 	{
 		optionsBuilder
-			.WithConnectionString(UseShardServer ? _connectionStringShard : _connectionStringMain)
+			.WithConnectionString(_useShardServer ? _connectionStringShard : _connectionStringMain)
 			.ForceSessions()
 			.SetupTransactions(options => options
 				.AllowMultipleTransactions()
