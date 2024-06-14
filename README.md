@@ -74,4 +74,4 @@ You can create as many contexts as you need with any number of facades. Facades 
 
 ## Examples
 
-For a deeper understanding and practical use cases of how to implement migrations, please refer to the [examples folder](https://github.com/MikeAmputer/ClickHouse.Facades/tree/master/examples) provided in the repository. 
+For a deeper understanding and practical use cases of how to implement migrations and facades, please refer to the [examples folder](https://github.com/MikeAmputer/ClickHouse.Facades/tree/master/examples) provided in the repository. 
