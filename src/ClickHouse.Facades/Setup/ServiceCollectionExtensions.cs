@@ -46,7 +46,8 @@ public static class ServiceCollectionExtensions
 	public static IServiceCollection AddClickHouseContext<TContext, TContextFactory>(
 		this IServiceCollection services,
 		Action<ClickHouseContextServiceBuilder<TContext>> builderAction,
-		ServiceLifetime factoryLifetime = ServiceLifetime.Singleton)
+		ServiceLifetime factoryLifetime = ServiceLifetime.Singleton,
+		bool exposeFactoryType = false)
 		where TContext : ClickHouseContext<TContext>, new()
 		where TContextFactory : ClickHouseContextFactory<TContext>
 	{
@@ -70,6 +71,16 @@ public static class ServiceCollectionExtensions
 			factoryLifetime);
 
 		services.Add(descriptor);
+
+		if (exposeFactoryType)
+		{
+			var typedDescriptor = new ServiceDescriptor(
+				typeof(TContextFactory),
+				serviceProvider => serviceProvider.GetRequiredService<IClickHouseContextFactory<TContext>>(),
+				factoryLifetime);
+
+			services.Add(typedDescriptor);
+		}
 
 		var builder = ClickHouseContextServiceBuilder<TContext>.Create;
 		builderAction(builder);
