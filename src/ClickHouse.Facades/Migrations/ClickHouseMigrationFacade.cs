@@ -91,11 +91,15 @@ internal sealed class ClickHouseMigrationFacade
 
 		cancellationToken.ThrowIfCancellationRequested();
 
+		var statementsExecuted = 0;
+
 		try
 		{
 			foreach (var statement in migrationBuilder.Statements)
 			{
 				await ExecuteNonQueryAsync(statement, CancellationToken.None);
+
+				statementsExecuted++;
 			}
 
 			var addAppliedMigrationSql = string.Format(
@@ -115,7 +119,9 @@ internal sealed class ClickHouseMigrationFacade
 			var verb = rolledBack ? "has been" : "has not been";
 
 			throw new AggregateException(
-				$"Failed to apply migration '{migration.Name}'. Migration {verb} rolled back.",
+				$"Failed to apply migration '{migration.Name}'. " +
+				$"Successfully executed statements : {statementsExecuted}. " +
+				$"Migration {verb} rolled back.",
 				migrationException);
 		}
 	}
