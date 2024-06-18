@@ -1,4 +1,5 @@
-﻿using ClickHouse.Facades.Extensions;
+﻿using ClickHouse.Client;
+using ClickHouse.Facades.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace ClickHouse.Facades.Example;
@@ -23,7 +24,7 @@ public class ExampleContextFactory : ClickHouseContextFactory<ExampleContext>
 			// https://github.com/ClickHouse/ClickHouse/blob/master/src/Common/ErrorCodes.cpp
 			HashSet<int> transientErrorCodes = [159, 173, 201, 202, 203, 204, 209, 210, 216, 236, 290, 364, 425, 473];
 
-			return transientErrorCodes.Contains(ex.TryGetErrorCode());
+			return ex is ClickHouseServerException chEx && transientErrorCodes.Contains(chEx.TryGetErrorCode());
 		}
 	};
 
