@@ -28,4 +28,6 @@ public sealed class ClickHouseContextOptions<TContext>
 	internal CommandExecutionStrategy CommandExecutionStrategy { get; set; } = CommandExecutionStrategy.Default;
 
 	internal TransactionBrokerOptions TransactionBrokerOptions { get; set; } = null!;
+
+	internal bool ParametersInBody { get; set; } = false;
 }

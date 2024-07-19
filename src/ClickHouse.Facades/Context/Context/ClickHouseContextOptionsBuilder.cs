@@ -26,6 +26,8 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 
 	private OptionalValue<Action<TransactionBrokerOptionsBuilder>> _setupTransactionBrokerOptions;
 
+	private OptionalValue<bool> _parametersInBody;
+
 	public ClickHouseContextOptionsBuilder<TContext> SetupTransactions(
 		Action<TransactionBrokerOptionsBuilder> setup)
 	{
@@ -135,6 +137,14 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 			connectionBrokerProvider);
 	}
 
+	public ClickHouseContextOptionsBuilder<TContext> SendParametersInBody()
+	{
+		return WithPropertyValue(
+			builder => builder._parametersInBody,
+			(builder, value) => builder._parametersInBody = value,
+			true);
+	}
+
 	protected override ClickHouseContextOptions<TContext> BuildCore()
 	{
 		var connectionString = _connectionString.NotNullOrThrow();
@@ -160,6 +170,7 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 			ConnectionBrokerProvider = _connectionBrokerProvider.NotNullOrThrow(),
 			CommandExecutionStrategy = _commandExecutionStrategy.OrElseValue(CommandExecutionStrategy.Default),
 			TransactionBrokerOptions = transactionBrokerOptions,
+			ParametersInBody = _parametersInBody.OrDefault(),
 		};
 	}
 
