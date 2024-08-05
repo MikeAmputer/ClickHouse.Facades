@@ -27,7 +27,7 @@ public static class ServiceCollectionExtensions
 				.CreateInstance<TContextFactory>(serviceProvider)
 				.Setup(
 					serviceProvider.GetRequiredService<ClickHouseFacadeFactory<TContext>>(),
-					(_, _) => new ClickHouseConnectionBrokerStub<TContext>(serviceProvider)),
+					_ => new ClickHouseConnectionBrokerStub<TContext>(serviceProvider)),
 			factoryLifetime);
 
 		if (exposedFactoryType != null)

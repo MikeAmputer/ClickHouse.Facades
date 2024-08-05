@@ -15,23 +15,29 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 	private readonly ClickHouseConnection _connection;
 	private readonly bool _sessionEnabled;
 	private readonly ICommandExecutionStrategy _commandExecutionStrategy;
+	private readonly IClickHouseCommandExecutionListener? _commandExecutionListener;
 
-	public ClickHouseConnectionBroker(
-		ClickHouseConnection connection,
-		ICommandExecutionStrategy commandExecutionStrategy)
+	public ClickHouseConnectionBroker(ConnectionBrokerParameters brokerParameters)
 	{
 		if (_connection != null)
 		{
 			throw new InvalidOperationException($"{GetType()} is already connected.");
 		}
 
-		_connection = connection
-			?? throw new ArgumentNullException(nameof(connection));
+		if (brokerParameters == null)
+		{
+			throw new ArgumentNullException(nameof(brokerParameters));
+		}
 
-		_commandExecutionStrategy = commandExecutionStrategy
-			?? throw new ArgumentNullException(nameof(commandExecutionStrategy));
+		_connection = brokerParameters.Connection
+			?? throw new ArgumentNullException(nameof(brokerParameters.Connection));
 
-		_sessionEnabled = connection.ConnectionString
+		_commandExecutionStrategy = brokerParameters.CommandExecutionStrategy
+			?? throw new ArgumentNullException(nameof(brokerParameters.CommandExecutionStrategy));
+
+		_commandExecutionListener = brokerParameters.CommandExecutionListener;
+
+		_sessionEnabled = brokerParameters.Connection.ConnectionString
 			.GetConnectionStringParameters()
 			.Contains(new KeyValuePair<string, string?>(UseSessionConnectionStringParameter, true.ToString()));
 	}
@@ -58,7 +64,12 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 		command.CommandText = query;
 		SetParameters(command, parameters);
 
-		return await _commandExecutionStrategy.ExecuteScalarAsync(_connection, command, cancellationToken);
+		var result = await _commandExecutionStrategy
+			.ExecuteScalarAsync(_connection, command, cancellationToken);
+
+		await PublishExecutedCommand(command, cancellationToken);
+
+		return result;
 	}
 
 	public async Task<int> ExecuteNonQueryAsync(
@@ -72,7 +83,12 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 		command.CommandText = statement;
 		SetParameters(command, parameters);
 
-		return await _commandExecutionStrategy.ExecuteNonQueryAsync(_connection, command, cancellationToken);
+		var result = await _commandExecutionStrategy
+			.ExecuteNonQueryAsync(_connection, command, cancellationToken);
+
+		await PublishExecutedCommand(command, cancellationToken);
+
+		return result;
 	}
 
 	public async Task<DbDataReader> ExecuteReaderAsync(
@@ -86,7 +102,12 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 		command.CommandText = query;
 		SetParameters(command, parameters);
 
-		return await _commandExecutionStrategy.ExecuteDataReaderAsync(_connection, command, cancellationToken);
+		var result = await _commandExecutionStrategy
+			.ExecuteDataReaderAsync(_connection, command, cancellationToken);
+
+		await PublishExecutedCommand(command, cancellationToken);
+
+		return result;
 	}
 
 	public DataTable ExecuteDataTable(
@@ -222,6 +243,14 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 		if (_connection == null)
 		{
 			throw new InvalidOperationException($"{GetType()} is not connected.");
+		}
+	}
+
+	private async Task PublishExecutedCommand(ClickHouseCommand command, CancellationToken cancellationToken)
+	{
+		if (_commandExecutionListener != null)
+		{
+			await _commandExecutionListener.ProcessExecutedCommand(command, cancellationToken);
 		}
 	}
 }

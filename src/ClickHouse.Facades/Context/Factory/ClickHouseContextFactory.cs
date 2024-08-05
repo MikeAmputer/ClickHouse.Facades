@@ -1,18 +1,16 @@
-﻿using ClickHouse.Client.ADO;
-
-namespace ClickHouse.Facades;
+﻿namespace ClickHouse.Facades;
 
 public abstract class ClickHouseContextFactory<TContext> : IClickHouseContextFactory<TContext>
 	where TContext : ClickHouseContext<TContext>, new()
 {
 	private ClickHouseFacadeFactory<TContext> _facadeFactory = null!;
 
-	private Func<ClickHouseConnection, ICommandExecutionStrategy, IClickHouseConnectionBroker>
+	private Func<ConnectionBrokerParameters, IClickHouseConnectionBroker>
 		_connectionBrokerProvider = null!;
 
 	internal ClickHouseContextFactory<TContext> Setup(
 		ClickHouseFacadeFactory<TContext> facadeFactory,
-		Func<ClickHouseConnection, ICommandExecutionStrategy, IClickHouseConnectionBroker> connectionBrokerProvider)
+		Func<ConnectionBrokerParameters, IClickHouseConnectionBroker> connectionBrokerProvider)
 	{
 		_facadeFactory = facadeFactory ?? throw new ArgumentNullException(nameof(facadeFactory));
 		_connectionBrokerProvider = connectionBrokerProvider

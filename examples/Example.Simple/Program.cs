@@ -4,6 +4,7 @@ using ClickHouse.Facades.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 var host = CreateHostBuilder(args).Build();
 var serviceProvider = host.Services;
@@ -29,12 +30,20 @@ static IHostBuilder CreateHostBuilder(string[] args) =>
 			var path = Path.Combine(context.HostingEnvironment.ContentRootPath, "appsettings.json");
 			builder.AddJsonFile(path, false, true);
 		})
+		.ConfigureLogging(logging =>
+		{
+			logging.ClearProviders();
+			logging.AddConsole();
+			logging.SetMinimumLevel(LogLevel.Debug);
+		})
 		.ConfigureServices((_, services) =>
 		{
 			services.AddOptions<ClickHouseConfig>()
 				.BindConfiguration(nameof(ClickHouseConfig));
 			services.AddOptions<OrdersGeneratingConfig>()
 				.BindConfiguration(nameof(OrdersGeneratingConfig));
+
+			services.AddSingleton<QueryLogger>();
 
 			services.AddClickHouseMigrations<ClickHouseMigrationInstructions, ClickHouseMigrationsLocator>();
 

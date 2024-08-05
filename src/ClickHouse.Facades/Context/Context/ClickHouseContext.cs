@@ -117,9 +117,12 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 
 		_connection.SetFormDataParameters(options.ParametersInBody);
 
-		_connectionBroker = options.ConnectionBrokerProvider(
-			_connection,
-			ICommandExecutionStrategy.Pick(options.CommandExecutionStrategy));
+		_connectionBroker = options.ConnectionBrokerProvider(new ConnectionBrokerParameters
+		{
+			Connection = _connection,
+			CommandExecutionStrategy = ICommandExecutionStrategy.Pick(options.CommandExecutionStrategy),
+			CommandExecutionListener = options.CommandExecutionListener,
+		});
 
 		_facadeFactory = options.FacadeFactory;
 		_allowDatabaseChanges = options.AllowDatabaseChanges;

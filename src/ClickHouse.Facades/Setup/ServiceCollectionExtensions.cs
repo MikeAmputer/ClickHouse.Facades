@@ -65,9 +65,7 @@ public static class ServiceCollectionExtensions
 				.CreateInstance<TContextFactory>(serviceProvider)
 				.Setup(
 					serviceProvider.GetRequiredService<ClickHouseFacadeFactory<TContext>>(),
-					(connection, commandExecutionStrategy) => new ClickHouseConnectionBroker(
-						connection,
-						commandExecutionStrategy)),
+					brokerParameters => new ClickHouseConnectionBroker(brokerParameters)),
 			factoryLifetime);
 
 		services.Add(descriptor);

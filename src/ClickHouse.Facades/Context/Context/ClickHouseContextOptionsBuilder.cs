@@ -1,5 +1,4 @@
-﻿using ClickHouse.Client.ADO;
-using ClickHouse.Facades.Utility;
+﻿using ClickHouse.Facades.Utility;
 
 namespace ClickHouse.Facades;
 
@@ -20,9 +19,10 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 	private OptionalValue<ClickHouseFacadeFactory<TContext>> _facadeFactory;
 
 	private OptionalValue<
-		Func<ClickHouseConnection, ICommandExecutionStrategy, IClickHouseConnectionBroker>> _connectionBrokerProvider;
+		Func<ConnectionBrokerParameters, IClickHouseConnectionBroker>> _connectionBrokerProvider;
 
 	private OptionalValue<CommandExecutionStrategy> _commandExecutionStrategy;
+	private OptionalValue<IClickHouseCommandExecutionListener> _commandExecutionListener;
 
 	private OptionalValue<Action<TransactionBrokerOptionsBuilder>> _setupTransactionBrokerOptions;
 
@@ -44,6 +44,15 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 			builder => builder._commandExecutionStrategy,
 			(builder, value) => builder._commandExecutionStrategy = value,
 			commandExecutionStrategy);
+	}
+
+	public ClickHouseContextOptionsBuilder<TContext> WithCommandExecutionListener(
+		IClickHouseCommandExecutionListener commandExecutionListener)
+	{
+		return WithPropertyValue(
+			builder => builder._commandExecutionListener,
+			(builder, value) => builder._commandExecutionListener = value,
+			commandExecutionListener);
 	}
 
 	public ClickHouseContextOptionsBuilder<TContext> WithHttpClientFactory(
@@ -127,7 +136,7 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 	}
 
 	internal ClickHouseContextOptionsBuilder<TContext> WithConnectionBrokerProvider(
-		Func<ClickHouseConnection, ICommandExecutionStrategy, IClickHouseConnectionBroker> connectionBrokerProvider)
+		Func<ConnectionBrokerParameters, IClickHouseConnectionBroker> connectionBrokerProvider)
 	{
 		ExceptionHelpers.ThrowIfNull(connectionBrokerProvider);
 
@@ -169,6 +178,7 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 			FacadeFactory = _facadeFactory.NotNullOrThrow(),
 			ConnectionBrokerProvider = _connectionBrokerProvider.NotNullOrThrow(),
 			CommandExecutionStrategy = _commandExecutionStrategy.OrElseValue(CommandExecutionStrategy.Default),
+			CommandExecutionListener = _commandExecutionListener.OrElseValue(null),
 			TransactionBrokerOptions = transactionBrokerOptions,
 			ParametersInBody = _parametersInBody.OrDefault(),
 		};

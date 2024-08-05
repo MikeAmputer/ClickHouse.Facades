@@ -1,6 +1,4 @@
-﻿using ClickHouse.Client.ADO;
-
-namespace ClickHouse.Facades;
+﻿namespace ClickHouse.Facades;
 
 public sealed class ClickHouseContextOptions<TContext>
 	where TContext : ClickHouseContext<TContext>
@@ -19,13 +17,15 @@ public sealed class ClickHouseContextOptions<TContext>
 
 	internal ClickHouseFacadeFactory<TContext> FacadeFactory { get; set; } = null!;
 
-	internal Func<ClickHouseConnection, ICommandExecutionStrategy, IClickHouseConnectionBroker> ConnectionBrokerProvider
+	internal Func<ConnectionBrokerParameters, IClickHouseConnectionBroker> ConnectionBrokerProvider
 	{
 		get;
 		set;
 	} = null!;
 
 	internal CommandExecutionStrategy CommandExecutionStrategy { get; set; } = CommandExecutionStrategy.Default;
+
+	internal IClickHouseCommandExecutionListener? CommandExecutionListener { get; set; } = null;
 
 	internal TransactionBrokerOptions TransactionBrokerOptions { get; set; } = null!;
 
