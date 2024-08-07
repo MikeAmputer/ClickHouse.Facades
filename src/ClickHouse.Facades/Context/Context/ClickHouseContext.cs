@@ -91,21 +91,29 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 
 	public Task SetSessionParameterAsync(string parameterName, object value)
 	{
+		ThrowIfNotInitialized();
+
 		return _connectionBroker.SetSessionParameterAsync(parameterName, value);
 	}
 
 	public Task BeginTransactionAsync()
 	{
+		ThrowIfNotInitialized();
+
 		return _transactionBroker.BeginAsync();
 	}
 
 	public Task CommitTransactionAsync()
 	{
+		ThrowIfNotInitialized();
+
 		return _transactionBroker.CommitAsync();
 	}
 
 	public Task RollbackTransactionAsync()
 	{
+		ThrowIfNotInitialized();
+
 		return _transactionBroker.RollbackAsync();
 	}
 
