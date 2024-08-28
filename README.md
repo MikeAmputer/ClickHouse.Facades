@@ -71,7 +71,8 @@ await ordersFacade.GetOrders();
 ```
 You can create as many contexts as you need with any number of facades. Facades are built via DI and are stateful within context lifetime.
 
-> ***Note:*** You can perform migrations on your ClickHouse database without the necessity of implementing contexts.
+> [!NOTE]
+> You can perform migrations on your ClickHouse database without the necessity of implementing contexts.
 
 ## Examples
 
