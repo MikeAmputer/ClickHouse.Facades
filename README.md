@@ -1,5 +1,5 @@
 # ClickHouse.Facades
-Raw SQL migrations and contexts for [ClickHouse](https://github.com/ClickHouse/ClickHouse) referencing [ClickHouse.Client](https://github.com/DarkWanderer/ClickHouse.Client)
+Raw SQL migrations and contexts for [ClickHouse](https://github.com/ClickHouse/ClickHouse) referencing [ClickHouse.Client](https://github.com/DarkWanderer/ClickHouse.Client). Production tested.
 
 [![Latest version](https://img.shields.io/nuget/v/ClickHouse.Facades)](https://www.nuget.org/packages/ClickHouse.Facades/)
 [![License](https://img.shields.io/github/license/MikeAmputer/ClickHouse.Facades)](https://github.com/MikeAmputer/ClickHouse.Facades/blob/master/LICENSE)
@@ -18,7 +18,9 @@ Raw SQL migrations and contexts for [ClickHouse](https://github.com/ClickHouse/C
   - [Dapper](https://github.com/DapperLib/Dapper) compatibility (reader deserialization)
   - Provides all the features of the ClickHouse.Client package
   - Fully async contract
-- **Testing toolkit:** seamlessly integrate unit testing into your ClickHouse.Facades components using the dedicated [ClickHouse.Facades.Testing](https://github.com/MikeAmputer/ClickHouse.Facades/tree/master/src/ClickHouse.Facades.Testing) package. Test ClickHouse contexts and facades effectively, mock facades or specific database requests, and monitor interactions with the ClickHouse database using the provided testing tools.
+- **Testing toolkit:** provides tools for unit testing components of ClickHouse.Facades with the dedicated [ClickHouse.Facades.Testing](https://github.com/MikeAmputer/ClickHouse.Facades/tree/master/src/ClickHouse.Facades.Testing) package.
+  - Facades mocking
+  - Specific requests mocking and tracking
 - **Comprehensive documentation** presented in [repository Wiki](https://github.com/MikeAmputer/ClickHouse.Facades/wiki).
 
 ## Migrations Usage
