@@ -9,7 +9,8 @@ Dedicated testing toolkit tailored for unit testing components within the [Click
   including operations like `ExecuteNonQuery`, `ExecuteScalar`, and `ExecuteReader`.
 - **Request Tracking:** Monitor requests made to the ClickHouse database, utilizing `IClickHouseConnectionTracker` interface.
 
-> ***Note:*** This package does not reference any testing frameworks,
+> [!NOTE]
+> This package does not reference any testing frameworks,
 but it was designed with a focus on MSTest v2.
 Therefore, correct behavior is currently guaranteed only for this framework.
 
@@ -81,4 +82,5 @@ public async Task My_Test()
 }
 ```
 
-> ***Note:*** To test your code that uses facades, it is not necessary to inherit from the `ClickHouseFacadesTestsCore` class. It is sufficient to use facades through abstractions, register the context via `services.AddClickHouseTestContext`, and replace the facade abstraction in the service collection with a prepared mock, as done in `ClickHouseFacadesTestsCore.MockFacadeAbstraction`.
+> [!NOTE]
+> To test your code that uses facades, it is not necessary to inherit from the `ClickHouseFacadesTestsCore` class. It is sufficient to use facades through abstractions, register the context via `services.AddClickHouseTestContext`, and replace the facade abstraction in the service collection with a prepared mock, as done in `ClickHouseFacadesTestsCore.MockFacadeAbstraction`.
