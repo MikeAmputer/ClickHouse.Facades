@@ -26,6 +26,7 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 
 	private OptionalValue<Action<TransactionBrokerOptionsBuilder>> _setupTransactionBrokerOptions;
 
+	private OptionalValue<IDictionary<string, object>> _connectionCustomSettings;
 	private OptionalValue<bool> _parametersInBody;
 
 	public ClickHouseContextOptionsBuilder<TContext> SetupTransactions(
@@ -124,6 +125,23 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 			connectionString);
 	}
 
+	public ClickHouseContextOptionsBuilder<TContext> WithConnectionCustomSettings(
+		IDictionary<string, object> customSettings)
+	{
+		return WithPropertyValue(
+			builder => builder._connectionCustomSettings,
+			(builder, value) => builder._connectionCustomSettings = value,
+			customSettings);
+	}
+
+	public ClickHouseContextOptionsBuilder<TContext> SendParametersInBody()
+	{
+		return WithPropertyValue(
+			builder => builder._parametersInBody,
+			(builder, value) => builder._parametersInBody = value,
+			true);
+	}
+
 	internal ClickHouseContextOptionsBuilder<TContext> WithFacadeFactory(
 		ClickHouseFacadeFactory<TContext> facadeFactory)
 	{
@@ -144,14 +162,6 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 			builder => builder._connectionBrokerProvider,
 			(builder, value) => builder._connectionBrokerProvider = value,
 			connectionBrokerProvider);
-	}
-
-	public ClickHouseContextOptionsBuilder<TContext> SendParametersInBody()
-	{
-		return WithPropertyValue(
-			builder => builder._parametersInBody,
-			(builder, value) => builder._parametersInBody = value,
-			true);
 	}
 
 	protected override ClickHouseContextOptions<TContext> BuildCore()
@@ -180,6 +190,7 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 			CommandExecutionStrategy = _commandExecutionStrategy.OrElseValue(CommandExecutionStrategy.Default),
 			CommandExecutionListener = _commandExecutionListener.OrElseValue(null),
 			TransactionBrokerOptions = transactionBrokerOptions,
+			ConnectionCustomSettings = _connectionCustomSettings.OrElseValue(null),
 			ParametersInBody = _parametersInBody.OrDefault(),
 		};
 	}

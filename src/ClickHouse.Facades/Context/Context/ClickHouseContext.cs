@@ -125,6 +125,14 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 
 		_connection.SetFormDataParameters(options.ParametersInBody);
 
+		if (options.ConnectionCustomSettings != null)
+		{
+			foreach (var customSetting in options.ConnectionCustomSettings)
+			{
+				_connection.CustomSettings.Add(customSetting);
+			}
+		}
+
 		_connectionBroker = options.ConnectionBrokerProvider(new ConnectionBrokerParameters
 		{
 			Connection = _connection,
