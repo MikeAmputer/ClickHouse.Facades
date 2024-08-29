@@ -29,5 +29,7 @@ public sealed class ClickHouseContextOptions<TContext>
 
 	internal TransactionBrokerOptions TransactionBrokerOptions { get; set; } = null!;
 
+	internal IDictionary<string, object>? ConnectionCustomSettings = null;
+
 	internal bool ParametersInBody { get; set; } = false;
 }
