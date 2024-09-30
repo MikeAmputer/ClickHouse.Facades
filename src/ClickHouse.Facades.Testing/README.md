@@ -2,7 +2,7 @@
 Dedicated testing toolkit tailored for unit testing components within the [ClickHouse.Facades](https://github.com/MikeAmputer/ClickHouse.Facades) library.
 
 ## Key Features
-- **Base Testing Class:** Utilize the ClickHouseFacadesTestsCore class,
+- **Base Testing Class:** Utilize the `ClickHouseFacadesTestsCore` class,
   a base class designed specifically for testing ClickHouse facades within MSTest v2 framework.
 - **Facilitated Mocking:** Seamlessly mock ClickHouse facades
   or specific requests to the ClickHouse database,
@@ -10,9 +10,9 @@ Dedicated testing toolkit tailored for unit testing components within the [Click
 - **Request Tracking:** Monitor requests made to the ClickHouse database, utilizing `IClickHouseConnectionTracker` interface.
 
 > [!NOTE]
-> This package does not reference any testing frameworks,
-but it was designed with a focus on MSTest v2.
-Therefore, correct behavior is currently guaranteed only for this framework.
+> This package does not reference any testing frameworks, but it was designed with a focus on MSTest v2.
+Therefore, correct behavior of the `ClickHouseFacadesTestsCore` is currently guaranteed only for this framework.
+Any custom facades mocking and the `AddClickHouseTestContext` service collection extension will behave as expected across different frameworks.
 
 ## Getting Started
 ### Installation
