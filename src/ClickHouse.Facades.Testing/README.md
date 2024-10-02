@@ -12,7 +12,7 @@ Dedicated testing toolkit tailored for unit testing components within the [Click
 > [!NOTE]
 > This package does not reference any testing frameworks, but it was designed with a focus on MSTest v2.
 Therefore, correct behavior of the `ClickHouseFacadesTestsCore` is currently guaranteed only for this framework.
-Any custom facades mocking and the `AddClickHouseTestContext` service collection extension will behave as expected across different frameworks.
+Custom facades mocking and the `AddClickHouseTestContext` service collection extension will behave as expected across different frameworks.
 
 ## Getting Started
 ### Installation
