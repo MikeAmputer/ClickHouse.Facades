@@ -9,6 +9,7 @@ Raw SQL migrations and contexts for [ClickHouse](https://github.com/ClickHouse/C
 - **Migrations:** allows you to perform raw SQL migrations on your ClickHouse database.
   - Rollback support
   - Fully async contract
+  - Conditional migrations based on ClickHouse server version
   - [Migration template](https://github.com/MikeAmputer/ClickHouse.Facades/tree/master/src/ClickHouse.Facades.Templates) for .NET CLI
 - **Contexts:** provides a way to work with ClickHouse contexts, allowing you to organize your database operations in a structured manner.
   - Context-specific migrations, allowing separate migration management for distinct packages or components

@@ -85,7 +85,9 @@ internal sealed class ClickHouseMigrationFacade
 	{
 		ExceptionHelpers.ThrowIfNull(migration);
 
-		var migrationBuilder = ClickHouseMigrationBuilder.Create;
+		var dbVersion = await GetDatabaseVersion(cancellationToken);
+
+		var migrationBuilder = ClickHouseMigrationBuilder.Create(dbVersion);
 
 		migration.Up(migrationBuilder);
 
@@ -104,12 +106,11 @@ internal sealed class ClickHouseMigrationFacade
 
 			var addAppliedMigrationSql = string.Format(
 				AddAppliedMigrationSql,
-				new object[]
-				{
+				[
 					$"{_dbName}.{MigrationsTable}",
 					migration.Index,
-					migration.Name,
-				});
+					migration.Name
+				]);
 
 			await ExecuteNonQueryAsync(addAppliedMigrationSql, CancellationToken.None);
 		}
@@ -132,7 +133,9 @@ internal sealed class ClickHouseMigrationFacade
 	{
 		ExceptionHelpers.ThrowIfNull(migration);
 
-		var migrationBuilder = ClickHouseMigrationBuilder.Create;
+		var dbVersion = await GetDatabaseVersion(cancellationToken);
+
+		var migrationBuilder = ClickHouseMigrationBuilder.Create(dbVersion);
 
 		migration.Down(migrationBuilder);
 
@@ -145,12 +148,11 @@ internal sealed class ClickHouseMigrationFacade
 
 		var addAppliedMigrationSql = string.Format(
 			AddRolledBackMigrationSql,
-			new object[]
-			{
+			[
 				$"{_dbName}.{MigrationsTable}",
 				migration.Index,
-				migration.Name,
-			});
+				migration.Name
+			]);
 
 		await ExecuteNonQueryAsync(addAppliedMigrationSql, CancellationToken.None);
 	}
@@ -172,5 +174,14 @@ internal sealed class ClickHouseMigrationFacade
 		{
 			return false;
 		}
+	}
+
+	private string? _dbVersion = null;
+
+	private async Task<string> GetDatabaseVersion(CancellationToken cancellationToken)
+	{
+		_dbVersion ??= await ExecuteScalarAsync<string>("select version()", cancellationToken);
+
+		return _dbVersion;
 	}
 }
