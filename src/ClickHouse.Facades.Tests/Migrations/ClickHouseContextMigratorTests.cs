@@ -32,6 +32,8 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 		SetupMigrations<TestContext_1>(Enumerable.Empty<ClickHouseMigration>().ToArray());
 		SetupAppliedMigrations([]);
 
+		SetupDatabaseVersion();
+
 
 		await GetService<IClickHouseMigrator<TestContext_1>>().ApplyMigrationsAsync();
 
@@ -58,9 +60,10 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 		migrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration"));
-
 		SetupMigrations<TestContext_1>(migrationMock.Object);
 		SetupAppliedMigrations([]);
+
+		SetupDatabaseVersion();
 
 
 		await GetService<IClickHouseMigrator<TestContext_1>>().ApplyMigrationsAsync();
@@ -68,14 +71,14 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 
 		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
 
-		Assert.AreEqual(5, connectionTracker.RecordsCount);
+		Assert.AreEqual(6, connectionTracker.RecordsCount);
 
-		Assert.AreEqual("apply migration", connectionTracker.GetRecord(4).Sql);
+		Assert.AreEqual("apply migration", connectionTracker.GetRecord(5).Sql);
 
 		Assert.AreEqual(
 			$"insert into {MigrationsDatabaseName}.db_migrations_history values "
 			+ $"({_1_FirstMigration.MigrationIndex}, '{_1_FirstMigration.MigrationName}', 0)",
-			connectionTracker.GetRecord(5).Sql);
+			connectionTracker.GetRecord(6).Sql);
 	}
 
 	[TestMethod]
@@ -95,20 +98,22 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 		SetupMigrations<TestContext_2>(secondMigrationMock.Object);
 		SetupAppliedMigrations([]);
 
+		SetupDatabaseVersion();
+
 
 		await GetService<IClickHouseMigrator<TestContext_1>>().ApplyMigrationsAsync();
 
 
 		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
 
-		Assert.AreEqual(5, connectionTracker.RecordsCount);
+		Assert.AreEqual(6, connectionTracker.RecordsCount);
 
-		Assert.AreEqual("apply migration 1", connectionTracker.GetRecord(4).Sql);
+		Assert.AreEqual("apply migration 1", connectionTracker.GetRecord(5).Sql);
 
 		Assert.AreEqual(
 			$"insert into {MigrationsDatabaseName}.db_migrations_history values "
 			+ $"({_1_FirstMigration.MigrationIndex}, '{_1_FirstMigration.MigrationName}', 0)",
-			connectionTracker.GetRecord(5).Sql);
+			connectionTracker.GetRecord(6).Sql);
 	}
 
 	[TestMethod]
@@ -128,6 +133,8 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 		SetupMigrations<TestContext_2>(secondMigrationMock.Object);
 		SetupAppliedMigrations([]);
 
+		SetupDatabaseVersion();
+
 
 		await GetService<IClickHouseMigrator<TestContext_1>>().ApplyMigrationsAsync();
 		await GetService<IClickHouseMigrator<TestContext_2>>().ApplyMigrationsAsync();
@@ -135,21 +142,21 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 
 		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
 
-		Assert.AreEqual(10, connectionTracker.RecordsCount);
+		Assert.AreEqual(12, connectionTracker.RecordsCount);
 
-		Assert.AreEqual("apply migration 1", connectionTracker.GetRecord(4).Sql);
+		Assert.AreEqual("apply migration 1", connectionTracker.GetRecord(5).Sql);
 
 		Assert.AreEqual(
 			$"insert into {MigrationsDatabaseName}.db_migrations_history values "
 			+ $"({_1_FirstMigration.MigrationIndex}, '{_1_FirstMigration.MigrationName}', 0)",
-			connectionTracker.GetRecord(5).Sql);
+			connectionTracker.GetRecord(6).Sql);
 
-		Assert.AreEqual("apply migration 2", connectionTracker.GetRecord(9).Sql);
+		Assert.AreEqual("apply migration 2", connectionTracker.GetRecord(11).Sql);
 
 		Assert.AreEqual(
 			$"insert into {MigrationsDatabaseName}.db_migrations_history values "
 			+ $"({_2_SecondMigration.MigrationIndex}, '{_2_SecondMigration.MigrationName}', 0)",
-			connectionTracker.GetRecord(10).Sql);
+			connectionTracker.GetRecord(12).Sql);
 	}
 
 	[TestMethod]
@@ -168,6 +175,8 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 		SetupMigrations<TestContext_1>(firstMigrationMock.Object);
 		SetupMigrations<TestContext_2>(secondMigrationMock.Object);
 		SetupAppliedMigrations([_1_FirstMigration.AsApplied()]);
+
+		SetupDatabaseVersion();
 
 
 		await GetService<IClickHouseMigrator<TestContext_1>>().ApplyMigrationsAsync();
@@ -201,6 +210,8 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 				return 1;
 			});
 
+		SetupDatabaseVersion();
+
 
 		await GetService<IClickHouseMigrator<TestContext_1>>().ApplyMigrationsAsync();
 		await GetService<IClickHouseMigrator<TestContext_2>>().ApplyMigrationsAsync();
@@ -231,5 +242,10 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 			appliedMigrations,
 			("id", typeof(ulong), m => m.Id),
 			("name", typeof(string), m => m.Name));
+	}
+
+	private void SetupDatabaseVersion(string version = "24.1")
+	{
+		MockExecuteScalar<ClickHouseMigrationContext>(sql => sql == "select version()", () => version);
 	}
 }

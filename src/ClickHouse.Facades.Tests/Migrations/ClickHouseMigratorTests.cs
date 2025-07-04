@@ -10,9 +10,11 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 	[TestMethod]
 	public async Task NoMigrations_ApplyMigrations_MigrationsTableCreated()
 	{
-		var databaseName = "test";
+		const string databaseName = "test";
 		SetupMigrations(databaseName, rollbackOnMigrationFail: false);
 		SetupAppliedMigrations(databaseName);
+
+		SetupDatabaseVersion();
 
 
 		await GetService<IClickHouseMigrator>().ApplyMigrationsAsync();
@@ -36,7 +38,7 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 	[TestMethod]
 	public async Task OneMigrationToApply_ApplyMigrations_MigrationApplied()
 	{
-		var databaseName = "test";
+		const string databaseName = "test";
 
 		Mock<_1_FirstMigration> migrationMock = new();
 		migrationMock
@@ -46,26 +48,28 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 		SetupMigrations(databaseName, rollbackOnMigrationFail: false, migrationMock.Object);
 		SetupAppliedMigrations(databaseName);
 
+		SetupDatabaseVersion();
+
 
 		await GetService<IClickHouseMigrator>().ApplyMigrationsAsync();
 
 
 		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
 
-		Assert.AreEqual(5, connectionTracker.RecordsCount);
+		Assert.AreEqual(6, connectionTracker.RecordsCount);
 
-		Assert.AreEqual("apply migration", connectionTracker.GetRecord(4).Sql);
+		Assert.AreEqual("apply migration", connectionTracker.GetRecord(5).Sql);
 
 		Assert.AreEqual(
 			$"insert into {databaseName}.db_migrations_history values "
 			+ $"({_1_FirstMigration.MigrationIndex}, '{_1_FirstMigration.MigrationName}', 0)",
-			connectionTracker.GetRecord(5).Sql);
+			connectionTracker.GetRecord(6).Sql);
 	}
 
 	[TestMethod]
 	public async Task FailingMigrationToApply_RollbackEnabled_ApplyMigrations_MigrationRolledBack()
 	{
-		var databaseName = "test";
+		const string databaseName = "test";
 
 		Mock<_1_FirstMigration> migrationMock = new();
 		migrationMock
@@ -83,27 +87,29 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 			sql => sql == "apply migration",
 			() => throw new Exception("test exception"));
 
+		SetupDatabaseVersion();
 
-		await Assert.ThrowsExceptionAsync<AggregateException>(
+
+		await Assert.ThrowsExactlyAsync<AggregateException>(
 			() => GetService<IClickHouseMigrator>().ApplyMigrationsAsync());
 
 
 		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
 
-		Assert.AreEqual(5, connectionTracker.RecordsCount);
+		Assert.AreEqual(6, connectionTracker.RecordsCount);
 
-		Assert.AreEqual("rollback migration", connectionTracker.GetRecord(4).Sql);
+		Assert.AreEqual("rollback migration", connectionTracker.GetRecord(5).Sql);
 
 		Assert.AreEqual(
 			$"insert into {databaseName}.db_migrations_history values "
 			+ $"({_1_FirstMigration.MigrationIndex}, '{_1_FirstMigration.MigrationName}', 1)",
-			connectionTracker.GetRecord(5).Sql);
+			connectionTracker.GetRecord(6).Sql);
 	}
 
 	[TestMethod]
 	public async Task FailingMigrationToApply_RollbackDisabled_ApplyMigrations_Throws()
 	{
-		var databaseName = "test";
+		const string databaseName = "test";
 
 		Mock<_1_FirstMigration> migrationMock = new();
 		migrationMock
@@ -121,14 +127,192 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 			sql => sql == "apply migration",
 			() => throw new Exception("test exception"));
 
+		SetupDatabaseVersion();
 
-		await Assert.ThrowsExceptionAsync<AggregateException>(
+
+		await Assert.ThrowsExactlyAsync<AggregateException>(
 			() => GetService<IClickHouseMigrator>().ApplyMigrationsAsync());
 
 
 		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
 
-		Assert.AreEqual(3, connectionTracker.RecordsCount);
+		Assert.AreEqual(4, connectionTracker.RecordsCount);
+	}
+
+	[TestMethod]
+	public async Task VersionedMigrationToApply_DatabaseVersionMeetsCriteria_MigrationApplied()
+	{
+		const string databaseName = "test";
+
+		Mock<_1_FirstMigration> migrationMock = new();
+		migrationMock
+			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
+			.Callback<ClickHouseMigrationBuilder>(builder =>
+				builder.WhenVersion(
+					v => v < "25.1",
+					b => b.AddRawSqlStatement("apply migration")));
+
+		SetupMigrations(databaseName, rollbackOnMigrationFail: false, migrationMock.Object);
+		SetupAppliedMigrations(databaseName);
+
+		SetupDatabaseVersion("24.6");
+
+
+		await GetService<IClickHouseMigrator>().ApplyMigrationsAsync();
+
+
+		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
+
+		Assert.AreEqual(6, connectionTracker.RecordsCount);
+		Assert.AreEqual(1, connectionTracker.GetRecordsBySql("apply migration").Count());
+		Assert.AreEqual(1, connectionTracker.GetRecordsBySql(@"insert into \w*\.db_migrations_history").Count());
+	}
+
+	[TestMethod]
+	public async Task VersionedMigrationToApply_DatabaseVersionMissesCriteria_MigrationNotApplied()
+	{
+		const string databaseName = "test";
+
+		Mock<_1_FirstMigration> migrationMock = new();
+		migrationMock
+			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
+			.Callback<ClickHouseMigrationBuilder>(builder =>
+				builder.WhenVersion(
+					v => v > "25.1",
+					b => b.AddRawSqlStatement("apply migration")));
+
+		SetupMigrations(databaseName, rollbackOnMigrationFail: false, migrationMock.Object);
+		SetupAppliedMigrations(databaseName);
+
+		SetupDatabaseVersion("24.6");
+
+
+		await GetService<IClickHouseMigrator>().ApplyMigrationsAsync();
+
+
+		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
+
+		Assert.AreEqual(5, connectionTracker.RecordsCount);
+		Assert.AreEqual(0, connectionTracker.GetRecordsBySql("apply migration").Count());
+		Assert.AreEqual(1, connectionTracker.GetRecordsBySql(@"insert into \w*\.db_migrations_history").Count());
+	}
+
+	[TestMethod]
+	public async Task RangeVersionedMigrationToApply_DatabaseVersionIsInRange_MigrationApplied()
+	{
+		const string databaseName = "test";
+
+		Mock<_1_FirstMigration> migrationMock = new();
+		migrationMock
+			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
+			.Callback<ClickHouseMigrationBuilder>(builder =>
+				builder.ForVersionRange(
+					"24.1",
+					"25.1",
+					b => b.AddRawSqlStatement("apply migration")));
+
+		SetupMigrations(databaseName, rollbackOnMigrationFail: false, migrationMock.Object);
+		SetupAppliedMigrations(databaseName);
+
+		SetupDatabaseVersion("24.6");
+
+
+		await GetService<IClickHouseMigrator>().ApplyMigrationsAsync();
+
+
+		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
+
+		Assert.AreEqual(6, connectionTracker.RecordsCount);
+		Assert.AreEqual(1, connectionTracker.GetRecordsBySql("apply migration").Count());
+		Assert.AreEqual(1, connectionTracker.GetRecordsBySql(@"insert into \w*\.db_migrations_history").Count());
+	}
+
+	[TestMethod]
+	public async Task RangeVersionedMigrationToApply_DatabaseVersionIsNotInRange_MigrationNotApplied()
+	{
+		const string databaseName = "test";
+
+		Mock<_1_FirstMigration> migrationMock = new();
+		migrationMock
+			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
+			.Callback<ClickHouseMigrationBuilder>(builder =>
+				builder.ForVersionRange(
+					"24.1",
+					"25.1",
+					b => b.AddRawSqlStatement("apply migration")));
+
+		SetupMigrations(databaseName, rollbackOnMigrationFail: false, migrationMock.Object);
+		SetupAppliedMigrations(databaseName);
+
+		SetupDatabaseVersion("25.6");
+
+
+		await GetService<IClickHouseMigrator>().ApplyMigrationsAsync();
+
+
+		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
+
+		Assert.AreEqual(5, connectionTracker.RecordsCount);
+		Assert.AreEqual(0, connectionTracker.GetRecordsBySql("apply migration").Count());
+		Assert.AreEqual(1, connectionTracker.GetRecordsBySql(@"insert into \w*\.db_migrations_history").Count());
+	}
+
+	[TestMethod]
+	public async Task SinceVersionedMigrationToApply_DatabaseVersionMeetsCriteria_MigrationApplied()
+	{
+		const string databaseName = "test";
+
+		Mock<_1_FirstMigration> migrationMock = new();
+		migrationMock
+			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
+			.Callback<ClickHouseMigrationBuilder>(builder =>
+				builder.SinceVersion(
+					"24.6",
+					b => b.AddRawSqlStatement("apply migration")));
+
+		SetupMigrations(databaseName, rollbackOnMigrationFail: false, migrationMock.Object);
+		SetupAppliedMigrations(databaseName);
+
+		SetupDatabaseVersion("24.6");
+
+
+		await GetService<IClickHouseMigrator>().ApplyMigrationsAsync();
+
+
+		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
+
+		Assert.AreEqual(6, connectionTracker.RecordsCount);
+		Assert.AreEqual(1, connectionTracker.GetRecordsBySql("apply migration").Count());
+		Assert.AreEqual(1, connectionTracker.GetRecordsBySql(@"insert into \w*\.db_migrations_history").Count());
+	}
+
+	[TestMethod]
+	public async Task SinceVersionedMigrationToApply_DatabaseVersionIsLower_MigrationNotApplied()
+	{
+		const string databaseName = "test";
+
+		Mock<_1_FirstMigration> migrationMock = new();
+		migrationMock
+			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
+			.Callback<ClickHouseMigrationBuilder>(builder =>
+				builder.SinceVersion(
+					"24.6",
+					b => b.AddRawSqlStatement("apply migration")));
+
+		SetupMigrations(databaseName, rollbackOnMigrationFail: false, migrationMock.Object);
+		SetupAppliedMigrations(databaseName);
+
+		SetupDatabaseVersion("24.2");
+
+
+		await GetService<IClickHouseMigrator>().ApplyMigrationsAsync();
+
+
+		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
+
+		Assert.AreEqual(5, connectionTracker.RecordsCount);
+		Assert.AreEqual(0, connectionTracker.GetRecordsBySql("apply migration").Count());
+		Assert.AreEqual(1, connectionTracker.GetRecordsBySql(@"insert into \w*\.db_migrations_history").Count());
 	}
 
 	private void SetupMigrations(
@@ -163,5 +347,10 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 			appliedMigrations,
 			("id", typeof(ulong), m => m.Id),
 			("name", typeof(string), m => m.Name));
+	}
+
+	private void SetupDatabaseVersion(string version = "24.1")
+	{
+		MockExecuteScalar<ClickHouseMigrationContext>(sql => sql == "select version()", () => version);
 	}
 }
