@@ -4,7 +4,7 @@ namespace ClickHouse.Facades.Migrations;
 
 public sealed class ClickHouseMigrationBuilder : IVersionedClickHouseMigrationBuilder
 {
-	private readonly List<string> _statements = new();
+	private readonly List<string> _statements = [];
 	private readonly ClickHouseVersion _clickHouseVersion;
 
 	internal List<string> Statements => _statements;
@@ -65,5 +65,20 @@ public sealed class ClickHouseMigrationBuilder : IVersionedClickHouseMigrationBu
 		}
 
 		_statements.Add(sql);
+	}
+
+	public void AddSqlFileStatements(string filePath)
+	{
+		AddSqlFileStatements(filePath, new SemicolonSqlStatementParser());
+	}
+
+	public void AddSqlFileStatements(string filePath, ISqlStatementParser parser)
+	{
+		var sqlText = File.ReadAllText(filePath);
+
+		foreach (var statement in parser.ParseStatements(sqlText))
+		{
+			AddRawSqlStatement(statement);
+		}
 	}
 }

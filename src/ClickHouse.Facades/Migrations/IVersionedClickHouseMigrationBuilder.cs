@@ -2,5 +2,9 @@
 
 public interface IVersionedClickHouseMigrationBuilder
 {
-	public void AddRawSqlStatement(string sql);
+	void AddRawSqlStatement(string sql);
+
+	void AddSqlFileStatements(string filePath);
+
+	void AddSqlFileStatements(string filePath, ISqlStatementParser parser);
 }
