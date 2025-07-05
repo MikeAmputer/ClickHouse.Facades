@@ -1,6 +1,6 @@
 ﻿namespace ClickHouse.Facades.Migrations;
 
-public class ClickHouseVersion : IComparable<ClickHouseVersion>
+public sealed class ClickHouseVersion : IComparable<ClickHouseVersion>
 {
 	public int Major { get; }
 	public int Minor { get; }
