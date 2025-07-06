@@ -2,8 +2,8 @@
 
 public abstract class ClickHouseMigration
 {
-	internal ulong Index => MigrationInfo.Index;
-	internal string Name => MigrationInfo.Name;
+	internal virtual ulong Index => MigrationInfo.Index;
+	internal virtual string Name => MigrationInfo.Name;
 
 	protected internal abstract void Up(ClickHouseMigrationBuilder migrationBuilder);
 
