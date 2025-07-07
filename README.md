@@ -5,6 +5,10 @@ Raw SQL migrations and contexts for [ClickHouse](https://github.com/ClickHouse/C
 [![License](https://img.shields.io/github/license/MikeAmputer/ClickHouse.Facades)](https://github.com/MikeAmputer/ClickHouse.Facades/blob/master/LICENSE)
 [![Wiki](https://img.shields.io/badge/wiki-docs-lightgrey?logo=github)](https://github.com/MikeAmputer/ClickHouse.Facades/wiki)
 
+> [!Note]
+> This is an unofficial package. 
+> ClickHouse is a registered trademark of ClickHouse, Inc. https://clickhouse.com
+
 ## Key Features
 - **Migrations:** allows you to perform raw SQL migrations on your ClickHouse database.
   - Rollback support
