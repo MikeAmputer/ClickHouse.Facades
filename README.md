@@ -7,6 +7,7 @@ Raw SQL migrations and contexts for [ClickHouse](https://github.com/ClickHouse/C
 
 > [!NOTE]
 > This is an unofficial package and is not affiliated with or endorsed by ClickHouse Inc.
+> 
 > "ClickHouse" is a registered trademark of ClickHouse Inc. — [clickhouse.com](https://clickhouse.com/)
 
 ## Key Features
