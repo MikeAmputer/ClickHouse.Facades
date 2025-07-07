@@ -1,4 +1,5 @@
 ﻿using ClickHouse.Facades.Migrations;
+using Moq;
 
 namespace ClickHouse.Facades.Tests;
 
@@ -11,5 +12,15 @@ internal abstract class _3_ThirdMigration : ClickHouseMigration
 	public static AppliedMigration AsApplied()
 	{
 		return new AppliedMigration(MigrationIndex, MigrationName);
+	}
+
+	public static Mock<_3_ThirdMigration> AsMock()
+	{
+		var mock =  new Mock<_3_ThirdMigration>();
+
+		mock.Setup(m => m.Index).Returns(MigrationIndex);
+		mock.Setup(m => m.Name).Returns(MigrationName);
+
+		return mock;
 	}
 }

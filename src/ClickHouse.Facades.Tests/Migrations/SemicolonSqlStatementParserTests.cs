@@ -249,7 +249,7 @@ SELECT 2;
 				$"-- This is a comment{Environment.NewLine}SELECT 1",
 				$"-- Another comment{Environment.NewLine}SELECT 2"
 			},
-			result.ToList()
+			result.Select(t => t.ReplaceLineEndings()).ToList()
 		);
 	}
 }

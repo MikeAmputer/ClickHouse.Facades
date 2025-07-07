@@ -56,7 +56,7 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 	[TestMethod]
 	public async Task OneMigrationToApply_ApplySingleContextMigrations_MigrationApplied()
 	{
-		Mock<_1_FirstMigration> migrationMock = new();
+		var migrationMock = _1_FirstMigration.AsMock();
 		migrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration"));
@@ -84,12 +84,12 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 	[TestMethod]
 	public async Task TwoContexts_OneMigrationToApplyForEach_ApplySingleContextMigrations_MigrationApplied()
 	{
-		Mock<_1_FirstMigration> firstMigrationMock = new();
+		var firstMigrationMock = _1_FirstMigration.AsMock();
 		firstMigrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration 1"));
 
-		Mock<_2_SecondMigration> secondMigrationMock = new();
+		var secondMigrationMock = _2_SecondMigration.AsMock();
 		secondMigrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration 2"));
@@ -119,12 +119,12 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 	[TestMethod]
 	public async Task TwoContexts_OneMigrationToApplyForEach_ApplyBothContextMigrations_MigrationsApplied()
 	{
-		Mock<_1_FirstMigration> firstMigrationMock = new();
+		var firstMigrationMock = _1_FirstMigration.AsMock();
 		firstMigrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration 1"));
 
-		Mock<_2_SecondMigration> secondMigrationMock = new();
+		var secondMigrationMock = _2_SecondMigration.AsMock();
 		secondMigrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration 2"));
@@ -162,12 +162,12 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 	[TestMethod]
 	public async Task TwoContexts_OneIsUpToDate_ApplyBothContextMigrations_SecondContextMigrationsApplied()
 	{
-		Mock<_1_FirstMigration> firstMigrationMock = new();
+		var firstMigrationMock = _1_FirstMigration.AsMock();
 		firstMigrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration 1"));
 
-		Mock<_2_SecondMigration> secondMigrationMock = new();
+		var secondMigrationMock = _2_SecondMigration.AsMock();
 		secondMigrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration 2"));
@@ -192,13 +192,13 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 	[TestMethod]
 	public async Task TwoContexts_SameMigrationToApply_ApplyBothContextMigrations_MigrationAppliedOnce()
 	{
-		Mock<_1_FirstMigration> firstMigrationMock = new();
-		firstMigrationMock
+		var migrationMock = _1_FirstMigration.AsMock();
+		migrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration 1"));
 
-		SetupMigrations<TestContext_1>(firstMigrationMock.Object);
-		SetupMigrations<TestContext_2>(firstMigrationMock.Object);
+		SetupMigrations<TestContext_1>(migrationMock.Object);
+		SetupMigrations<TestContext_2>(migrationMock.Object);
 		SetupAppliedMigrations([]);
 		MockExecuteNonQuery<ClickHouseMigrationContext>(
 			sql => sql == $"insert into {MigrationsDatabaseName}.db_migrations_history values "

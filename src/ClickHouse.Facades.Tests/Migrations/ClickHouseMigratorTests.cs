@@ -40,7 +40,7 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 	{
 		const string databaseName = "test";
 
-		Mock<_1_FirstMigration> migrationMock = new();
+		var migrationMock = _1_FirstMigration.AsMock();
 		migrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration"));
@@ -71,7 +71,7 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 	{
 		const string databaseName = "test";
 
-		Mock<_1_FirstMigration> migrationMock = new();
+		var migrationMock = _1_FirstMigration.AsMock();
 		migrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration"));
@@ -111,7 +111,7 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 	{
 		const string databaseName = "test";
 
-		Mock<_1_FirstMigration> migrationMock = new();
+		var migrationMock = _1_FirstMigration.AsMock();
 		migrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration"));
@@ -144,7 +144,7 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 	{
 		const string databaseName = "test";
 
-		Mock<_1_FirstMigration> migrationMock = new();
+		var migrationMock = _1_FirstMigration.AsMock();
 		migrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(builder =>
@@ -173,7 +173,7 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 	{
 		const string databaseName = "test";
 
-		Mock<_1_FirstMigration> migrationMock = new();
+		var migrationMock = _1_FirstMigration.AsMock();
 		migrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(builder =>
@@ -202,7 +202,7 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 	{
 		const string databaseName = "test";
 
-		Mock<_1_FirstMigration> migrationMock = new();
+		var migrationMock = _1_FirstMigration.AsMock();
 		migrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(builder =>
@@ -232,7 +232,7 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 	{
 		const string databaseName = "test";
 
-		Mock<_1_FirstMigration> migrationMock = new();
+		var migrationMock = _1_FirstMigration.AsMock();
 		migrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(builder =>
@@ -262,7 +262,7 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 	{
 		const string databaseName = "test";
 
-		Mock<_1_FirstMigration> migrationMock = new();
+		var migrationMock = _1_FirstMigration.AsMock();
 		migrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(builder =>
@@ -291,7 +291,7 @@ public class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 	{
 		const string databaseName = "test";
 
-		Mock<_1_FirstMigration> migrationMock = new();
+		var migrationMock = _1_FirstMigration.AsMock();
 		migrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(builder =>
