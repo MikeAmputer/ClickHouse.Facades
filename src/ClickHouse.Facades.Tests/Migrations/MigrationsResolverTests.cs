@@ -12,7 +12,7 @@ public class MigrationsResolverTests
 		var appliedMigration = _1_FirstMigration.AsApplied();
 		var duplicateAppliedMigration = _1_FirstMigration.AsApplied();
 
-		Assert.ThrowsException<InvalidOperationException>(() => new MigrationsResolver(
+		Assert.ThrowsExactly<InvalidOperationException>(() => new MigrationsResolver(
 			appliedMigrations: new List<AppliedMigration> { appliedMigration, duplicateAppliedMigration },
 			locatedMigrations: new List<ClickHouseMigration>()));
 	}
@@ -20,10 +20,10 @@ public class MigrationsResolverTests
 	[TestMethod]
 	public void DuplicateLocatedMigrations_ConstructorThrows()
 	{
-		Mock<_1_FirstMigration> migrationMock = new();
-		Mock<_1_FirstMigration> duplicateMigrationMock = new();
+		var migrationMock = _1_FirstMigration.AsMock();
+		var duplicateMigrationMock = _1_FirstMigration.AsMock();
 
-		Assert.ThrowsException<InvalidOperationException>(() => new MigrationsResolver(
+		Assert.ThrowsExactly<InvalidOperationException>(() => new MigrationsResolver(
 			appliedMigrations: new List<AppliedMigration>(),
 			locatedMigrations: new List<ClickHouseMigration> { migrationMock.Object, duplicateMigrationMock.Object }));
 	}
@@ -45,7 +45,7 @@ public class MigrationsResolverTests
 	[TestMethod]
 	public void SingleAppliedMigration_SameLocatedMigration_NoMigrationsToApply()
 	{
-		Mock<_1_FirstMigration> migrationMock = new();
+		var migrationMock = _1_FirstMigration.AsMock();
 
 		var migrationsResolver = new MigrationsResolver(
 			appliedMigrations: new List<AppliedMigration> { _1_FirstMigration.AsApplied() },
@@ -61,7 +61,7 @@ public class MigrationsResolverTests
 	[TestMethod]
 	public void NoAppliedMigrations_SingleLocatedMigration_OneMigrationToApply()
 	{
-		Mock<_1_FirstMigration> migrationMock = new();
+		var migrationMock = _1_FirstMigration.AsMock();
 
 		var migrationsResolver = new MigrationsResolver(
 			appliedMigrations: new List<AppliedMigration>(),
@@ -78,8 +78,8 @@ public class MigrationsResolverTests
 	[TestMethod]
 	public void NoAppliedMigrations_TwoLocatedMigrations_MigrationsToApplyOrderedByIndex()
 	{
-		Mock<_1_FirstMigration> firstMigrationMock = new();
-		Mock<_2_SecondMigration> secondMigrationMock = new();
+		var firstMigrationMock = _1_FirstMigration.AsMock();
+		var secondMigrationMock = _2_SecondMigration.AsMock();
 
 		var migrationsResolver = new MigrationsResolver(
 			appliedMigrations: new List<AppliedMigration>(),
@@ -97,8 +97,8 @@ public class MigrationsResolverTests
 	[TestMethod]
 	public void FirstMigrationApplied_TwoLocatedMigrations_SecondMigrationToApply()
 	{
-		Mock<_1_FirstMigration> firstMigrationMock = new();
-		Mock<_2_SecondMigration> secondMigrationMock = new();
+		var firstMigrationMock = _1_FirstMigration.AsMock();
+		var secondMigrationMock = _2_SecondMigration.AsMock();
 
 		var migrationsResolver = new MigrationsResolver(
 			appliedMigrations: new List<AppliedMigration> { _1_FirstMigration.AsApplied() },
@@ -115,47 +115,47 @@ public class MigrationsResolverTests
 	[TestMethod]
 	public void MigrationApplied_NotLocated_GetMigrationsToApplyThrows()
 	{
-		Mock<_2_SecondMigration> secondMigrationMock = new();
+		var secondMigrationMock = _2_SecondMigration.AsMock();
 
 		var migrationsResolver = new MigrationsResolver(
 			appliedMigrations: new List<AppliedMigration> { _1_FirstMigration.AsApplied() },
 			locatedMigrations: new List<ClickHouseMigration> { secondMigrationMock.Object });
 
-		Assert.ThrowsException<InvalidOperationException>(() => migrationsResolver.GetMigrationsToApply());
+		Assert.ThrowsExactly<InvalidOperationException>(() => migrationsResolver.GetMigrationsToApply());
 	}
 
 	[TestMethod]
 	public void OldMigrationLocated_NotApplied_GetMigrationsToApplyThrows()
 	{
-		Mock<_1_FirstMigration> firstMigrationMock = new();
-		Mock<_2_SecondMigration> secondMigrationMock = new();
+		var firstMigrationMock = _1_FirstMigration.AsMock();
+		var secondMigrationMock = _2_SecondMigration.AsMock();
 
 		var migrationsResolver = new MigrationsResolver(
 			appliedMigrations: new List<AppliedMigration> { _2_SecondMigration.AsApplied() },
 			locatedMigrations: new List<ClickHouseMigration> { firstMigrationMock.Object, secondMigrationMock.Object });
 
-		Assert.ThrowsException<InvalidOperationException>(() => migrationsResolver.GetMigrationsToApply());
+		Assert.ThrowsExactly<InvalidOperationException>(() => migrationsResolver.GetMigrationsToApply());
 	}
 
 	[TestMethod]
 	public void MigrationIsNotApplied_RollbackToIt_Throws()
 	{
-		Mock<_2_SecondMigration> secondMigrationMock = new();
+		var secondMigrationMock = _2_SecondMigration.AsMock();
 
 		var migrationsResolver = new MigrationsResolver(
 			appliedMigrations: new List<AppliedMigration> { _2_SecondMigration.AsApplied() },
 			locatedMigrations: new List<ClickHouseMigration> { secondMigrationMock.Object });
 
-		Assert.ThrowsException<InvalidOperationException>(
+		Assert.ThrowsExactly<InvalidOperationException>(
 			() => migrationsResolver.GetMigrationsToRollback(_1_FirstMigration.MigrationIndex));
 	}
 
 	[TestMethod]
 	public void ThreeAppliedMigrations_RollbackToFirst_TwoMigrationsOrderedDesc()
 	{
-		Mock<_1_FirstMigration> firstMigrationMock = new();
-		Mock<_2_SecondMigration> secondMigrationMock = new();
-		Mock<_3_ThirdMigration> thirdMigrationMock = new();
+		var firstMigrationMock = _1_FirstMigration.AsMock();
+		var secondMigrationMock = _2_SecondMigration.AsMock();
+		var thirdMigrationMock = _3_ThirdMigration.AsMock();
 
 		var migrationsResolver = new MigrationsResolver(
 			appliedMigrations: new List<AppliedMigration>
@@ -183,7 +183,7 @@ public class MigrationsResolverTests
 	[TestMethod]
 	public void MigrationNotLocated_RollbackOverIt_Throws()
 	{
-		Mock<_1_FirstMigration> firstMigrationMock = new();
+		var firstMigrationMock = _1_FirstMigration.AsMock();
 
 		var migrationsResolver = new MigrationsResolver(
 			appliedMigrations: new List<AppliedMigration>
@@ -193,7 +193,7 @@ public class MigrationsResolverTests
 			},
 			locatedMigrations: new List<ClickHouseMigration> { firstMigrationMock.Object });
 
-		Assert.ThrowsException<InvalidOperationException>(
+		Assert.ThrowsExactly<InvalidOperationException>(
 			() => migrationsResolver.GetMigrationsToRollback(_1_FirstMigration.MigrationIndex));
 	}
 }
