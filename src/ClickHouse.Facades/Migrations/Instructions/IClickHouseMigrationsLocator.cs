@@ -6,7 +6,4 @@ public interface IClickHouseMigrationsLocator
 }
 
 public interface IClickHouseMigrationsLocator<TContext> : IClickHouseMigrationsLocator
-	where TContext : ClickHouseContext<TContext>
-{
-
-}
+	where TContext : ClickHouseContext<TContext>;

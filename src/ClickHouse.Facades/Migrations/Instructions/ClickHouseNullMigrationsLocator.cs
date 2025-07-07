@@ -2,5 +2,5 @@
 
 public sealed class ClickHouseNullMigrationsLocator : IClickHouseMigrationsLocator
 {
-	public IEnumerable<ClickHouseMigration> GetMigrations() => Enumerable.Empty<ClickHouseMigration>();
+	public IEnumerable<ClickHouseMigration> GetMigrations() => [];
 }
