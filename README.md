@@ -1,5 +1,5 @@
 # ClickHouse.Facades
-Raw SQL migrations and contexts for [ClickHouse](https://github.com/ClickHouse/ClickHouse) referencing [ClickHouse.Client](https://github.com/DarkWanderer/ClickHouse.Client). Production tested.
+.NET package for managing [ClickHouse](https://github.com/ClickHouse/ClickHouse) migrations and organizing raw SQL through structured database contexts. Makes it easy to separate concerns across features, services, or tables. Built on [ClickHouse.Client](https://github.com/DarkWanderer/ClickHouse.Client) and tested in production.
 
 [![Latest version](https://img.shields.io/nuget/v/ClickHouse.Facades)](https://www.nuget.org/packages/ClickHouse.Facades/)
 [![License](https://img.shields.io/github/license/MikeAmputer/ClickHouse.Facades)](https://github.com/MikeAmputer/ClickHouse.Facades/blob/master/LICENSE)
