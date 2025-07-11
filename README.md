@@ -1,9 +1,9 @@
 # ClickHouse.Facades
-.NET package for managing [ClickHouse](https://github.com/ClickHouse/ClickHouse) migrations and organizing raw SQL through structured database contexts. Makes it easy to separate concerns across features, services, or tables. Built on [ClickHouse.Client](https://github.com/DarkWanderer/ClickHouse.Client) and tested in production.
-
 [![Latest version](https://img.shields.io/nuget/v/ClickHouse.Facades)](https://www.nuget.org/packages/ClickHouse.Facades/)
 [![License](https://img.shields.io/github/license/MikeAmputer/ClickHouse.Facades)](https://github.com/MikeAmputer/ClickHouse.Facades/blob/master/LICENSE)
 [![Wiki](https://img.shields.io/badge/wiki-docs-lightgrey?logo=github)](https://github.com/MikeAmputer/ClickHouse.Facades/wiki)
+
+.NET package for managing [ClickHouse](https://github.com/ClickHouse/ClickHouse) migrations and organizing raw SQL through structured database contexts. Makes it easy to separate concerns across features, services, or tables. Built on [ClickHouse.Client](https://github.com/DarkWanderer/ClickHouse.Client) and tested in production.
 
 > [!NOTE]
 > This is an unofficial package and is not affiliated with or endorsed by ClickHouse Inc.
