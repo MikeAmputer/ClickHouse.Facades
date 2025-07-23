@@ -61,8 +61,7 @@ internal class CancelableCommandExecutionStrategy : ICommandExecutionStrategy
 				},
 				CancellationToken.None,
 				TaskContinuationOptions.OnlyOnCanceled,
-				TaskScheduler.Current)
-			.ConfigureAwait(false);
+				TaskScheduler.Default);
 
 		return cancelableTask;
 	}
