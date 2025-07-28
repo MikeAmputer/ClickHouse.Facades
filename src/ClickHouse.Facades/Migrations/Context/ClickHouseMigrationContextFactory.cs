@@ -17,5 +17,10 @@ internal sealed class ClickHouseMigrationContextFactory : ClickHouseContextFacto
 			.WithConnectionString(_instructions.GetConnectionString())
 			.ForceSessions()
 			.AllowDatabaseChanges();
+
+		if (_instructions.HttpClient != null)
+		{
+			optionsBuilder.WithHttpClient(_instructions.HttpClient);
+		}
 	}
 }

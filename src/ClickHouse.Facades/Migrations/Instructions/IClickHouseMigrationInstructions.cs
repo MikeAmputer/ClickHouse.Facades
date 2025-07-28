@@ -14,4 +14,11 @@ public interface IClickHouseMigrationInstructions
 		?? throw new InvalidOperationException("Unable to get 'database' parameter from connection string.");
 
 	bool RollbackOnMigrationFail => false;
+
+	/// <summary>
+	/// Optional <see cref="HttpClient"/> used to execute migration statements.
+	/// If provided, it will not be disposed internally. It is recommended to use an instance
+	/// created via <see cref="IHttpClientFactory"/> to avoid lifecycle and socket issues.
+	/// </summary>
+	HttpClient? HttpClient => null;
 }
