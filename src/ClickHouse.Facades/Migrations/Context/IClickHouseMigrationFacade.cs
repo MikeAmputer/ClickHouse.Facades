@@ -2,6 +2,8 @@
 
 internal interface IClickHouseMigrationFacade
 {
+	ClickHouseMigrationLog? Log { get; set; }
+
 	Task EnsureMigrationsTableCreatedAsync(CancellationToken cancellationToken);
 
 	Task EnsureDatabaseCreatedAsync(CancellationToken cancellationToken);

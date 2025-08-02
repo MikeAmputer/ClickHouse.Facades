@@ -11,6 +11,8 @@ internal sealed class ClickHouseMigrationFacade
 	private readonly IClickHouseMigrationInstructions _migrationInstructions;
 	private readonly string _dbName;
 
+	public ClickHouseMigrationLog? Log { get; set; }
+
 	public ClickHouseMigrationFacade(IClickHouseMigrationInstructions migrationInstructions)
 	{
 		_migrationInstructions = migrationInstructions
@@ -85,6 +87,16 @@ internal sealed class ClickHouseMigrationFacade
 	{
 		ExceptionHelpers.ThrowIfNull(migration);
 
+		var logEntry = new ClickHouseMigrationLogEntry
+		{
+			Index = migration.Index,
+			Name = migration.Name,
+			Direction = MigrationDirection.Up,
+			Success = false,
+		};
+
+		Log?.EntriesInternal.Add(logEntry);
+
 		var dbVersion = await GetDatabaseVersion(cancellationToken);
 
 		var migrationBuilder = ClickHouseMigrationBuilder.Create(dbVersion);
@@ -94,13 +106,17 @@ internal sealed class ClickHouseMigrationFacade
 		cancellationToken.ThrowIfCancellationRequested();
 
 		var statementsExecuted = 0;
+		string? failedStatement = null;
 
 		try
 		{
 			foreach (var statement in migrationBuilder.Statements)
 			{
+				failedStatement = statement;
 				await ExecuteNonQueryAsync(statement, CancellationToken.None);
+				failedStatement = null;
 
+				logEntry.ExecutedStatementsInternal.Add(statement);
 				statementsExecuted++;
 			}
 
@@ -113,14 +129,19 @@ internal sealed class ClickHouseMigrationFacade
 				]);
 
 			await ExecuteNonQueryAsync(addAppliedMigrationSql, CancellationToken.None);
+
+			logEntry.Success = true;
 		}
 		catch (Exception migrationException)
 		{
+			logEntry.FailedStatement = failedStatement;
+			logEntry.Error = migrationException.Message;
+
 			var rolledBack = await TryRollbackMigrationAsync(migration);
 			var verb = rolledBack ? "has been" : "has not been";
 
 			throw new AggregateException(
-				$"Failed to apply migration '{migration.Name}'. " +
+				$"Failed to apply up migration '{migration.Name}' with id '{migration.Index}'. " +
 				$"Successfully executed statements : {statementsExecuted}. " +
 				$"Migration {verb} rolled back.",
 				migrationException);
@@ -133,6 +154,16 @@ internal sealed class ClickHouseMigrationFacade
 	{
 		ExceptionHelpers.ThrowIfNull(migration);
 
+		var logEntry = new ClickHouseMigrationLogEntry
+		{
+			Index = migration.Index,
+			Name = migration.Name,
+			Direction = MigrationDirection.Down,
+			Success = false,
+		};
+
+		Log?.EntriesInternal.Add(logEntry);
+
 		var dbVersion = await GetDatabaseVersion(cancellationToken);
 
 		var migrationBuilder = ClickHouseMigrationBuilder.Create(dbVersion);
@@ -141,20 +172,43 @@ internal sealed class ClickHouseMigrationFacade
 
 		cancellationToken.ThrowIfCancellationRequested();
 
-		foreach (var statement in migrationBuilder.Statements)
+		var statementsExecuted = 0;
+		string? failedStatement = null;
+
+		try
 		{
-			await ExecuteNonQueryAsync(statement, CancellationToken.None);
+			foreach (var statement in migrationBuilder.Statements)
+			{
+				failedStatement = statement;
+				await ExecuteNonQueryAsync(statement, CancellationToken.None);
+				failedStatement = null;
+
+				logEntry.ExecutedStatementsInternal.Add(statement);
+				statementsExecuted++;
+			}
+
+			var addAppliedMigrationSql = string.Format(
+				AddRolledBackMigrationSql,
+				[
+					$"{_dbName}.{MigrationsTable}",
+					migration.Index,
+					migration.Name
+				]);
+
+			await ExecuteNonQueryAsync(addAppliedMigrationSql, CancellationToken.None);
+
+			logEntry.Success = true;
 		}
+		catch (Exception migrationException)
+		{
+			logEntry.FailedStatement = failedStatement;
+			logEntry.Error = migrationException.Message;
 
-		var addAppliedMigrationSql = string.Format(
-			AddRolledBackMigrationSql,
-			[
-				$"{_dbName}.{MigrationsTable}",
-				migration.Index,
-				migration.Name
-			]);
-
-		await ExecuteNonQueryAsync(addAppliedMigrationSql, CancellationToken.None);
+			throw new AggregateException(
+				$"Failed to apply down migration '{migration.Name}' with id '{migration.Index}'. " +
+				$"Successfully executed statements : {statementsExecuted}.",
+				migrationException);
+		}
 	}
 
 	private async Task<bool> TryRollbackMigrationAsync(ClickHouseMigration migration)

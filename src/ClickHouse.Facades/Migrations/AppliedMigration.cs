@@ -4,13 +4,13 @@ namespace ClickHouse.Facades.Migrations;
 
 internal class AppliedMigration
 {
-	public ulong Id { get; set; }
+	public ulong Index { get; }
 
-	public string Name { get; set; }
+	public string Name { get; }
 
-	internal AppliedMigration(ulong id, string name)
+	internal AppliedMigration(ulong index, string name)
 	{
-		Id = id;
+		Index = index;
 		Name = name;
 	}
 

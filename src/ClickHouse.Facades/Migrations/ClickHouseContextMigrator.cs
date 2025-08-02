@@ -23,7 +23,7 @@ internal class ClickHouseContextMigrator<TContext> : ClickHouseMigrator, IClickH
 
 		return allAppliedMigrations
 			.Where(appliedMigration => locatedMigrations
-				.Contains((appliedMigration.Id, appliedMigration.Name)))
+				.Contains((appliedMigration.Index, appliedMigration.Name)))
 			.ToList();
 	}
 }

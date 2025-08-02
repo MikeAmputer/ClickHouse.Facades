@@ -1,6 +1,6 @@
 ﻿namespace ClickHouse.Facades.Migrations;
 
-public class MigrationFileInfo
+public sealed class MigrationFileInfo
 {
 	public ulong Index { get; set; }
 	public string Name { get; set; } = string.Empty;

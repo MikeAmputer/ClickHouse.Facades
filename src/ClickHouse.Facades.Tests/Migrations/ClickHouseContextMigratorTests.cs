@@ -240,7 +240,7 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 		MockExecuteReader<ClickHouseMigrationContext, AppliedMigration>(
 			sql => sql == $"select id, name from {MigrationsDatabaseName}.db_migrations_history final",
 			appliedMigrations,
-			("id", typeof(ulong), m => m.Id),
+			("id", typeof(ulong), m => m.Index),
 			("name", typeof(string), m => m.Name));
 	}
 

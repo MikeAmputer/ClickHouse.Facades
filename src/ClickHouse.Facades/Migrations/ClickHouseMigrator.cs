@@ -5,6 +5,10 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 	private readonly IClickHouseContextFactory<ClickHouseMigrationContext> _migrationContextFactory;
 	private readonly IClickHouseMigrationsLocator _migrationsLocator;
 
+	private readonly ClickHouseMigrationLog _migrationLog = new();
+
+	public IClickHouseMigrationLog MigrationLog => _migrationLog;
+
 	public ClickHouseMigrator(
 		IClickHouseContextFactory<ClickHouseMigrationContext> migrationContextFactory,
 		IClickHouseMigrationsLocator migrationsLocator)
@@ -22,6 +26,8 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 
 		var facade = context.MigrationFacade;
 
+		facade.Log = _migrationLog;
+
 		await EnsureDatabaseCreated(context, cancellationToken);
 		await facade.EnsureMigrationsTableCreatedAsync(cancellationToken);
 
@@ -29,9 +35,13 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 			await GetAppliedMigrations(facade, cancellationToken),
 			GetLocatedMigrations());
 
+		TryInitLog(migrationsResolver);
+
 		foreach (var migration in migrationsResolver.GetMigrationsToApply())
 		{
 			await facade.ApplyMigrationAsync(migration, cancellationToken);
+
+			LogFinalMigration(migration);
 		}
 	}
 
@@ -41,14 +51,27 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 
 		var facade = context.MigrationFacade;
 
+		facade.Log = _migrationLog;
+
+		var locatedMigrations = GetLocatedMigrations();
+
 		var migrationsResolver = new MigrationsResolver(
 			await GetAppliedMigrations(facade, cancellationToken),
-			GetLocatedMigrations());
+			locatedMigrations);
+
+		TryInitLog(migrationsResolver);
 
 		foreach (var migration in migrationsResolver.GetMigrationsToRollback(targetMigrationId))
 		{
+			LogFinalMigration(migration);
+
 			await facade.RollbackMigrationAsync(migration, cancellationToken);
 		}
+
+		_migrationLog.FinalMigrationIndex = targetMigrationId;
+		_migrationLog.FinalMigrationName = locatedMigrations
+			.SingleOrDefault(m => m.Index == targetMigrationId)
+			?.Name;
 	}
 
 	private static async Task EnsureDatabaseCreated(
@@ -75,5 +98,19 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 	protected List<ClickHouseMigration> GetLocatedMigrations()
 	{
 		return _migrationsLocator.GetMigrations().ToList();
+	}
+
+	private void TryInitLog(MigrationsResolver migrationsResolver)
+	{
+		_migrationLog.InitialMigrationIndex ??= migrationsResolver.LastApplied?.Index;
+		_migrationLog.InitialMigrationName ??= migrationsResolver.LastApplied?.Name;
+		_migrationLog.FinalMigrationIndex ??= migrationsResolver.LastApplied?.Index;
+		_migrationLog.FinalMigrationName ??= migrationsResolver.LastApplied?.Name;
+	}
+
+	private void LogFinalMigration(ClickHouseMigration migration)
+	{
+		_migrationLog.FinalMigrationIndex = migration.Index;
+		_migrationLog.FinalMigrationName = migration.Name;
 	}
 }
