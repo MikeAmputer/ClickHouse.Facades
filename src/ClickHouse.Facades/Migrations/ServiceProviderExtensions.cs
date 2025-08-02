@@ -4,35 +4,46 @@ namespace ClickHouse.Facades.Migrations;
 
 public static class ServiceProviderExtensions
 {
-	public static Task ClickHouseMigrateAsync(this IServiceProvider serviceProvider)
+	public static async Task<IClickHouseMigrationLog> ClickHouseMigrateAsync(this IServiceProvider serviceProvider)
 	{
 		var migrator = serviceProvider.GetRequiredService<IClickHouseMigrator>();
 
-		return migrator.ApplyMigrationsAsync();
+		await migrator.ApplyMigrationsAsync();
+
+		return migrator.MigrationLog;
 	}
 
-	public static Task ClickHouseMigrateAsync<TContext>(this IServiceProvider serviceProvider)
+	public static async Task<IClickHouseMigrationLog> ClickHouseMigrateAsync<TContext>(
+		this IServiceProvider serviceProvider)
 		where TContext : ClickHouseContext<TContext>
 	{
 		var migrator = serviceProvider.GetRequiredService<IClickHouseMigrator<TContext>>();
 
-		return migrator.ApplyMigrationsAsync();
+		await migrator.ApplyMigrationsAsync();
+
+		return migrator.MigrationLog;
 	}
 
-	public static Task ClickHouseRollbackAsync(this IServiceProvider serviceProvider, ulong targetMigrationId)
+	public static async Task<IClickHouseMigrationLog> ClickHouseRollbackAsync(
+		this IServiceProvider serviceProvider,
+		ulong targetMigrationId)
 	{
 		var migrator = serviceProvider.GetRequiredService<IClickHouseMigrator>();
 
-		return migrator.RollbackAsync(targetMigrationId);
+		await migrator.RollbackAsync(targetMigrationId);
+
+		return migrator.MigrationLog;
 	}
 
-	public static Task ClickHouseRollbackAsync<TContext>(
+	public static async Task<IClickHouseMigrationLog> ClickHouseRollbackAsync<TContext>(
 		this IServiceProvider serviceProvider,
 		ulong targetMigrationId)
 		where TContext : ClickHouseContext<TContext>
 	{
 		var migrator = serviceProvider.GetRequiredService<IClickHouseMigrator<TContext>>();
 
-		return migrator.RollbackAsync(targetMigrationId);
+		await migrator.RollbackAsync(targetMigrationId);
+
+		return migrator.MigrationLog;
 	}
 }
