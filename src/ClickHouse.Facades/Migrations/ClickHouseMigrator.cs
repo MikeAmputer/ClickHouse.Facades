@@ -35,15 +35,13 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 			await GetAppliedMigrations(facade, cancellationToken),
 			GetLocatedMigrations());
 
-		_migrationLog.InitialMigrationIndex ??= migrationsResolver.LastApplied?.Index;
-		_migrationLog.InitialMigrationName ??= migrationsResolver.LastApplied?.Name;
+		TryInitLog(migrationsResolver);
 
 		foreach (var migration in migrationsResolver.GetMigrationsToApply())
 		{
 			await facade.ApplyMigrationAsync(migration, cancellationToken);
 
-			_migrationLog.FinalMigrationIndex = migration.Index;
-			_migrationLog.FinalMigrationName = migration.Name;
+			LogFinalMigration(migration);
 		}
 	}
 
@@ -61,13 +59,11 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 			await GetAppliedMigrations(facade, cancellationToken),
 			locatedMigrations);
 
-		_migrationLog.InitialMigrationIndex ??= migrationsResolver.LastApplied?.Index;
-		_migrationLog.InitialMigrationName ??= migrationsResolver.LastApplied?.Name;
+		TryInitLog(migrationsResolver);
 
 		foreach (var migration in migrationsResolver.GetMigrationsToRollback(targetMigrationId))
 		{
-			_migrationLog.FinalMigrationIndex = migration.Index;
-			_migrationLog.FinalMigrationName = migration.Name;
+			LogFinalMigration(migration);
 
 			await facade.RollbackMigrationAsync(migration, cancellationToken);
 		}
@@ -102,5 +98,19 @@ internal class ClickHouseMigrator : IClickHouseMigrator
 	protected List<ClickHouseMigration> GetLocatedMigrations()
 	{
 		return _migrationsLocator.GetMigrations().ToList();
+	}
+
+	private void TryInitLog(MigrationsResolver migrationsResolver)
+	{
+		_migrationLog.InitialMigrationIndex ??= migrationsResolver.LastApplied?.Index;
+		_migrationLog.InitialMigrationName ??= migrationsResolver.LastApplied?.Name;
+		_migrationLog.FinalMigrationIndex ??= migrationsResolver.LastApplied?.Index;
+		_migrationLog.FinalMigrationName ??= migrationsResolver.LastApplied?.Name;
+	}
+
+	private void LogFinalMigration(ClickHouseMigration migration)
+	{
+		_migrationLog.FinalMigrationIndex = migration.Index;
+		_migrationLog.FinalMigrationName = migration.Name;
 	}
 }

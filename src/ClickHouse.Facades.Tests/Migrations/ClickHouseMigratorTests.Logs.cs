@@ -6,7 +6,7 @@ namespace ClickHouse.Facades.Tests;
 public partial class ClickHouseMigratorTests
 {
 	[TestMethod]
-	public async Task NoMigrations_LogEmpty()
+	public async Task NoMigrations_Apply_LogEmpty()
 	{
 		const string databaseName = "test";
 		SetupMigrations(databaseName, rollbackOnMigrationFail: false);
@@ -27,6 +27,36 @@ public partial class ClickHouseMigratorTests
 		Assert.IsNull(log.InitialMigrationName);
 		Assert.IsNull(log.FinalMigrationIndex);
 		Assert.IsNull(log.FinalMigrationName);
+	}
+
+	[TestMethod]
+	public async Task OneAppliedMigration_Apply_NoMigrationsLogged()
+	{
+		const string databaseName = "test";
+
+		var migrationMock = _1_FirstMigration.AsMock();
+		migrationMock
+			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
+			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration"));
+
+		SetupMigrations(databaseName, rollbackOnMigrationFail: false, migrationMock.Object);
+		SetupAppliedMigrations(databaseName, _1_FirstMigration.AsApplied());
+
+		SetupDatabaseVersion();
+
+
+		var migrator = GetService<IClickHouseMigrator>();
+		await migrator.ApplyMigrationsAsync();
+
+
+		var log = migrator.MigrationLog;
+
+		Assert.IsTrue(log.Success);
+		Assert.AreEqual(0, log.Entries.Count);
+		Assert.AreEqual(_1_FirstMigration.MigrationIndex, log.InitialMigrationIndex);
+		Assert.AreEqual(_1_FirstMigration.MigrationName, log.InitialMigrationName);
+		Assert.AreEqual(_1_FirstMigration.MigrationIndex, log.FinalMigrationIndex);
+		Assert.AreEqual(_1_FirstMigration.MigrationName, log.FinalMigrationName);
 	}
 
 	[TestMethod]
