@@ -5,6 +5,8 @@
 
 .NET package for managing [ClickHouse](https://github.com/ClickHouse/ClickHouse) migrations and organizing raw SQL through structured database contexts. Makes it easy to separate concerns across features, services, or tables. Built on [ClickHouse.Client](https://github.com/DarkWanderer/ClickHouse.Client) and tested in production.
 
+[Does OLAP need an ORM?](https://clickhou.se/3Jy2uF8)
+
 > [!NOTE]
 > This is an unofficial package and is not affiliated with or endorsed by ClickHouse Inc.
 > 
