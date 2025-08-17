@@ -70,7 +70,7 @@ internal class CancelableCommandExecutionStrategy : ICommandExecutionStrategy
 
 	private static void KillQuery(IClickHouseConnection connection, string queryId)
 	{
-		var command = connection.CreateCommand();
+		using var command = connection.CreateCommand();
 		command.CommandText = "kill query where query_id = {queryId:String}";
 		command.AddParameter("queryId", queryId);
 		command.ExecuteNonQuery();
