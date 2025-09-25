@@ -9,8 +9,9 @@ public partial class ClickHouseMigratorTests
 	public async Task NoMigrations_Apply_LogEmpty()
 	{
 		const string databaseName = "test";
-		SetupMigrations(databaseName, rollbackOnMigrationFail: false);
-		SetupAppliedMigrations(databaseName);
+		const string historyTableName = "db_migrations_history";
+		SetupMigrations(databaseName, historyTableName, rollbackOnMigrationFail: false);
+		SetupAppliedMigrations(databaseName, historyTableName);
 
 		SetupDatabaseVersion();
 
@@ -33,14 +34,15 @@ public partial class ClickHouseMigratorTests
 	public async Task OneAppliedMigration_Apply_NoMigrationsLogged()
 	{
 		const string databaseName = "test";
+		const string historyTableName = "db_migrations_history";
 
 		var migrationMock = _1_FirstMigration.AsMock();
 		migrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration"));
 
-		SetupMigrations(databaseName, rollbackOnMigrationFail: false, migrationMock.Object);
-		SetupAppliedMigrations(databaseName, _1_FirstMigration.AsApplied());
+		SetupMigrations(databaseName, historyTableName, rollbackOnMigrationFail: false, migrationMock.Object);
+		SetupAppliedMigrations(databaseName, historyTableName, _1_FirstMigration.AsApplied());
 
 		SetupDatabaseVersion();
 
@@ -63,14 +65,15 @@ public partial class ClickHouseMigratorTests
 	public async Task ApplyMigrations_Success_MigrationsLogged()
 	{
 		const string databaseName = "test";
+		const string historyTableName = "db_migrations_history";
 
 		var migrationMock = _1_FirstMigration.AsMock();
 		migrationMock
 			.Setup(m => m.Up(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("apply migration"));
 
-		SetupMigrations(databaseName, rollbackOnMigrationFail: false, migrationMock.Object);
-		SetupAppliedMigrations(databaseName);
+		SetupMigrations(databaseName, historyTableName, rollbackOnMigrationFail: false, migrationMock.Object);
+		SetupAppliedMigrations(databaseName, historyTableName);
 
 		SetupDatabaseVersion();
 
@@ -104,6 +107,7 @@ public partial class ClickHouseMigratorTests
 	public async Task ApplyMigrations_FailNoRollback_MigrationsLogged()
 	{
 		const string databaseName = "test";
+		const string historyTableName = "db_migrations_history";
 
 		var migrationMock = _1_FirstMigration.AsMock();
 		migrationMock
@@ -118,8 +122,8 @@ public partial class ClickHouseMigratorTests
 			.Setup(m => m.Down(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("rollback migration"));
 
-		SetupMigrations(databaseName, rollbackOnMigrationFail: false, migrationMock.Object);
-		SetupAppliedMigrations(databaseName);
+		SetupMigrations(databaseName, historyTableName, rollbackOnMigrationFail: false, migrationMock.Object);
+		SetupAppliedMigrations(databaseName, historyTableName);
 
 		MockExecuteNonQuery<ClickHouseMigrationContext>(
 			sql => sql == "apply migration statement 2",
@@ -158,6 +162,7 @@ public partial class ClickHouseMigratorTests
 	public async Task ApplyMigrations_FailWithRollback_MigrationsLogged()
 	{
 		const string databaseName = "test";
+		const string historyTableName = "db_migrations_history";
 
 		var migrationMock = _1_FirstMigration.AsMock();
 		migrationMock
@@ -172,8 +177,8 @@ public partial class ClickHouseMigratorTests
 			.Setup(m => m.Down(It.IsAny<ClickHouseMigrationBuilder>()))
 			.Callback<ClickHouseMigrationBuilder>(b => b.AddRawSqlStatement("rollback migration"));
 
-		SetupMigrations(databaseName, rollbackOnMigrationFail: true, migrationMock.Object);
-		SetupAppliedMigrations(databaseName);
+		SetupMigrations(databaseName, historyTableName, rollbackOnMigrationFail: true, migrationMock.Object);
+		SetupAppliedMigrations(databaseName, historyTableName);
 
 		MockExecuteNonQuery<ClickHouseMigrationContext>(
 			sql => sql == "apply migration statement 2",
@@ -223,6 +228,7 @@ public partial class ClickHouseMigratorTests
 	public async Task RollbackMigrations_Success_MigrationsLogged()
 	{
 		const string databaseName = "test";
+		const string historyTableName = "db_migrations_history";
 
 		var firstMigrationMock = _1_FirstMigration.AsMock();
 
@@ -237,11 +243,16 @@ public partial class ClickHouseMigratorTests
 
 		SetupMigrations(
 			databaseName,
+			historyTableName,
 			rollbackOnMigrationFail: false,
 			firstMigrationMock.Object,
 			secondMigrationMock.Object);
 
-		SetupAppliedMigrations(databaseName, _1_FirstMigration.AsApplied(), _2_SecondMigration.AsApplied());
+		SetupAppliedMigrations(
+			databaseName,
+			historyTableName,
+			_1_FirstMigration.AsApplied(),
+			_2_SecondMigration.AsApplied());
 
 		SetupDatabaseVersion();
 
@@ -276,6 +287,7 @@ public partial class ClickHouseMigratorTests
 	public async Task RollbackMigrations_Fail_MigrationsLogged()
 	{
 		const string databaseName = "test";
+		const string historyTableName = "db_migrations_history";
 
 		var firstMigrationMock = _1_FirstMigration.AsMock();
 
@@ -290,11 +302,16 @@ public partial class ClickHouseMigratorTests
 
 		SetupMigrations(
 			databaseName,
+			historyTableName,
 			rollbackOnMigrationFail: false,
 			firstMigrationMock.Object,
 			secondMigrationMock.Object);
 
-		SetupAppliedMigrations(databaseName, _1_FirstMigration.AsApplied(), _2_SecondMigration.AsApplied());
+		SetupAppliedMigrations(
+			databaseName,
+			historyTableName,
+			_1_FirstMigration.AsApplied(),
+			_2_SecondMigration.AsApplied());
 
 		MockExecuteNonQuery<ClickHouseMigrationContext>(
 			sql => sql == "rollback migration 2",
@@ -332,6 +349,7 @@ public partial class ClickHouseMigratorTests
 	public async Task NonEmptyAppliedMigration_ApplyNewMigration_MigrationsLogged()
 	{
 		const string databaseName = "test";
+		const string historyTableName = "db_migrations_history";
 
 		var firstMigrationMock = _1_FirstMigration.AsMock();
 
@@ -342,11 +360,12 @@ public partial class ClickHouseMigratorTests
 
 		SetupMigrations(
 			databaseName,
+			historyTableName,
 			rollbackOnMigrationFail: false,
 			firstMigrationMock.Object,
 			secondMigrationMock.Object);
 
-		SetupAppliedMigrations(databaseName, _1_FirstMigration.AsApplied());
+		SetupAppliedMigrations(databaseName, historyTableName, _1_FirstMigration.AsApplied());
 
 		SetupDatabaseVersion();
 
@@ -381,6 +400,7 @@ public partial class ClickHouseMigratorTests
 	public async Task ApplyAndRollBack_SameInitialAndFinalMigrations()
 	{
 		const string databaseName = "test";
+		const string historyTableName = "db_migrations_history";
 
 		var firstMigrationMock = _1_FirstMigration.AsMock();
 
@@ -395,18 +415,23 @@ public partial class ClickHouseMigratorTests
 
 		SetupMigrations(
 			databaseName,
+			historyTableName,
 			rollbackOnMigrationFail: false,
 			firstMigrationMock.Object,
 			secondMigrationMock.Object);
 
-		SetupAppliedMigrations(databaseName, _1_FirstMigration.AsApplied());
+		SetupAppliedMigrations(databaseName, historyTableName, _1_FirstMigration.AsApplied());
 
 		MockExecuteNonQuery<ClickHouseMigrationContext>(
-			sql => sql == $"insert into {databaseName}.db_migrations_history values "
+			sql => sql == $"insert into {databaseName}.{historyTableName} values "
 				+ $"({_2_SecondMigration.MigrationIndex}, '{_2_SecondMigration.MigrationName}', 0)",
 			() =>
 			{
-				SetupAppliedMigrations(databaseName, _1_FirstMigration.AsApplied(), _2_SecondMigration.AsApplied());
+				SetupAppliedMigrations(
+					databaseName,
+					historyTableName,
+					_1_FirstMigration.AsApplied(),
+					_2_SecondMigration.AsApplied());
 
 				return 0;
 			});

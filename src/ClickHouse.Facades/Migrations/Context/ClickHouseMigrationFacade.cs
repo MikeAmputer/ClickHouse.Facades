@@ -6,10 +6,9 @@ namespace ClickHouse.Facades.Migrations;
 internal sealed class ClickHouseMigrationFacade
 	: ClickHouseFacade<ClickHouseMigrationContext>, IClickHouseMigrationFacade
 {
-	private const string MigrationsTable = "db_migrations_history";
-
 	private readonly IClickHouseMigrationInstructions _migrationInstructions;
 	private readonly string _dbName;
+	private readonly string _historyTableName;
 
 	public ClickHouseMigrationLog? Log { get; set; }
 
@@ -24,6 +23,7 @@ internal sealed class ClickHouseMigrationFacade
 		}
 
 		_dbName = _migrationInstructions.DatabaseName;
+		_historyTableName = _migrationInstructions.HistoryTableName;
 	}
 
 	public async Task EnsureMigrationsTableCreatedAsync(CancellationToken cancellationToken)
@@ -31,7 +31,7 @@ internal sealed class ClickHouseMigrationFacade
 		var builder = CreateTableSqlBuilder.Create
 			.IfNotExists()
 			.WithDatabase(_dbName)
-			.WithTableName(MigrationsTable)
+			.WithTableName(_historyTableName)
 			.AddColumn(builder => builder
 				.WithName("id")
 				.WithType("UInt64"))
@@ -49,6 +49,11 @@ internal sealed class ClickHouseMigrationFacade
 				.WithEngine(ClickHouseTableEngine.ReplacingMergeTree)
 				.WithEngineArgs("date_time", "is_rolled_back"))
 			.WithOrderBy("id");
+
+		if (!_migrationInstructions.ClusterName.IsNullOrWhiteSpace())
+		{
+			builder.WithOnCluster(_migrationInstructions.ClusterName!);
+		}
 
 		var statement = builder.BuildSql();
 
@@ -68,7 +73,7 @@ internal sealed class ClickHouseMigrationFacade
 	}
 
 	private string GetAppliedMigrationsSql =>
-		$"select id, name from {_dbName}.{MigrationsTable} final";
+		$"select id, name from {_dbName}.{_historyTableName} final";
 
 	public async Task<List<AppliedMigration>> GetAppliedMigrationsAsync(CancellationToken cancellationToken)
 	{
@@ -123,7 +128,7 @@ internal sealed class ClickHouseMigrationFacade
 			var addAppliedMigrationSql = string.Format(
 				AddAppliedMigrationSql,
 				[
-					$"{_dbName}.{MigrationsTable}",
+					$"{_dbName}.{_historyTableName}",
 					migration.Index,
 					migration.Name
 				]);
@@ -190,7 +195,7 @@ internal sealed class ClickHouseMigrationFacade
 			var addAppliedMigrationSql = string.Format(
 				AddRolledBackMigrationSql,
 				[
-					$"{_dbName}.{MigrationsTable}",
+					$"{_dbName}.{_historyTableName}",
 					migration.Index,
 					migration.Name
 				]);
