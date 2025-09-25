@@ -93,8 +93,8 @@ public partial class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 		SetupDatabaseVersion();
 
 
-		await Assert.ThrowsExactlyAsync<AggregateException>(
-			() => GetService<IClickHouseMigrator>().ApplyMigrationsAsync());
+		await Assert.ThrowsExactlyAsync<AggregateException>(() =>
+			GetService<IClickHouseMigrator>().ApplyMigrationsAsync());
 
 
 		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
@@ -134,8 +134,8 @@ public partial class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 		SetupDatabaseVersion();
 
 
-		await Assert.ThrowsExactlyAsync<AggregateException>(
-			() => GetService<IClickHouseMigrator>().ApplyMigrationsAsync());
+		await Assert.ThrowsExactlyAsync<AggregateException>(() =>
+			GetService<IClickHouseMigrator>().ApplyMigrationsAsync());
 
 
 		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
@@ -220,6 +220,56 @@ public partial class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 				.GetRecord(2)
 				.Sql
 				.StartsWith($"create table if not exists {databaseName}.{historyTableName} on cluster {clusterName}"));
+
+		Assert.IsTrue(
+			connectionTracker
+				.GetRecord(2)
+				.Sql
+				.Contains("engine = ReplacingMergeTree(date_time, is_rolled_back)"));
+	}
+
+	[TestMethod]
+	public async Task ReplicatedMigrationsTable_ApplyMigrations_ReplicatedMigrationsTableCreated()
+	{
+		const string databaseName = "test";
+		const string historyTableName = "db_migrations_history_on_cluster";
+		const string zooPath = "/clickhouse/tables/shard01/db_migrations_history_on_cluster";
+		const string replicaName = "replica01";
+
+		SetupMigrations(
+			databaseName,
+			historyTableName,
+			new ClickHouseReplicatedTableArgs(zooPath, replicaName),
+			rollbackOnMigrationFail: false);
+
+		SetupAppliedMigrations(databaseName, historyTableName);
+
+		SetupDatabaseVersion();
+
+
+		await GetService<IClickHouseMigrator>().ApplyMigrationsAsync();
+
+
+		var connectionTracker = GetClickHouseConnectionTracker<ClickHouseMigrationContext>();
+
+		Assert.AreEqual(3, connectionTracker.RecordsCount);
+
+		Assert.AreEqual(
+			$"create database if not exists {databaseName}\nengine = Atomic",
+			connectionTracker.GetRecord(1).Sql);
+
+		Assert.IsTrue(
+			connectionTracker
+				.GetRecord(2)
+				.Sql
+				.StartsWith($"create table if not exists {databaseName}.{historyTableName}"));
+
+		Assert.IsTrue(
+			connectionTracker
+				.GetRecord(2)
+				.Sql
+				.Contains(
+					$"engine = ReplicatedReplacingMergeTree({zooPath}, {replicaName}, date_time, is_rolled_back)"));
 	}
 
 	private void SetupMigrations(
@@ -274,6 +324,39 @@ public partial class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 		migrationInstructionsMock
 			.Setup(m => m.ClusterName)
 			.Returns(onCluster);
+
+		Mock<IClickHouseMigrationsLocator> migrationsLocatorMock = new();
+		migrationsLocatorMock
+			.Setup(m => m.GetMigrations())
+			.Returns(migrations);
+
+		UpdateServiceCollection(services =>
+			services.AddClickHouseTestMigrations(migrationInstructionsMock.Object, migrationsLocatorMock.Object));
+	}
+
+	private void SetupMigrations(
+		string databaseName,
+		string historyTableName,
+		ClickHouseReplicatedTableArgs replicatedArgs,
+		bool rollbackOnMigrationFail,
+		params ClickHouseMigration[] migrations)
+	{
+		Mock<IClickHouseMigrationInstructions> migrationInstructionsMock = new();
+		migrationInstructionsMock
+			.Setup(m => m.GetConnectionString())
+			.Returns("host=localhost;port=8123;database=test;");
+		migrationInstructionsMock
+			.Setup(m => m.DatabaseName)
+			.Returns(databaseName);
+		migrationInstructionsMock
+			.Setup(m => m.RollbackOnMigrationFail)
+			.Returns(rollbackOnMigrationFail);
+		migrationInstructionsMock
+			.Setup(m => m.HistoryTableName)
+			.Returns(historyTableName);
+		migrationInstructionsMock
+			.Setup(m => m.ReplicatedHistoryTableArgs)
+			.Returns(replicatedArgs);
 
 		Mock<IClickHouseMigrationsLocator> migrationsLocatorMock = new();
 		migrationsLocatorMock

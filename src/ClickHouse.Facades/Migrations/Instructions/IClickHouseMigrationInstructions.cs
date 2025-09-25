@@ -32,6 +32,14 @@ public interface IClickHouseMigrationInstructions
 	string? ClusterName => null;
 
 	/// <summary>
+	/// Replication settings for the migrations history table.
+	/// If specified, the history table will be created as a <c>ReplicatedMergeTree</c>
+	/// using the provided ZooKeeper path and replica name.
+	/// If <c>null</c>, a non-replicated engine will be used instead.
+	/// </summary>
+	ClickHouseReplicatedTableArgs? ReplicatedHistoryTableArgs => null;
+
+	/// <summary>
 	/// A value indicating whether to roll back changes if a migration fails.
 	/// The default is <c>false</c>.
 	/// </summary>

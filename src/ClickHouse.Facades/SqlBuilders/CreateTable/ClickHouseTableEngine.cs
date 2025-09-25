@@ -12,4 +12,5 @@ internal enum ClickHouseTableEngine
 	TinyLog,
 	StripeLog,
 	Log,
+	ReplicatedReplacingMergeTree,
 }

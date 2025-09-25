@@ -1,7 +1,25 @@
-﻿namespace ClickHouse.Facades.Migrations;
+﻿using ClickHouse.Facades.Utility;
 
-public interface IClickHouseReplicatedTableArgs
+namespace ClickHouse.Facades.Migrations;
+
+public sealed class ClickHouseReplicatedTableArgs
 {
-	string ZooPath { get; }
-	string ReplicaName { get; }
+	internal string ZooPath { get; }
+	internal string ReplicaName { get; }
+
+	public ClickHouseReplicatedTableArgs(string zooPath, string replicaName)
+	{
+		if (zooPath.IsNullOrWhiteSpace())
+		{
+			throw new ArgumentException("Parameter is null or empty.", nameof(zooPath));
+		}
+
+		if (replicaName.IsNullOrWhiteSpace())
+		{
+			throw new ArgumentException("Parameter is null or empty.", nameof(replicaName));
+		}
+
+		ZooPath = zooPath;
+		ReplicaName = replicaName;
+	}
 }
