@@ -9,6 +9,7 @@ namespace ClickHouse.Facades.Tests;
 public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 {
 	private const string MigrationsDatabaseName = "test";
+	private const string MigrationsHistoryTableName = "db_migrations_history";
 
 	protected override void SetupServiceCollection(IServiceCollection services)
 	{
@@ -22,6 +23,9 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 		migrationInstructionsMock
 			.Setup(m => m.RollbackOnMigrationFail)
 			.Returns(false);
+		migrationInstructionsMock
+			.Setup(m => m.HistoryTableName)
+			.Returns(MigrationsHistoryTableName);
 
 		services.AddClickHouseTestMigrations(migrationInstructionsMock.Object);
 	}
@@ -50,7 +54,7 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 			connectionTracker
 				.GetRecord(2)
 				.Sql
-				.StartsWith($"create table if not exists {MigrationsDatabaseName}.db_migrations_history"));
+				.StartsWith($"create table if not exists {MigrationsDatabaseName}.{MigrationsHistoryTableName}"));
 	}
 
 	[TestMethod]
@@ -76,7 +80,7 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 		Assert.AreEqual("apply migration", connectionTracker.GetRecord(5).Sql);
 
 		Assert.AreEqual(
-			$"insert into {MigrationsDatabaseName}.db_migrations_history values "
+			$"insert into {MigrationsDatabaseName}.{MigrationsHistoryTableName} values "
 			+ $"({_1_FirstMigration.MigrationIndex}, '{_1_FirstMigration.MigrationName}', 0)",
 			connectionTracker.GetRecord(6).Sql);
 	}
@@ -111,7 +115,7 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 		Assert.AreEqual("apply migration 1", connectionTracker.GetRecord(5).Sql);
 
 		Assert.AreEqual(
-			$"insert into {MigrationsDatabaseName}.db_migrations_history values "
+			$"insert into {MigrationsDatabaseName}.{MigrationsHistoryTableName} values "
 			+ $"({_1_FirstMigration.MigrationIndex}, '{_1_FirstMigration.MigrationName}', 0)",
 			connectionTracker.GetRecord(6).Sql);
 	}
@@ -147,14 +151,14 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 		Assert.AreEqual("apply migration 1", connectionTracker.GetRecord(5).Sql);
 
 		Assert.AreEqual(
-			$"insert into {MigrationsDatabaseName}.db_migrations_history values "
+			$"insert into {MigrationsDatabaseName}.{MigrationsHistoryTableName} values "
 			+ $"({_1_FirstMigration.MigrationIndex}, '{_1_FirstMigration.MigrationName}', 0)",
 			connectionTracker.GetRecord(6).Sql);
 
 		Assert.AreEqual("apply migration 2", connectionTracker.GetRecord(11).Sql);
 
 		Assert.AreEqual(
-			$"insert into {MigrationsDatabaseName}.db_migrations_history values "
+			$"insert into {MigrationsDatabaseName}.{MigrationsHistoryTableName} values "
 			+ $"({_2_SecondMigration.MigrationIndex}, '{_2_SecondMigration.MigrationName}', 0)",
 			connectionTracker.GetRecord(12).Sql);
 	}
@@ -201,7 +205,7 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 		SetupMigrations<TestContext_2>(migrationMock.Object);
 		SetupAppliedMigrations([]);
 		MockExecuteNonQuery<ClickHouseMigrationContext>(
-			sql => sql == $"insert into {MigrationsDatabaseName}.db_migrations_history values "
+			sql => sql == $"insert into {MigrationsDatabaseName}.{MigrationsHistoryTableName} values "
 				+ $"({_1_FirstMigration.MigrationIndex}, '{_1_FirstMigration.MigrationName}', 0)",
 			() =>
 			{
@@ -238,7 +242,7 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 	private void SetupAppliedMigrations(params AppliedMigration[] appliedMigrations)
 	{
 		MockExecuteReader<ClickHouseMigrationContext, AppliedMigration>(
-			sql => sql == $"select id, name from {MigrationsDatabaseName}.db_migrations_history final",
+			sql => sql == $"select id, name from {MigrationsDatabaseName}.{MigrationsHistoryTableName} final",
 			appliedMigrations,
 			("id", typeof(ulong), m => m.Index),
 			("name", typeof(string), m => m.Name));

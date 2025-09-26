@@ -130,8 +130,8 @@ internal class CreateTableSqlBuilder : ClickHouseSqlBuilder<CreateTableSqlBuilde
 
 	protected override object[] BuildQueryArgs()
 	{
-		return new object[]
-		{
+		return
+		[
 			_ifNotExists.ToString(_ => " if not exists"),
 			_database.NotNullToString(v => $"{v}.", ""),
 			_tableName.NotNullOrThrow(),
@@ -141,8 +141,8 @@ internal class CreateTableSqlBuilder : ClickHouseSqlBuilder<CreateTableSqlBuilde
 			_partitionBy.NotNullToString(v => FetchColumnArgsLine("partition by", v), string.Empty),
 			_primaryKey.NotNullToString(v => FetchColumnArgsLine("primary key", v), string.Empty),
 			_orderBy.NotNullToString(v => FetchColumnArgsLine("order by", v), string.Empty),
-			_comment.NotNullToString(v => $"\ncomment '{v}'", string.Empty),
-		};
+			_comment.NotNullToString(v => $"\ncomment '{v}'", string.Empty)
+		];
 	}
 
 	private string FetchColumns()
