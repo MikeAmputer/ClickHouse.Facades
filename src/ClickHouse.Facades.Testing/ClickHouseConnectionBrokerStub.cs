@@ -29,7 +29,7 @@ internal class ClickHouseConnectionBrokerStub<TContext> : IClickHouseConnectionB
 
 	public Task<int> ExecuteNonQueryAsync(
 		string statement,
-		Dictionary<string, object>? parameters,
+		Dictionary<string, object?>? parameters,
 		CancellationToken cancellationToken)
 	{
 		var result = _responseProducer.TryGetResponse(TestQueryType.ExecuteNonQuery, statement, out var response)
@@ -47,7 +47,7 @@ internal class ClickHouseConnectionBrokerStub<TContext> : IClickHouseConnectionB
 
 	public Task<object> ExecuteScalarAsync(
 		string query,
-		Dictionary<string, object>? parameters,
+		Dictionary<string, object?>? parameters,
 		CancellationToken cancellationToken)
 	{
 		var result = _responseProducer.TryGetResponse(TestQueryType.ExecuteScalar, query, out var response)
@@ -65,7 +65,7 @@ internal class ClickHouseConnectionBrokerStub<TContext> : IClickHouseConnectionB
 
 	public Task<DbDataReader> ExecuteReaderAsync(
 		string query,
-		Dictionary<string, object>? parameters,
+		Dictionary<string, object?>? parameters,
 		CancellationToken cancellationToken)
 	{
 		var result = _responseProducer
@@ -84,7 +84,7 @@ internal class ClickHouseConnectionBrokerStub<TContext> : IClickHouseConnectionB
 
 	public DataTable ExecuteDataTable(
 		string query,
-		Dictionary<string, object>? parameters,
+		Dictionary<string, object?>? parameters,
 		CancellationToken cancellationToken)
 	{
 		var result = _responseProducer

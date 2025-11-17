@@ -55,7 +55,7 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 
 	public async Task<object> ExecuteScalarAsync(
 		string query,
-		Dictionary<string, object>? parameters,
+		Dictionary<string, object?>? parameters,
 		CancellationToken cancellationToken)
 	{
 		cancellationToken.ThrowIfCancellationRequested();
@@ -74,7 +74,7 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 
 	public async Task<int> ExecuteNonQueryAsync(
 		string statement,
-		Dictionary<string, object>? parameters,
+		Dictionary<string, object?>? parameters,
 		CancellationToken cancellationToken)
 	{
 		cancellationToken.ThrowIfCancellationRequested();
@@ -93,7 +93,7 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 
 	public async Task<DbDataReader> ExecuteReaderAsync(
 		string query,
-		Dictionary<string, object>? parameters,
+		Dictionary<string, object?>? parameters,
 		CancellationToken cancellationToken)
 	{
 		cancellationToken.ThrowIfCancellationRequested();
@@ -112,7 +112,7 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 
 	public DataTable ExecuteDataTable(
 		string query,
-		Dictionary<string, object>? parameters,
+		Dictionary<string, object?>? parameters,
 		CancellationToken cancellationToken)
 	{
 		cancellationToken.ThrowIfCancellationRequested();
@@ -225,7 +225,7 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 		await command.ExecuteNonQueryAsync();
 	}
 
-	private void SetParameters(ClickHouseCommand command, Dictionary<string, object>? parameters)
+	private void SetParameters(ClickHouseCommand command, Dictionary<string, object?>? parameters)
 	{
 		if (parameters == null)
 		{
