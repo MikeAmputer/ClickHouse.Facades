@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using System.Data.Common;
-using ClickHouse.Client.ADO;
-using ClickHouse.Client.Copy;
+using ClickHouse.Driver.ADO;
+using ClickHouse.Driver.Copy;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ClickHouse.Facades.Testing;

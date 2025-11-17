@@ -1,7 +1,7 @@
 ﻿using System.Data.Common;
-using ClickHouse.Client;
-using ClickHouse.Client.ADO;
-using ClickHouse.Client.Utility;
+using ClickHouse.Driver;
+using ClickHouse.Driver.ADO;
+using ClickHouse.Driver.Utility;
 
 namespace ClickHouse.Facades;
 

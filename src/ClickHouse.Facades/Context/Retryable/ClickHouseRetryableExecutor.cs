@@ -1,4 +1,4 @@
-﻿using ClickHouse.Client;
+﻿using ClickHouse.Driver;
 
 namespace ClickHouse.Facades;
 

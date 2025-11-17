@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using ClickHouse.Client;
+using ClickHouse.Driver;
 
 namespace ClickHouse.Facades.Extensions;
 

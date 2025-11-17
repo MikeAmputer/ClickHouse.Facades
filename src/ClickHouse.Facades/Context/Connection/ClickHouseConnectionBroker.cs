@@ -1,9 +1,9 @@
 ﻿using System.Data;
 using System.Data.Common;
-using ClickHouse.Client.ADO;
-using ClickHouse.Client.ADO.Adapters;
-using ClickHouse.Client.Copy;
-using ClickHouse.Client.Utility;
+using ClickHouse.Driver.ADO;
+using ClickHouse.Driver.ADO.Adapters;
+using ClickHouse.Driver.Copy;
+using ClickHouse.Driver.Utility;
 using ClickHouse.Facades.Utility;
 
 namespace ClickHouse.Facades;
