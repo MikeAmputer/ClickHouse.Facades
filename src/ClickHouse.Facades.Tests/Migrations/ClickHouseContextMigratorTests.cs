@@ -15,7 +15,7 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 	{
 		Mock<IClickHouseMigrationInstructions> migrationInstructionsMock = new();
 		migrationInstructionsMock
-			.Setup(m => m.GetConnectionString())
+			.Setup(m => m.ConnectionString)
 			.Returns("host=localhost;port=8123;database=test;");
 		migrationInstructionsMock
 			.Setup(m => m.DatabaseName)
