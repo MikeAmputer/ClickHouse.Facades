@@ -1,4 +1,4 @@
-﻿using ClickHouse.Client;
+﻿using ClickHouse.Driver;
 using ClickHouse.Facades.Extensions;
 using Microsoft.Extensions.Options;
 
