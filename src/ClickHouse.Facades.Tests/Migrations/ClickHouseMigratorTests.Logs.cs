@@ -23,7 +23,7 @@ public partial class ClickHouseMigratorTests
 		var log = migrator.MigrationLog;
 
 		Assert.IsTrue(log.Success);
-		Assert.AreEqual(0, log.Entries.Count);
+		Assert.IsEmpty(log.Entries);
 		Assert.IsNull(log.InitialMigrationIndex);
 		Assert.IsNull(log.InitialMigrationName);
 		Assert.IsNull(log.FinalMigrationIndex);
@@ -54,7 +54,7 @@ public partial class ClickHouseMigratorTests
 		var log = migrator.MigrationLog;
 
 		Assert.IsTrue(log.Success);
-		Assert.AreEqual(0, log.Entries.Count);
+		Assert.IsEmpty(log.Entries);
 		Assert.AreEqual(_1_FirstMigration.MigrationIndex, log.InitialMigrationIndex);
 		Assert.AreEqual(_1_FirstMigration.MigrationName, log.InitialMigrationName);
 		Assert.AreEqual(_1_FirstMigration.MigrationIndex, log.FinalMigrationIndex);
@@ -85,7 +85,7 @@ public partial class ClickHouseMigratorTests
 		var log = migrator.MigrationLog;
 
 		Assert.IsTrue(log.Success);
-		Assert.AreEqual(1, log.Entries.Count);
+		Assert.HasCount(1, log.Entries);
 		Assert.IsNull(log.InitialMigrationIndex);
 		Assert.IsNull(log.InitialMigrationName);
 		Assert.AreEqual(_1_FirstMigration.MigrationIndex, log.FinalMigrationIndex);
@@ -99,7 +99,7 @@ public partial class ClickHouseMigratorTests
 		Assert.IsTrue(logEntry.Success);
 		Assert.IsNull(logEntry.FailedStatement);
 		Assert.IsNull(logEntry.Error);
-		Assert.AreEqual(1, logEntry.ExecutedStatements.Count);
+		Assert.HasCount(1, logEntry.ExecutedStatements);
 		Assert.AreEqual("apply migration", logEntry.ExecutedStatements.Single());
 	}
 
@@ -140,7 +140,7 @@ public partial class ClickHouseMigratorTests
 		var log = migrator.MigrationLog;
 
 		Assert.IsFalse(log.Success);
-		Assert.AreEqual(1, log.Entries.Count);
+		Assert.HasCount(1, log.Entries);
 		Assert.IsNull(log.InitialMigrationIndex);
 		Assert.IsNull(log.InitialMigrationName);
 		Assert.IsNull(log.FinalMigrationIndex);
@@ -154,7 +154,7 @@ public partial class ClickHouseMigratorTests
 		Assert.IsFalse(logEntry.Success);
 		Assert.AreEqual("apply migration statement 2", logEntry.FailedStatement);
 		Assert.AreEqual("test exception", logEntry.Error);
-		Assert.AreEqual(1, logEntry.ExecutedStatements.Count);
+		Assert.HasCount(1, logEntry.ExecutedStatements);
 		Assert.AreEqual("apply migration statement 1", logEntry.ExecutedStatements.Single());
 	}
 
@@ -195,7 +195,7 @@ public partial class ClickHouseMigratorTests
 		var log = migrator.MigrationLog;
 
 		Assert.IsFalse(log.Success);
-		Assert.AreEqual(2, log.Entries.Count);
+		Assert.HasCount(2, log.Entries);
 		Assert.IsNull(log.InitialMigrationIndex);
 		Assert.IsNull(log.InitialMigrationName);
 		Assert.IsNull(log.FinalMigrationIndex);
@@ -209,7 +209,7 @@ public partial class ClickHouseMigratorTests
 		Assert.IsFalse(logEntryUp.Success);
 		Assert.AreEqual("apply migration statement 2", logEntryUp.FailedStatement);
 		Assert.AreEqual("test exception", logEntryUp.Error);
-		Assert.AreEqual(1, logEntryUp.ExecutedStatements.Count);
+		Assert.HasCount(1, logEntryUp.ExecutedStatements);
 		Assert.AreEqual("apply migration statement 1", logEntryUp.ExecutedStatements.Single());
 
 		var logEntryDown = log.Entries[1];
@@ -220,7 +220,7 @@ public partial class ClickHouseMigratorTests
 		Assert.IsTrue(logEntryDown.Success);
 		Assert.IsNull(logEntryDown.FailedStatement);
 		Assert.IsNull(logEntryDown.Error);
-		Assert.AreEqual(1, logEntryDown.ExecutedStatements.Count);
+		Assert.HasCount(1, logEntryDown.ExecutedStatements);
 		Assert.AreEqual("rollback migration", logEntryDown.ExecutedStatements.Single());
 	}
 
@@ -265,7 +265,7 @@ public partial class ClickHouseMigratorTests
 		var log = migrator.MigrationLog;
 
 		Assert.IsTrue(log.Success);
-		Assert.AreEqual(1, log.Entries.Count);
+		Assert.HasCount(1, log.Entries);
 		Assert.AreEqual(_2_SecondMigration.MigrationIndex, log.InitialMigrationIndex);
 		Assert.AreEqual(_2_SecondMigration.MigrationName, log.InitialMigrationName);
 		Assert.AreEqual(_1_FirstMigration.MigrationIndex, log.FinalMigrationIndex);
@@ -279,7 +279,7 @@ public partial class ClickHouseMigratorTests
 		Assert.IsTrue(logEntry.Success);
 		Assert.IsNull(logEntry.FailedStatement);
 		Assert.IsNull(logEntry.Error);
-		Assert.AreEqual(1, logEntry.ExecutedStatements.Count);
+		Assert.HasCount(1, logEntry.ExecutedStatements);
 		Assert.AreEqual("rollback migration 2", logEntry.ExecutedStatements.Single());
 	}
 
@@ -328,7 +328,7 @@ public partial class ClickHouseMigratorTests
 		var log = migrator.MigrationLog;
 
 		Assert.IsFalse(log.Success);
-		Assert.AreEqual(1, log.Entries.Count);
+		Assert.HasCount(1, log.Entries);
 		Assert.AreEqual(_2_SecondMigration.MigrationIndex, log.InitialMigrationIndex);
 		Assert.AreEqual(_2_SecondMigration.MigrationName, log.InitialMigrationName);
 		Assert.AreEqual(_2_SecondMigration.MigrationIndex, log.FinalMigrationIndex);
@@ -342,7 +342,7 @@ public partial class ClickHouseMigratorTests
 		Assert.IsFalse(logEntry.Success);
 		Assert.AreEqual("rollback migration 2", logEntry.FailedStatement);
 		Assert.AreEqual("test exception", logEntry.Error);
-		Assert.AreEqual(0, logEntry.ExecutedStatements.Count);
+		Assert.IsEmpty(logEntry.ExecutedStatements);
 	}
 
 	[TestMethod]
@@ -378,7 +378,7 @@ public partial class ClickHouseMigratorTests
 		var log = migrator.MigrationLog;
 
 		Assert.IsTrue(log.Success);
-		Assert.AreEqual(1, log.Entries.Count);
+		Assert.HasCount(1, log.Entries);
 		Assert.AreEqual(_1_FirstMigration.MigrationIndex, log.InitialMigrationIndex);
 		Assert.AreEqual(_1_FirstMigration.MigrationName, log.InitialMigrationName);
 		Assert.AreEqual(_2_SecondMigration.MigrationIndex, log.FinalMigrationIndex);
@@ -392,7 +392,7 @@ public partial class ClickHouseMigratorTests
 		Assert.IsTrue(logEntry.Success);
 		Assert.IsNull(logEntry.FailedStatement);
 		Assert.IsNull(logEntry.Error);
-		Assert.AreEqual(1, logEntry.ExecutedStatements.Count);
+		Assert.HasCount(1, logEntry.ExecutedStatements);
 		Assert.AreEqual("apply migration 2", logEntry.ExecutedStatements.Single());
 	}
 
@@ -449,7 +449,7 @@ public partial class ClickHouseMigratorTests
 		var log = migrator.MigrationLog;
 
 		Assert.IsTrue(log.Success);
-		Assert.AreEqual(2, log.Entries.Count);
+		Assert.HasCount(2, log.Entries);
 		Assert.AreEqual(_1_FirstMigration.MigrationIndex, log.InitialMigrationIndex);
 		Assert.AreEqual(_1_FirstMigration.MigrationName, log.InitialMigrationName);
 		Assert.AreEqual(_1_FirstMigration.MigrationIndex, log.FinalMigrationIndex);

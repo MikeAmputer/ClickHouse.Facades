@@ -64,7 +64,7 @@ public class TransactionBrokerTests
 		{
 			await transactionBroker.BeginAsync();
 
-			await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => transactionBroker.BeginAsync());
+			await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => transactionBroker.BeginAsync());
 		}
 
 		connectionBroker.Verify(b => b.BeginTransactionAsync(), Times.Once);
@@ -82,7 +82,7 @@ public class TransactionBrokerTests
 			await transactionBroker.BeginAsync();
 			await transactionBroker.CommitAsync();
 
-			await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => transactionBroker.RollbackAsync());
+			await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => transactionBroker.RollbackAsync());
 		}
 
 		connectionBroker.Verify(b => b.BeginTransactionAsync(), Times.Once);
@@ -101,7 +101,7 @@ public class TransactionBrokerTests
 			await transactionBroker.BeginAsync();
 			await transactionBroker.RollbackAsync();
 
-			await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => transactionBroker.CommitAsync());
+			await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => transactionBroker.CommitAsync());
 		}
 
 		connectionBroker.Verify(b => b.BeginTransactionAsync(), Times.Once);
@@ -120,7 +120,7 @@ public class TransactionBrokerTests
 			await transactionBroker.BeginAsync();
 			await transactionBroker.CommitAsync();
 
-			await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => transactionBroker.BeginAsync());
+			await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => transactionBroker.BeginAsync());
 		}
 
 		connectionBroker.Verify(b => b.BeginTransactionAsync(), Times.Once);
@@ -139,7 +139,7 @@ public class TransactionBrokerTests
 			await transactionBroker.BeginAsync();
 			await transactionBroker.RollbackAsync();
 
-			await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => transactionBroker.BeginAsync());
+			await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => transactionBroker.BeginAsync());
 		}
 
 		connectionBroker.Verify(b => b.BeginTransactionAsync(), Times.Once);
@@ -266,7 +266,7 @@ public class TransactionBrokerTests
 
 		var connectionBroker = CreateConnectionBrokerMock();
 
-		await Assert.ThrowsExceptionAsync<InvalidOperationException>(() =>
+		await Assert.ThrowsExactlyAsync<InvalidOperationException>(() =>
 			TransactionBroker.Create(connectionBroker.Object, options));
 
 		connectionBroker.VerifyNoOtherCalls();

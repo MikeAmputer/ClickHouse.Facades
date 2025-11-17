@@ -15,22 +15,22 @@ internal interface IClickHouseConnectionBroker
 
 	Task<object> ExecuteScalarAsync(
 		string query,
-		Dictionary<string, object>? parameters,
+		Dictionary<string, object?>? parameters,
 		CancellationToken cancellationToken);
 
 	Task<int> ExecuteNonQueryAsync(
 		string statement,
-		Dictionary<string, object>? parameters,
+		Dictionary<string, object?>? parameters,
 		CancellationToken cancellationToken);
 
 	Task<DbDataReader> ExecuteReaderAsync(
 		string query,
-		Dictionary<string, object>? parameters,
+		Dictionary<string, object?>? parameters,
 		CancellationToken cancellationToken);
 
 	DataTable ExecuteDataTable(
 		string query,
-		Dictionary<string, object>? parameters,
+		Dictionary<string, object?>? parameters,
 		CancellationToken cancellationToken);
 
 	Task<long> BulkInsertAsync(
