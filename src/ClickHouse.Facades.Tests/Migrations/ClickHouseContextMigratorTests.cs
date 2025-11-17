@@ -50,11 +50,12 @@ public class ClickHouseContextMigratorTests : ClickHouseFacadesTestsCore
 			$"create database if not exists {MigrationsDatabaseName}\nengine = Atomic",
 			connectionTracker.GetRecord(1).Sql);
 
-		Assert.IsTrue(
+		Assert.StartsWith(
+			$"create table if not exists {MigrationsDatabaseName}.{MigrationsHistoryTableName}",
 			connectionTracker
 				.GetRecord(2)
 				.Sql
-				.StartsWith($"create table if not exists {MigrationsDatabaseName}.{MigrationsHistoryTableName}"));
+		);
 	}
 
 	[TestMethod]

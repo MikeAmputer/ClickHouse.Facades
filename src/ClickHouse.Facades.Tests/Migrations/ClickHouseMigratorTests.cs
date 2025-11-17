@@ -29,11 +29,12 @@ public partial class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 			$"create database if not exists {databaseName}\nengine = Atomic",
 			connectionTracker.GetRecord(1).Sql);
 
-		Assert.IsTrue(
+		Assert.StartsWith(
+			$"create table if not exists {databaseName}.{historyTableName}",
 			connectionTracker
 				.GetRecord(2)
 				.Sql
-				.StartsWith($"create table if not exists {databaseName}.{historyTableName}"));
+		);
 	}
 
 	[TestMethod]
@@ -215,17 +216,19 @@ public partial class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 			$"create database if not exists {databaseName}\nengine = Atomic",
 			connectionTracker.GetRecord(1).Sql);
 
-		Assert.IsTrue(
+		Assert.StartsWith(
+			$"create table if not exists {databaseName}.{historyTableName} on cluster {clusterName}",
 			connectionTracker
 				.GetRecord(2)
 				.Sql
-				.StartsWith($"create table if not exists {databaseName}.{historyTableName} on cluster {clusterName}"));
+		);
 
-		Assert.IsTrue(
+		Assert.Contains(
+			"engine = ReplacingMergeTree(date_time, is_rolled_back)",
 			connectionTracker
 				.GetRecord(2)
 				.Sql
-				.Contains("engine = ReplacingMergeTree(date_time, is_rolled_back)"));
+		);
 	}
 
 	[TestMethod]
@@ -258,18 +261,19 @@ public partial class ClickHouseMigratorTests : ClickHouseFacadesTestsCore
 			$"create database if not exists {databaseName}\nengine = Atomic",
 			connectionTracker.GetRecord(1).Sql);
 
-		Assert.IsTrue(
+		Assert.StartsWith(
+			$"create table if not exists {databaseName}.{historyTableName}",
 			connectionTracker
 				.GetRecord(2)
 				.Sql
-				.StartsWith($"create table if not exists {databaseName}.{historyTableName}"));
+		);
 
-		Assert.IsTrue(
+		Assert.Contains(
+			$"engine = ReplicatedReplacingMergeTree({zooPath}, {replicaName}, date_time, is_rolled_back)",
 			connectionTracker
 				.GetRecord(2)
 				.Sql
-				.Contains(
-					$"engine = ReplicatedReplacingMergeTree({zooPath}, {replicaName}, date_time, is_rolled_back)"));
+		);
 	}
 
 	private void SetupMigrations(

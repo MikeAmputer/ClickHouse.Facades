@@ -71,7 +71,7 @@ public class MigrationsResolverTests
 			.GetMigrationsToApply()
 			.ToList();
 
-		Assert.AreEqual(1, migrationsToApply.Count);
+		Assert.HasCount(1, migrationsToApply);
 		Assert.AreEqual(_1_FirstMigration.MigrationIndex, migrationsToApply.Single().Index);
 	}
 
@@ -89,7 +89,7 @@ public class MigrationsResolverTests
 			.GetMigrationsToApply()
 			.ToList();
 
-		Assert.AreEqual(2, migrationsToApply.Count);
+		Assert.HasCount(2, migrationsToApply);
 		Assert.AreEqual(_1_FirstMigration.MigrationIndex, migrationsToApply.First().Index);
 		Assert.AreEqual(_2_SecondMigration.MigrationIndex, migrationsToApply.Last().Index);
 	}
@@ -108,7 +108,7 @@ public class MigrationsResolverTests
 			.GetMigrationsToApply()
 			.ToList();
 
-		Assert.AreEqual(1, migrationsToApply.Count);
+		Assert.HasCount(1, migrationsToApply);
 		Assert.AreEqual(_2_SecondMigration.MigrationIndex, migrationsToApply.Single().Index);
 	}
 
@@ -146,8 +146,8 @@ public class MigrationsResolverTests
 			appliedMigrations: new List<AppliedMigration> { _2_SecondMigration.AsApplied() },
 			locatedMigrations: new List<ClickHouseMigration> { secondMigrationMock.Object });
 
-		Assert.ThrowsExactly<InvalidOperationException>(
-			() => migrationsResolver.GetMigrationsToRollback(_1_FirstMigration.MigrationIndex));
+		Assert.ThrowsExactly<InvalidOperationException>(() =>
+			migrationsResolver.GetMigrationsToRollback(_1_FirstMigration.MigrationIndex));
 	}
 
 	[TestMethod]
@@ -175,7 +175,7 @@ public class MigrationsResolverTests
 			.GetMigrationsToRollback(_1_FirstMigration.MigrationIndex)
 			.ToList();
 
-		Assert.AreEqual(2, toRollback.Count);
+		Assert.HasCount(2, toRollback);
 		Assert.AreEqual(_3_ThirdMigration.MigrationIndex, toRollback.First().Index);
 		Assert.AreEqual(_2_SecondMigration.MigrationIndex, toRollback.Last().Index);
 	}
@@ -193,7 +193,7 @@ public class MigrationsResolverTests
 			},
 			locatedMigrations: new List<ClickHouseMigration> { firstMigrationMock.Object });
 
-		Assert.ThrowsExactly<InvalidOperationException>(
-			() => migrationsResolver.GetMigrationsToRollback(_1_FirstMigration.MigrationIndex));
+		Assert.ThrowsExactly<InvalidOperationException>(() =>
+			migrationsResolver.GetMigrationsToRollback(_1_FirstMigration.MigrationIndex));
 	}
 }
