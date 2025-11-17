@@ -1,5 +1,4 @@
 using ClickHouse.Facades.Migrations;
-using Moq;
 
 namespace ClickHouse.Facades.Tests;
 
