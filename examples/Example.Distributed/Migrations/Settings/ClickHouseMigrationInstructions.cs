@@ -7,17 +7,14 @@ public class ClickHouseMigrationInstructions : IClickHouseMigrationInstructions
 {
 	private readonly string _connectionString;
 
+	public string ConnectionString => _connectionString;
+
+	public string DatabaseName => "migrations";
+
 	public ClickHouseMigrationInstructions(IOptions<ClickHouseMigrationsConfig> config)
 	{
 		ArgumentNullException.ThrowIfNull(config);
 
 		_connectionString = config.Value.ConnectionString;
 	}
-
-	public string GetConnectionString()
-	{
-		return _connectionString;
-	}
-
-	public string DatabaseName => "migrations";
 }

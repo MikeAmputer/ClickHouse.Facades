@@ -14,7 +14,7 @@ internal sealed class ClickHouseMigrationContextFactory : ClickHouseContextFacto
 		ClickHouseContextOptionsBuilder<ClickHouseMigrationContext> optionsBuilder)
 	{
 		optionsBuilder
-			.WithConnectionString(_instructions.GetConnectionString())
+			.WithConnectionString(_instructions.ConnectionString)
 			.ForceSessions()
 			.AllowDatabaseChanges();
 

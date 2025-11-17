@@ -10,13 +10,13 @@ public interface IClickHouseMigrationInstructions
 	/// <summary>
 	/// Gets the connection string used for migrations.
 	/// </summary>
-	string GetConnectionString();
+	string ConnectionString { get; }
 
 	/// <summary>
 	/// Database for migrations history table. Database will be created if not exists with engine Atomic.
 	/// Gets 'database' connection string parameter value as default.
 	/// </summary>
-	string DatabaseName => GetConnectionString().GetConnectionStringParameters()["database"]
+	string DatabaseName => ConnectionString.GetConnectionStringParameters()["database"]
 		?? throw new InvalidOperationException("Unable to get 'database' parameter from connection string.");
 
 	/// <summary>
