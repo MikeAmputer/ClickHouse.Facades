@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/github/license/MikeAmputer/ClickHouse.Facades)](https://github.com/MikeAmputer/ClickHouse.Facades/blob/master/LICENSE)
 [![Wiki](https://img.shields.io/badge/wiki-docs-lightgrey?logo=github)](https://github.com/MikeAmputer/ClickHouse.Facades/wiki)
 
-.NET package for managing [ClickHouse](https://github.com/ClickHouse/ClickHouse) migrations and organizing raw SQL through structured database contexts.
+Zero-ORM .NET package for managing [ClickHouse](https://github.com/ClickHouse/ClickHouse) migrations and organizing raw SQL through structured database contexts.
 Makes it easy to separate concerns across features, services, or tables.
 Built on [ClickHouse.Driver](https://github.com/ClickHouse/clickhouse-cs) ([ClickHouse.Client](https://github.com/DarkWanderer/ClickHouse.Client) for version `< 3.0.0`) and tested in production.
 
