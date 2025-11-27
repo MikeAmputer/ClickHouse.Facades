@@ -123,16 +123,6 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 
 		_connection = CreateConnection(options);
 
-		_connection.SetFormDataParameters(options.ParametersInBody);
-
-		if (options.ConnectionCustomSettings != null)
-		{
-			foreach (var customSetting in options.ConnectionCustomSettings)
-			{
-				_connection.CustomSettings.Add(customSetting);
-			}
-		}
-
 		_connectionBroker = options.ConnectionBrokerProvider(new ConnectionBrokerParameters
 		{
 			Connection = _connection,
@@ -150,20 +140,16 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 
 	private static ClickHouseConnection CreateConnection(ClickHouseContextOptions<TContext> options)
 	{
-		if (options.HttpClient != null)
+		var clientSettings = new ClickHouseClientSettings(options.ConnectionString)
 		{
-			return new ClickHouseConnection(options.ConnectionString, options.HttpClient);
-		}
+			HttpClient = options.HttpClient,
+			HttpClientFactory = options.HttpClientFactory,
+			HttpClientName = options.HttpClientName,
+			UseFormDataParameters = options.ParametersInBody,
+			CustomSettings = options.ConnectionCustomSettings ?? new Dictionary<string, object>(),
+		};
 
-		if (options.HttpClientFactory != null)
-		{
-			return new ClickHouseConnection(
-				options.ConnectionString,
-				options.HttpClientFactory,
-				options.HttpClientName);
-		}
-
-		return new ClickHouseConnection(options.ConnectionString);
+		return new ClickHouseConnection(clientSettings);
 	}
 
 	private void ThrowIfNotInitialized()

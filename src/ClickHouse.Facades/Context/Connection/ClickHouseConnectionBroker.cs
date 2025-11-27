@@ -10,8 +10,6 @@ namespace ClickHouse.Facades;
 
 internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 {
-	private const string UseSessionConnectionStringParameter = "usesession";
-
 	private readonly ClickHouseConnection _connection;
 	private readonly bool _sessionEnabled;
 	private readonly ICommandExecutionStrategy _commandExecutionStrategy;
@@ -37,9 +35,7 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 
 		_commandExecutionListener = brokerParameters.CommandExecutionListener;
 
-		_sessionEnabled = brokerParameters.Connection.ConnectionString
-			.GetConnectionStringParameters()
-			.Contains(new KeyValuePair<string, string?>(UseSessionConnectionStringParameter, true.ToString()));
+		_sessionEnabled = brokerParameters.Connection.Settings.UseSession;
 	}
 
 	public string? ServerVersion => _connection.ServerVersion;
