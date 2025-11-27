@@ -30,7 +30,7 @@ Built on [ClickHouse.Driver](https://github.com/ClickHouse/clickhouse-cs) ([Clic
   - Transactions support (keeper is required)
   - Retryable contexts
   - [Dapper](https://github.com/DapperLib/Dapper) compatibility (reader deserialization)
-  - Provides all the features of the ClickHouse.Client package
+  - Provides all the features of the ClickHouse.Driver/ClickHouse.Client package
   - Fully async contract
 - **Testing toolkit:** provides tools for unit testing components of ClickHouse.Facades with the dedicated [ClickHouse.Facades.Testing](https://github.com/MikeAmputer/ClickHouse.Facades/tree/master/src/ClickHouse.Facades.Testing) package.
   - Facades mocking
