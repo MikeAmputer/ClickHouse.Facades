@@ -33,6 +33,7 @@ internal interface IClickHouseConnectionBroker
 		Dictionary<string, object?>? parameters,
 		CancellationToken cancellationToken);
 
+	[Obsolete("Obsolete")]
 	Task<long> BulkInsertAsync(
 		string destinationTable,
 		Func<ClickHouseBulkCopy, Task> saveAction,

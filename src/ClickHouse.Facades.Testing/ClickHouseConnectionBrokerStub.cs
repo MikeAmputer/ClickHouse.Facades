@@ -101,6 +101,7 @@ internal class ClickHouseConnectionBrokerStub<TContext> : IClickHouseConnectionB
 		return result;
 	}
 
+	[Obsolete("Obsolete")]
 	public Task<long> BulkInsertAsync(
 		string destinationTable,
 		Func<ClickHouseBulkCopy, Task> saveAction,

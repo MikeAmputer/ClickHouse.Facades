@@ -127,6 +127,7 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 		return dataTable;
 	}
 
+	[Obsolete("Obsolete")]
 	public async Task<long> BulkInsertAsync(
 		string destinationTable,
 		Func<ClickHouseBulkCopy, Task> saveAction,

@@ -139,6 +139,7 @@ public abstract class ClickHouseFacade<TContext>
 		return _connectionBroker.ExecuteDataTable(query, parameters.DeconstructToDictionary(), cancellationToken);
 	}
 
+	[Obsolete("Obsolete")]
 	protected Task<long> BulkInsertAsync(
 		string destinationTable,
 		IEnumerable<object[]> rows,
@@ -155,6 +156,7 @@ public abstract class ClickHouseFacade<TContext>
 			columnNames);
 	}
 
+	[Obsolete("Obsolete")]
 	protected Task<long> BulkInsertAsync(
 		string destinationTable,
 		IDataReader dataReader,
@@ -171,6 +173,7 @@ public abstract class ClickHouseFacade<TContext>
 			maxDegreeOfParallelism);
 	}
 
+	[Obsolete("Obsolete")]
 	protected Task<long> BulkInsertAsync(
 		string destinationTable,
 		DataTable dataTable,
@@ -187,6 +190,7 @@ public abstract class ClickHouseFacade<TContext>
 			maxDegreeOfParallelism);
 	}
 
+	[Obsolete("Obsolete")]
 	private Task<long> BulkInsertAsync(
 		string destinationTable,
 		Func<ClickHouseBulkCopy, Task> saveAction,
