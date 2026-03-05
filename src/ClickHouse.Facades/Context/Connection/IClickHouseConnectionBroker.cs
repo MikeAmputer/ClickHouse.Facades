@@ -7,10 +7,6 @@ namespace ClickHouse.Facades;
 
 internal interface IClickHouseConnectionBroker
 {
-	string? ServerVersion { get; }
-
-	string? ServerTimezone { get; }
-
 	ClickHouseCommand CreateCommand();
 
 	Task<object> ExecuteScalarAsync(
@@ -33,6 +29,7 @@ internal interface IClickHouseConnectionBroker
 		Dictionary<string, object?>? parameters,
 		CancellationToken cancellationToken);
 
+	[Obsolete("Obsolete")]
 	Task<long> BulkInsertAsync(
 		string destinationTable,
 		Func<ClickHouseBulkCopy, Task> saveAction,

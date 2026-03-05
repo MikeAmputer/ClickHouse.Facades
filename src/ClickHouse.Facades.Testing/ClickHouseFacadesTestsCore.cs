@@ -88,18 +88,6 @@ public class ClickHouseFacadesTestsCore
 		return GetService<ClickHouseConnectionTracker<TContext>>();
 	}
 
-	protected void MockServerVersion<TContext>(Func<string?> valueProvider)
-		where TContext : ClickHouseContext<TContext>
-	{
-		GetService<ClickHouseConnectionResponseProducer<TContext>>().SetServerVersionProvider(valueProvider);
-	}
-
-	protected void MockServerTimezone<TContext>(Func<string?> valueProvider)
-		where TContext : ClickHouseContext<TContext>
-	{
-		GetService<ClickHouseConnectionResponseProducer<TContext>>().SetServerTimezoneProvider(valueProvider);
-	}
-
 	protected void MockFacadeAbstraction<TAbstraction>(TAbstraction mock)
 		where TAbstraction : class
 	{

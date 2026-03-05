@@ -5,22 +5,6 @@ internal class ClickHouseConnectionResponseProducer<TContext>
 {
 	private readonly Dictionary<TestQueryType, Stack<(Predicate<string>, Func<object?>)>> _responseDictionary = new();
 
-	private Func<string?>? _serverVersionProvider;
-	private Func<string?>? _serverTimezoneProvider;
-
-	internal void SetServerVersionProvider(Func<string?> serverVersionProvider)
-	{
-		_serverVersionProvider = serverVersionProvider;
-	}
-
-	internal void SetServerTimezoneProvider(Func<string?> serverTimezoneProvider)
-	{
-		_serverTimezoneProvider = serverTimezoneProvider;
-	}
-
-	internal string? ServerVersion => _serverVersionProvider?.Invoke();
-	internal string? ServerTimezone => _serverTimezoneProvider?.Invoke();
-
 	internal void Add(TestQueryType queryType, Predicate<string> sqlPredicate, Func<object?> result)
 	{
 		if (!_responseDictionary.ContainsKey(queryType))
