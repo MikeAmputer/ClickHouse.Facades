@@ -18,10 +18,6 @@ internal class ClickHouseConnectionBrokerStub<TContext> : IClickHouseConnectionB
 		_responseProducer = serviceProvider.GetRequiredService<ClickHouseConnectionResponseProducer<TContext>>();
 	}
 
-	public string? ServerVersion => _responseProducer.ServerVersion;
-
-	public string? ServerTimezone => _responseProducer.ServerTimezone;
-
 	public ClickHouseCommand CreateCommand()
 	{
 		throw new NotImplementedException();

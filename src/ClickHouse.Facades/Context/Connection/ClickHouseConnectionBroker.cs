@@ -38,10 +38,6 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 		_sessionEnabled = brokerParameters.Connection.Settings.UseSession;
 	}
 
-	public string? ServerVersion => _connection.ServerVersion;
-
-	public string? ServerTimezone => _connection.ServerTimezone;
-
 	public ClickHouseCommand CreateCommand()
 	{
 		ThrowIfNotConnected();

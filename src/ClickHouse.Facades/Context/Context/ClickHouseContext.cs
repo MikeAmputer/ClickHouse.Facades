@@ -25,26 +25,6 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 		}
 	}
 
-	public string? ServerVersion
-	{
-		get
-		{
-			ThrowIfNotInitialized();
-
-			return _connectionBroker.ServerVersion;
-		}
-	}
-
-	public string? ServerTimezone
-	{
-		get
-		{
-			ThrowIfNotInitialized();
-
-			return _connectionBroker.ServerTimezone;
-		}
-	}
-
 	public TFacade GetFacade<TFacade>()
 		where TFacade : ClickHouseFacade<TContext>
 	{

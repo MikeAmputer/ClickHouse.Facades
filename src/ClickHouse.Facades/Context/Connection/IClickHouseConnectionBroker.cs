@@ -7,10 +7,6 @@ namespace ClickHouse.Facades;
 
 internal interface IClickHouseConnectionBroker
 {
-	string? ServerVersion { get; }
-
-	string? ServerTimezone { get; }
-
 	ClickHouseCommand CreateCommand();
 
 	Task<object> ExecuteScalarAsync(
