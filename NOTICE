@@ -1,7 +1,8 @@
-This project references ClickHouse.Client, available under the following license:
+This project references ClickHouse.Driver (ClickHouse.Client), available under the following license:
 
 MIT License
 
+Copyright (c) 2025-2026 ClickHouse, Inc.
 Copyright (c) 2019-2025 Oleg V. Kozlyuk
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
