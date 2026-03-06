@@ -13,8 +13,8 @@ internal class MigrationsResolver
 		IReadOnlyCollection<AppliedMigration> appliedMigrations,
 		IReadOnlyCollection<ClickHouseMigration> locatedMigrations)
 	{
-		ExceptionHelpers.ThrowIfNull(appliedMigrations);
-		ExceptionHelpers.ThrowIfNull(locatedMigrations);
+		ArgumentNullException.ThrowIfNull(appliedMigrations);
+		ArgumentNullException.ThrowIfNull(locatedMigrations);
 
 		if (appliedMigrations.HasDuplicates(m => m.Index))
 		{

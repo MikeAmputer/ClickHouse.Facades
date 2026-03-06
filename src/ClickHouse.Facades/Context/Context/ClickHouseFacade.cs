@@ -3,7 +3,6 @@ using System.Data.Common;
 using System.Runtime.CompilerServices;
 using ClickHouse.Driver;
 using ClickHouse.Driver.ADO;
-using ClickHouse.Driver.Copy;
 using ClickHouse.Facades.Extensions;
 using ClickHouse.Facades.Utility;
 // ReSharper disable MemberCanBePrivate.Global

@@ -1,5 +1,4 @@
-﻿using ClickHouse.Facades.Utility;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace ClickHouse.Facades;
 
@@ -34,7 +33,7 @@ public sealed class ClickHouseContextServiceBuilder<TContext>
 
 	internal void Build(IServiceCollection serviceCollection)
 	{
-		ExceptionHelpers.ThrowIfNull(serviceCollection);
+		ArgumentNullException.ThrowIfNull(serviceCollection);
 
 		serviceCollection.AddSingleton(_facadeRegistry);
 

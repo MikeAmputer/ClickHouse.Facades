@@ -60,8 +60,8 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 		IHttpClientFactory httpClientFactory,
 		string httpClientName)
 	{
-		ExceptionHelpers.ThrowIfNull(httpClientFactory);
-		ExceptionHelpers.ThrowIfNull(httpClientName);
+		ArgumentNullException.ThrowIfNull(httpClientFactory);
+		ArgumentNullException.ThrowIfNull(httpClientName);
 
 		if (_httpClient.HasValue)
 		{
@@ -82,7 +82,7 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 
 	public ClickHouseContextOptionsBuilder<TContext> WithHttpClient(HttpClient httpClient)
 	{
-		ExceptionHelpers.ThrowIfNull(httpClient);
+		ArgumentNullException.ThrowIfNull(httpClient);
 
 		if (_httpClientFactory.HasValue)
 		{
@@ -145,7 +145,7 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 	internal ClickHouseContextOptionsBuilder<TContext> WithFacadeFactory(
 		ClickHouseFacadeFactory<TContext> facadeFactory)
 	{
-		ExceptionHelpers.ThrowIfNull(facadeFactory);
+		ArgumentNullException.ThrowIfNull(facadeFactory);
 
 		return WithPropertyValue(
 			builder => builder._facadeFactory,
@@ -156,7 +156,7 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 	internal ClickHouseContextOptionsBuilder<TContext> WithConnectionBrokerProvider(
 		Func<ConnectionBrokerParameters, IClickHouseConnectionBroker> connectionBrokerProvider)
 	{
-		ExceptionHelpers.ThrowIfNull(connectionBrokerProvider);
+		ArgumentNullException.ThrowIfNull(connectionBrokerProvider);
 
 		return WithPropertyValue(
 			builder => builder._connectionBrokerProvider,
