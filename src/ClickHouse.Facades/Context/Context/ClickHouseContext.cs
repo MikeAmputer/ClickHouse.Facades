@@ -8,7 +8,7 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 {
 	private bool _initialized = false;
 	private ClickHouseClient? _client = null;
-	private QueryOptionsBuilder _queryOptionsBuilder = new();
+	private readonly QueryOptionsBuilder _queryOptionsBuilder = new();
 	private ClickHouseConnection? _connection = null;
 	private IClickHouseConnectionBroker _connectionBroker = null!;
 	private TransactionBroker _transactionBroker = null!;
@@ -70,14 +70,14 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 		}
 
 		_connection!.ChangeDatabase(databaseName);
-		_queryOptionsBuilder = _queryOptionsBuilder.WithDatabase(databaseName);
+		_queryOptionsBuilder.WithDatabase(databaseName);
 	}
 
 	public async Task SetSessionParameterAsync(string parameterName, object value)
 	{
 		ThrowIfNotInitialized();
 
-		_queryOptionsBuilder = _queryOptionsBuilder.AddCustomSettings(parameterName, value);
+		_queryOptionsBuilder.AddCustomSettings(parameterName, value);
 		await _connectionBroker.SetSessionParameterAsync(parameterName, value);
 	}
 
@@ -111,6 +111,8 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 
 		_connectionBroker = options.ConnectionBrokerProvider(new ConnectionBrokerParameters
 		{
+			Client = _client,
+			QueryOptionsBuilder = _queryOptionsBuilder,
 			Connection = _connection,
 			CommandExecutionStrategy = ICommandExecutionStrategy.Pick(options.CommandExecutionStrategy),
 			CommandExecutionListener = options.CommandExecutionListener,

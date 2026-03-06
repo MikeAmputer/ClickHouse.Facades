@@ -1,15 +1,16 @@
 ﻿using System.Data;
 using System.Data.Common;
+using ClickHouse.Driver;
 using ClickHouse.Driver.ADO;
 using ClickHouse.Driver.ADO.Adapters;
-using ClickHouse.Driver.Copy;
 using ClickHouse.Driver.Utility;
-using ClickHouse.Facades.Utility;
 
 namespace ClickHouse.Facades;
 
 internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 {
+	private readonly ClickHouseClient _client;
+	private readonly QueryOptionsBuilder _queryOptionsBuilder;
 	private readonly ClickHouseConnection _connection;
 	private readonly bool _sessionEnabled;
 	private readonly ICommandExecutionStrategy _commandExecutionStrategy;
@@ -22,10 +23,13 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 			throw new InvalidOperationException($"{GetType()} is already connected.");
 		}
 
-		if (brokerParameters == null)
-		{
-			throw new ArgumentNullException(nameof(brokerParameters));
-		}
+		ArgumentNullException.ThrowIfNull(brokerParameters);
+
+		_client = brokerParameters.Client
+			?? throw new ArgumentNullException(nameof(brokerParameters.Client));
+
+		_queryOptionsBuilder = brokerParameters.QueryOptionsBuilder
+			?? throw new ArgumentNullException(nameof(brokerParameters.QueryOptionsBuilder));
 
 		_connection = brokerParameters.Connection
 			?? throw new ArgumentNullException(nameof(brokerParameters.Connection));
@@ -123,46 +127,19 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 		return dataTable;
 	}
 
-	[Obsolete("Obsolete")]
-	public async Task<long> BulkInsertAsync(
+	public Task<long> BulkInsertAsync(
 		string destinationTable,
-		Func<ClickHouseBulkCopy, Task> saveAction,
-		int batchSize,
-		int maxDegreeOfParallelism,
-		IReadOnlyCollection<string>? columnNames = null)
+		IEnumerable<string> columns,
+		IEnumerable<object[]> rows,
+		InsertOptions options,
+		CancellationToken cancellationToken)
 	{
-		ThrowIfNotConnected();
-
-		if (destinationTable.IsNullOrWhiteSpace())
-		{
-			throw new ArgumentException($"{nameof(destinationTable)} is null or whitespace.");
-		}
-
-		if (batchSize < 1)
-		{
-			throw new ArgumentException($"{nameof(batchSize)} is lower than 1.");
-		}
-
-		switch (maxDegreeOfParallelism)
-		{
-			case < 1:
-				throw new ArgumentException($"{nameof(maxDegreeOfParallelism)} is lower than 1.");
-			case > 1 when _sessionEnabled:
-				throw new InvalidOperationException($"Sessions are not compatible with parallel insertion.");
-		}
-
-		using var bulkCopyInterface = new ClickHouseBulkCopy(_connection)
-		{
-			DestinationTableName = destinationTable,
-			BatchSize = batchSize,
-			MaxDegreeOfParallelism = maxDegreeOfParallelism,
-			ColumnNames = columnNames,
-		};
-
-		await bulkCopyInterface.InitAsync();
-		await saveAction(bulkCopyInterface);
-
-		return bulkCopyInterface.RowsWritten;
+		return _client.InsertBinaryAsync(
+			destinationTable,
+			columns,
+			rows,
+			options,
+			cancellationToken);
 	}
 
 	public Task SetSessionParameterAsync(string parameterName, object value)

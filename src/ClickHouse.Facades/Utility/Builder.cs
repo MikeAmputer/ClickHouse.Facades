@@ -18,8 +18,6 @@ public abstract class Builder<TResult, TBuilder>
 		ExceptionHelpers.ThrowIfNull(getter);
 		ExceptionHelpers.ThrowIfNull(setter);
 
-		ThrowIfBuilt();
-
 		if (!overrideAllowed && getter((TBuilder) this).HasValue)
 		{
 			throw new InvalidOperationException("Builder property has been set already.");
@@ -36,8 +34,6 @@ public abstract class Builder<TResult, TBuilder>
 		TValue value)
 	{
 		ExceptionHelpers.ThrowIfNull(getter);
-
-		ThrowIfBuilt();
 
 		var dict = getter((TBuilder) this);
 

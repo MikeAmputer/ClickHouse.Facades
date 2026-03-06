@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Data.Common;
+using ClickHouse.Driver;
 using ClickHouse.Driver.ADO;
 using ClickHouse.Driver.Copy;
 
@@ -29,13 +30,12 @@ internal interface IClickHouseConnectionBroker
 		Dictionary<string, object?>? parameters,
 		CancellationToken cancellationToken);
 
-	[Obsolete("Obsolete")]
 	Task<long> BulkInsertAsync(
 		string destinationTable,
-		Func<ClickHouseBulkCopy, Task> saveAction,
-		int batchSize,
-		int maxDegreeOfParallelism,
-		IReadOnlyCollection<string>? columnNames = null);
+		IEnumerable<string> columns,
+		IEnumerable<object[]> rows,
+		InsertOptions options,
+		CancellationToken cancellationToken);
 
 	Task SetSessionParameterAsync(string parameterName, object value);
 
