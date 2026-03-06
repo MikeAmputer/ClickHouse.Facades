@@ -1,4 +1,5 @@
-﻿using ClickHouse.Driver.ADO;
+﻿using ClickHouse.Driver;
+using ClickHouse.Driver.ADO;
 
 namespace ClickHouse.Facades;
 
@@ -6,6 +7,8 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 	where TContext : ClickHouseContext<TContext>
 {
 	private bool _initialized = false;
+	private ClickHouseClient? _client = null;
+	private QueryOptionsBuilder _queryOptionsBuilder = new();
 	private ClickHouseConnection? _connection = null;
 	private IClickHouseConnectionBroker _connectionBroker = null!;
 	private TransactionBroker _transactionBroker = null!;
@@ -67,13 +70,15 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 		}
 
 		_connection!.ChangeDatabase(databaseName);
+		_queryOptionsBuilder = _queryOptionsBuilder.WithDatabase(databaseName);
 	}
 
-	public Task SetSessionParameterAsync(string parameterName, object value)
+	public async Task SetSessionParameterAsync(string parameterName, object value)
 	{
 		ThrowIfNotInitialized();
 
-		return _connectionBroker.SetSessionParameterAsync(parameterName, value);
+		_queryOptionsBuilder = _queryOptionsBuilder.AddCustomSettings(parameterName, value);
+		await _connectionBroker.SetSessionParameterAsync(parameterName, value);
 	}
 
 	public Task BeginTransactionAsync()
@@ -101,7 +106,8 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 	{
 		ThrowIfInitialized();
 
-		_connection = CreateConnection(options);
+		_client = CreateClient(options);
+		_connection = _client!.CreateConnection();
 
 		_connectionBroker = options.ConnectionBrokerProvider(new ConnectionBrokerParameters
 		{
@@ -118,7 +124,7 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 		_initialized = true;
 	}
 
-	private static ClickHouseConnection CreateConnection(ClickHouseContextOptions<TContext> options)
+	private static ClickHouseClient CreateClient(ClickHouseContextOptions<TContext> options)
 	{
 		var clientSettings = new ClickHouseClientSettings(options.ConnectionString)
 		{
@@ -129,7 +135,7 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 			CustomSettings = options.ConnectionCustomSettings ?? new Dictionary<string, object>(),
 		};
 
-		return new ClickHouseConnection(clientSettings);
+		return new ClickHouseClient(clientSettings);
 	}
 
 	private void ThrowIfNotInitialized()
@@ -154,6 +160,8 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 		{
 			// might use _connection while disposing
 			await _transactionBroker.DisposeAsync();
+
+			// disposes owned client
 			await _connection.DisposeAsync().ConfigureAwait(false);
 		}
 	}
