@@ -22,6 +22,10 @@ var topExpensesUser = await context.Orders.GetTopExpensesUser();
 Console.WriteLine(
 	$"Top expenses user Id: {topExpensesUser!.UserId}. With total expenses: {topExpensesUser.Expenses:F2}.");
 
+var ordersCount = await context.Orders.GetOrdersCount();
+
+Console.WriteLine($"Orders count: {ordersCount}.");
+
 
 static IHostBuilder CreateHostBuilder(string[] args) =>
 	Host.CreateDefaultBuilder(args)
