@@ -52,7 +52,7 @@ internal class CreateTableSqlBuilder : ClickHouseSqlBuilder<CreateTableSqlBuilde
 	public CreateTableSqlBuilder AddDataSkippingIndex(
 		Func<ClickHouseDataSkippingIndexBuilder, ClickHouseDataSkippingIndexBuilder> builderSetup)
 	{
-		ExceptionHelpers.ThrowIfNull(builderSetup);
+		ArgumentNullException.ThrowIfNull(builderSetup);
 		ThrowIfBuilt();
 
 		var indexBuilder = builderSetup.Invoke(ClickHouseDataSkippingIndexBuilder.Create);
@@ -65,7 +65,7 @@ internal class CreateTableSqlBuilder : ClickHouseSqlBuilder<CreateTableSqlBuilde
 	public CreateTableSqlBuilder AddColumn(
 		Func<ClickHouseColumnBuilder, ClickHouseColumnBuilder> builderSetup)
 	{
-		ExceptionHelpers.ThrowIfNull(builderSetup);
+		ArgumentNullException.ThrowIfNull(builderSetup);
 		ThrowIfBuilt();
 
 		var columnBuilder = builderSetup.Invoke(ClickHouseColumnBuilder.Create);
@@ -78,7 +78,7 @@ internal class CreateTableSqlBuilder : ClickHouseSqlBuilder<CreateTableSqlBuilde
 	public CreateTableSqlBuilder WithEngine(
 		Func<ClickHouseTableEngineBuilder, ClickHouseTableEngineBuilder> builderSetup)
 	{
-		ExceptionHelpers.ThrowIfNull(builderSetup);
+		ArgumentNullException.ThrowIfNull(builderSetup);
 
 		var engineBuilder = builderSetup.Invoke(ClickHouseTableEngineBuilder.Create);
 

@@ -64,7 +64,7 @@ limit 1
 		await BulkInsertAsync(
 			"example_orders",
 			Enumerable.Range(0, 100).Select(i => new object[] { i % 10 + 1, i * 2 + 1, (i + 1) / 0.33 }),
-			new[] { "user_id", "order_id", "price" },
+			["user_id", "order_id", "price"],
 			batchSize: 45,
 			maxDegreeOfParallelism: 2,
 			cancellationToken: cancellationToken);
@@ -104,7 +104,7 @@ limit 1
 	{
 		await ExecuteNonQueryAsync(
 			InsertOrderSql,
-			new {userId, orderId, price},
+			new { userId, orderId, price },
 			cancellationToken);
 	}
 
@@ -116,5 +116,18 @@ select
 	{orderId:UInt64} as order_id,
 	{price:Decimal64(6)} as price
 ";
+	#endregion
+
+	#region GetOrdersCount
+	public async Task<ulong> GetOrdersCount(CancellationToken cancellationToken = default)
+	{
+		var result = await ExecuteScalarAsync<ulong>(
+			GetOrdersCountSql,
+				cancellationToken);
+
+		return result;
+	}
+
+	private const string GetOrdersCountSql = "select count() from example_orders";
 	#endregion
 }

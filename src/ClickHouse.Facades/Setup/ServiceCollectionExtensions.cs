@@ -1,5 +1,4 @@
 ﻿using ClickHouse.Facades.Migrations;
-using ClickHouse.Facades.Utility;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ClickHouse.Facades;
@@ -51,7 +50,7 @@ public static class ServiceCollectionExtensions
 		where TContext : ClickHouseContext<TContext>, new()
 		where TContextFactory : ClickHouseContextFactory<TContext>
 	{
-		ExceptionHelpers.ThrowIfNull(builderAction);
+		ArgumentNullException.ThrowIfNull(builderAction);
 
 		if (services.Any(service => service.ServiceType == typeof(IClickHouseContextFactory<TContext>)))
 		{

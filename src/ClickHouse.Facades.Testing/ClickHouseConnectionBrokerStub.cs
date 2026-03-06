@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Data.Common;
+using ClickHouse.Driver;
 using ClickHouse.Driver.ADO;
 using ClickHouse.Driver.Copy;
 using Microsoft.Extensions.DependencyInjection;
@@ -97,13 +98,12 @@ internal class ClickHouseConnectionBrokerStub<TContext> : IClickHouseConnectionB
 		return result;
 	}
 
-	[Obsolete("Obsolete")]
 	public Task<long> BulkInsertAsync(
 		string destinationTable,
-		Func<ClickHouseBulkCopy, Task> saveAction,
-		int batchSize,
-		int maxDegreeOfParallelism,
-		IReadOnlyCollection<string>? columnNames = null)
+		IEnumerable<string> columns,
+		IEnumerable<object[]> rows,
+		InsertOptions options,
+		CancellationToken cancellationToken)
 	{
 		throw new NotImplementedException();
 	}

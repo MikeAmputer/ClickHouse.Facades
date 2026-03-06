@@ -1,8 +1,9 @@
 ﻿using System.Data;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
+using ClickHouse.Driver;
 using ClickHouse.Driver.ADO;
-using ClickHouse.Driver.Copy;
+using ClickHouse.Facades.Extensions;
 using ClickHouse.Facades.Utility;
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -139,24 +140,26 @@ public abstract class ClickHouseFacade<TContext>
 		return _connectionBroker.ExecuteDataTable(query, parameters.DeconstructToDictionary(), cancellationToken);
 	}
 
-	[Obsolete("Obsolete")]
 	protected Task<long> BulkInsertAsync(
 		string destinationTable,
 		IEnumerable<object[]> rows,
-		IReadOnlyCollection<string>? columnNames = null,
+		IReadOnlyCollection<string> columnNames,
 		int batchSize = 100000,
 		int maxDegreeOfParallelism = 4,
 		CancellationToken cancellationToken = default)
 	{
-		return BulkInsertAsync(
+		return _connectionBroker.BulkInsertAsync(
 			destinationTable,
-			bulkInterface => bulkInterface.WriteToServerAsync(rows, cancellationToken),
-			batchSize,
-			maxDegreeOfParallelism,
-			columnNames);
+			columnNames,
+			rows,
+			new InsertOptions
+			{
+				BatchSize = batchSize,
+				MaxDegreeOfParallelism = maxDegreeOfParallelism,
+			},
+			cancellationToken);
 	}
 
-	[Obsolete("Obsolete")]
 	protected Task<long> BulkInsertAsync(
 		string destinationTable,
 		IDataReader dataReader,
@@ -164,16 +167,20 @@ public abstract class ClickHouseFacade<TContext>
 		int maxDegreeOfParallelism = 4,
 		CancellationToken cancellationToken = default)
 	{
-		ExceptionHelpers.ThrowIfNull(dataReader);
+		ArgumentNullException.ThrowIfNull(dataReader);
 
-		return BulkInsertAsync(
+		return _connectionBroker.BulkInsertAsync(
 			destinationTable,
-			bulkInterface => bulkInterface.WriteToServerAsync(dataReader, cancellationToken),
-			batchSize,
-			maxDegreeOfParallelism);
+			dataReader.GetColumnNames(),
+			dataReader.AsEnumerable(),
+			new InsertOptions
+			{
+				BatchSize = batchSize,
+				MaxDegreeOfParallelism = maxDegreeOfParallelism,
+			},
+			cancellationToken);
 	}
 
-	[Obsolete("Obsolete")]
 	protected Task<long> BulkInsertAsync(
 		string destinationTable,
 		DataTable dataTable,
@@ -181,28 +188,22 @@ public abstract class ClickHouseFacade<TContext>
 		int maxDegreeOfParallelism = 4,
 		CancellationToken cancellationToken = default)
 	{
-		ExceptionHelpers.ThrowIfNull(dataTable);
+		ArgumentNullException.ThrowIfNull(dataTable);
 
-		return BulkInsertAsync(
-			destinationTable,
-			bulkInterface => bulkInterface.WriteToServerAsync(dataTable, cancellationToken),
-			batchSize,
-			maxDegreeOfParallelism);
-	}
-
-	[Obsolete("Obsolete")]
-	private Task<long> BulkInsertAsync(
-		string destinationTable,
-		Func<ClickHouseBulkCopy, Task> saveAction,
-		int batchSize,
-		int maxDegreeOfParallelism,
-		IReadOnlyCollection<string>? columnNames = null)
-	{
 		return _connectionBroker.BulkInsertAsync(
 			destinationTable,
-			saveAction,
-			batchSize,
-			maxDegreeOfParallelism,
-			columnNames);
+			dataTable.Columns
+				.Cast<DataColumn>()
+				.Select(c => c.ColumnName)
+				.ToArray(),
+			dataTable.Rows
+				.Cast<DataRow>()
+				.Select(r => r.ItemArray)!,
+			new InsertOptions
+			{
+				BatchSize = batchSize,
+				MaxDegreeOfParallelism = maxDegreeOfParallelism,
+			},
+			cancellationToken);
 	}
 }

@@ -15,10 +15,8 @@ public abstract class Builder<TResult, TBuilder>
 		TValue value,
 		bool overrideAllowed = false)
 	{
-		ExceptionHelpers.ThrowIfNull(getter);
-		ExceptionHelpers.ThrowIfNull(setter);
-
-		ThrowIfBuilt();
+		ArgumentNullException.ThrowIfNull(getter);
+		ArgumentNullException.ThrowIfNull(setter);
 
 		if (!overrideAllowed && getter((TBuilder) this).HasValue)
 		{
@@ -35,9 +33,7 @@ public abstract class Builder<TResult, TBuilder>
 		string key,
 		TValue value)
 	{
-		ExceptionHelpers.ThrowIfNull(getter);
-
-		ThrowIfBuilt();
+		ArgumentNullException.ThrowIfNull(getter);
 
 		var dict = getter((TBuilder) this);
 

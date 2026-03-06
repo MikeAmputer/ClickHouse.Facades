@@ -104,7 +104,7 @@ internal sealed class ClickHouseMigrationFacade
 
 	public async Task ApplyMigrationAsync(ClickHouseMigration migration, CancellationToken cancellationToken)
 	{
-		ExceptionHelpers.ThrowIfNull(migration);
+		ArgumentNullException.ThrowIfNull(migration);
 
 		var logEntry = new ClickHouseMigrationLogEntry
 		{
@@ -171,7 +171,7 @@ internal sealed class ClickHouseMigrationFacade
 
 	public async Task RollbackMigrationAsync(ClickHouseMigration migration, CancellationToken cancellationToken)
 	{
-		ExceptionHelpers.ThrowIfNull(migration);
+		ArgumentNullException.ThrowIfNull(migration);
 
 		var logEntry = new ClickHouseMigrationLogEntry
 		{

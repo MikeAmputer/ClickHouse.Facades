@@ -13,7 +13,7 @@ internal class CreateDatabaseSqlBuilder : ClickHouseSqlBuilder<CreateDatabaseSql
 	public CreateDatabaseSqlBuilder WithEngine(
 		Func<ClickHouseDatabaseEngineBuilder, ClickHouseDatabaseEngineBuilder> builderSetup)
 	{
-		ExceptionHelpers.ThrowIfNull(builderSetup);
+		ArgumentNullException.ThrowIfNull(builderSetup);
 
 		var engineBuilder = builderSetup.Invoke(ClickHouseDatabaseEngineBuilder.Create);
 

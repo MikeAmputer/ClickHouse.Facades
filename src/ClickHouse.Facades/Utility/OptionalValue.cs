@@ -39,28 +39,28 @@ internal readonly struct OptionalValue<TValue>
 
 	internal TValue? OrElse(Func<TValue?> elseValueProvider)
 	{
-		ExceptionHelpers.ThrowIfNull(elseValueProvider);
+		ArgumentNullException.ThrowIfNull(elseValueProvider);
 
 		return HasValue ? Value : elseValueProvider();
 	}
 
 	internal string ToString(Func<TValue?, string> stringProvider, string fallbackValue = "")
 	{
-		ExceptionHelpers.ThrowIfNull(stringProvider);
+		ArgumentNullException.ThrowIfNull(stringProvider);
 
 		return HasValue ? stringProvider(Value) : fallbackValue;
 	}
 
 	internal string NotNullToString(Func<TValue, string> stringProvider, string fallbackValue)
 	{
-		ExceptionHelpers.ThrowIfNull(stringProvider);
+		ArgumentNullException.ThrowIfNull(stringProvider);
 
 		return HasValue ? stringProvider(ThrowIfNull()) : fallbackValue;
 	}
 
 	internal string NotNullToString(Func<TValue, string> stringProvider)
 	{
-		ExceptionHelpers.ThrowIfNull(stringProvider);
+		ArgumentNullException.ThrowIfNull(stringProvider);
 
 		return stringProvider(ThrowIfNull());
 	}

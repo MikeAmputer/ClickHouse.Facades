@@ -8,28 +8,28 @@ public sealed class ClickHouseContextOptions<TContext>
 
 	}
 
-	internal string ConnectionString { get; set; } = "";
-	internal bool AllowDatabaseChanges { get; set; } = false;
+	internal string ConnectionString { get; init; } = "";
+	internal bool AllowDatabaseChanges { get; init; } = false;
 
-	internal HttpClient? HttpClient { get; set; }
-	internal IHttpClientFactory? HttpClientFactory { get; set; }
-	internal string? HttpClientName { get; set; }
+	internal HttpClient? HttpClient { get; init; }
+	internal IHttpClientFactory? HttpClientFactory { get; init; }
+	internal string? HttpClientName { get; init; }
 
-	internal ClickHouseFacadeFactory<TContext> FacadeFactory { get; set; } = null!;
+	internal ClickHouseFacadeFactory<TContext> FacadeFactory { get; init; } = null!;
 
 	internal Func<ConnectionBrokerParameters, IClickHouseConnectionBroker> ConnectionBrokerProvider
 	{
 		get;
-		set;
+		init;
 	} = null!;
 
-	internal CommandExecutionStrategy CommandExecutionStrategy { get; set; } = CommandExecutionStrategy.Default;
+	internal CommandExecutionStrategy CommandExecutionStrategy { get; init; } = CommandExecutionStrategy.Default;
 
-	internal IClickHouseCommandExecutionListener? CommandExecutionListener { get; set; } = null;
+	internal IClickHouseCommandExecutionListener? CommandExecutionListener { get; init; } = null;
 
-	internal TransactionBrokerOptions TransactionBrokerOptions { get; set; } = null!;
+	internal TransactionBrokerOptions TransactionBrokerOptions { get; init; } = null!;
 
 	internal IDictionary<string, object>? ConnectionCustomSettings = null;
 
-	internal bool ParametersInBody { get; set; } = false;
+	internal bool ParametersInBody { get; init; } = false;
 }
