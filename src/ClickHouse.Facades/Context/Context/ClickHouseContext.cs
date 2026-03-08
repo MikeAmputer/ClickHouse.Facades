@@ -101,6 +101,13 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 		return _transactionBroker.RollbackAsync();
 	}
 
+	public Task<bool> PingAsync(CancellationToken cancellationToken = default)
+	{
+		ThrowIfNotInitialized();
+
+		return _client!.PingAsync(_queryOptionsBuilder.Build(), cancellationToken);
+	}
+
 	internal async Task Initialize(ClickHouseContextOptions<TContext> options)
 	{
 		ThrowIfInitialized();
