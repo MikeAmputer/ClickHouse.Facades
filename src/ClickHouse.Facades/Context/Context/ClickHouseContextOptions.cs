@@ -1,4 +1,6 @@
-﻿namespace ClickHouse.Facades;
+﻿using ClickHouse.Driver.ADO;
+
+namespace ClickHouse.Facades;
 
 public sealed class ClickHouseContextOptions<TContext>
 	where TContext : ClickHouseContext<TContext>
@@ -8,12 +10,9 @@ public sealed class ClickHouseContextOptions<TContext>
 
 	}
 
-	internal string ConnectionString { get; init; } = "";
-	internal bool AllowDatabaseChanges { get; init; } = false;
+	internal ClickHouseClientSettings ClickHouseClientSettings { get; init; } = null!;
 
-	internal HttpClient? HttpClient { get; init; }
-	internal IHttpClientFactory? HttpClientFactory { get; init; }
-	internal string? HttpClientName { get; init; }
+	internal bool AllowDatabaseChanges { get; init; } = false;
 
 	internal ClickHouseFacadeFactory<TContext> FacadeFactory { get; init; } = null!;
 
@@ -28,8 +27,4 @@ public sealed class ClickHouseContextOptions<TContext>
 	internal IClickHouseCommandExecutionListener? CommandExecutionListener { get; init; } = null;
 
 	internal TransactionBrokerOptions TransactionBrokerOptions { get; init; } = null!;
-
-	internal IDictionary<string, object>? ConnectionCustomSettings = null;
-
-	internal bool ParametersInBody { get; init; } = false;
 }

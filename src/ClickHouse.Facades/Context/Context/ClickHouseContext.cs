@@ -112,7 +112,7 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 	{
 		ThrowIfInitialized();
 
-		_client = CreateClient(options);
+		_client = new ClickHouseClient(options.ClickHouseClientSettings);
 		_connection = _client!.CreateConnection();
 
 		_connectionBroker = options.ConnectionBrokerProvider(new ConnectionBrokerParameters
@@ -130,20 +130,6 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 		_transactionBroker = await TransactionBroker.Create(_connectionBroker, options.TransactionBrokerOptions);
 
 		_initialized = true;
-	}
-
-	private static ClickHouseClient CreateClient(ClickHouseContextOptions<TContext> options)
-	{
-		var clientSettings = new ClickHouseClientSettings(options.ConnectionString)
-		{
-			HttpClient = options.HttpClient,
-			HttpClientFactory = options.HttpClientFactory,
-			HttpClientName = options.HttpClientName,
-			UseFormDataParameters = options.ParametersInBody,
-			CustomSettings = options.ConnectionCustomSettings ?? new Dictionary<string, object>(),
-		};
-
-		return new ClickHouseClient(clientSettings);
 	}
 
 	private void ThrowIfNotInitialized()

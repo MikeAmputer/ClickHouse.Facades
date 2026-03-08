@@ -1,4 +1,5 @@
-﻿using ClickHouse.Facades.Utility;
+﻿using ClickHouse.Driver.ADO;
+using ClickHouse.Facades.Utility;
 
 namespace ClickHouse.Facades;
 
@@ -6,15 +7,9 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 	: Builder<ClickHouseContextOptions<TContext>, ClickHouseContextOptionsBuilder<TContext>>
 	where TContext : ClickHouseContext<TContext>
 {
-	private const string UseSessionParameterName = "UseSession";
+	private readonly ClickHouseClientSettingsBuilder _clientSettingsBuilder = new();
 
-	private OptionalValue<string> _connectionString;
-	private OptionalValue<bool> _forceSession;
 	private OptionalValue<bool> _allowDatabaseChanges;
-
-	private OptionalValue<HttpClient> _httpClient;
-	private OptionalValue<IHttpClientFactory> _httpClientFactory;
-	private OptionalValue<string> _httpClientName;
 
 	private OptionalValue<ClickHouseFacadeFactory<TContext>> _facadeFactory;
 
@@ -26,8 +21,19 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 
 	private OptionalValue<Action<TransactionBrokerOptionsBuilder>> _setupTransactionBrokerOptions;
 
-	private OptionalValue<IDictionary<string, object>> _connectionCustomSettings;
-	private OptionalValue<bool> _parametersInBody;
+	public ClickHouseContextOptionsBuilder<TContext> WithClientSettings(ClickHouseClientSettings settings)
+	{
+		_clientSettingsBuilder.WithClientSettings(settings);
+
+		return this;
+	}
+
+	public ClickHouseContextOptionsBuilder<TContext> WithConnectionString(string connectionString)
+	{
+		_clientSettingsBuilder.WithConnectionString(connectionString);
+
+		return this;
+	}
 
 	public ClickHouseContextOptionsBuilder<TContext> SetupTransactions(
 		Action<TransactionBrokerOptionsBuilder> setup)
@@ -60,40 +66,16 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 		IHttpClientFactory httpClientFactory,
 		string httpClientName)
 	{
-		ArgumentNullException.ThrowIfNull(httpClientFactory);
-		ArgumentNullException.ThrowIfNull(httpClientName);
+		_clientSettingsBuilder.WithHttpClientFactory(httpClientFactory, httpClientName);
 
-		if (_httpClient.HasValue)
-		{
-			throw new InvalidOperationException(
-				"Unable to set IHttpClientFactory and HttpClient simultaneously.");
-		}
-
-		WithPropertyValue(
-			builder => builder._httpClientName,
-			(builder, value) => builder._httpClientName = value,
-			httpClientName);
-
-		return WithPropertyValue(
-			builder => builder._httpClientFactory,
-			(builder, value) => builder._httpClientFactory = value,
-			httpClientFactory);
+		return this;
 	}
 
 	public ClickHouseContextOptionsBuilder<TContext> WithHttpClient(HttpClient httpClient)
 	{
-		ArgumentNullException.ThrowIfNull(httpClient);
+		_clientSettingsBuilder.WithHttpClient(httpClient);
 
-		if (_httpClientFactory.HasValue)
-		{
-			throw new InvalidOperationException(
-				"Unable to set IHttpClientFactory and HttpClient simultaneously.");
-		}
-
-		return WithPropertyValue(
-			builder => builder._httpClient,
-			(builder, value) => builder._httpClient = value,
-			httpClient);
+		return this;
 	}
 
 	public ClickHouseContextOptionsBuilder<TContext> AllowDatabaseChanges()
@@ -106,40 +88,24 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 
 	public ClickHouseContextOptionsBuilder<TContext> ForceSessions()
 	{
-		return WithPropertyValue(
-			builder => builder._forceSession,
-			(builder, value) => builder._forceSession = value,
-			true);
-	}
+		_clientSettingsBuilder.UseSession();
 
-	public ClickHouseContextOptionsBuilder<TContext> WithConnectionString(string connectionString)
-	{
-		if (connectionString.IsNullOrWhiteSpace())
-		{
-			throw new ArgumentException($"{nameof(connectionString)} is null or whitespace.");
-		}
-
-		return WithPropertyValue(
-			builder => builder._connectionString,
-			(builder, value) => builder._connectionString = value,
-			connectionString);
+		return this;
 	}
 
 	public ClickHouseContextOptionsBuilder<TContext> WithConnectionCustomSettings(
 		IDictionary<string, object> customSettings)
 	{
-		return WithPropertyValue(
-			builder => builder._connectionCustomSettings,
-			(builder, value) => builder._connectionCustomSettings = value,
-			customSettings);
+		_clientSettingsBuilder.WithCustomSettings(customSettings);
+
+		return this;
 	}
 
 	public ClickHouseContextOptionsBuilder<TContext> SendParametersInBody()
 	{
-		return WithPropertyValue(
-			builder => builder._parametersInBody,
-			(builder, value) => builder._parametersInBody = value,
-			true);
+		_clientSettingsBuilder.UseFormDataParameters();
+
+		return this;
 	}
 
 	internal ClickHouseContextOptionsBuilder<TContext> WithFacadeFactory(
@@ -166,13 +132,6 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 
 	protected override ClickHouseContextOptions<TContext> BuildCore()
 	{
-		var connectionString = _connectionString.NotNullOrThrow();
-
-		if (_forceSession.OrElseValue(false))
-		{
-			connectionString = GetSessionConnectionString(connectionString);
-		}
-
 		var transactionBrokerOptionsBuilder = TransactionBrokerOptionsBuilder.Create;
 		_setupTransactionBrokerOptions.OrDefault()?.Invoke(transactionBrokerOptionsBuilder);
 
@@ -180,40 +139,13 @@ public sealed class ClickHouseContextOptionsBuilder<TContext>
 
 		return new ClickHouseContextOptions<TContext>
 		{
-			ConnectionString = connectionString,
+			ClickHouseClientSettings = _clientSettingsBuilder.Build(),
 			AllowDatabaseChanges = _allowDatabaseChanges.OrElseValue(false),
-			HttpClient = _httpClient.OrDefault(),
-			HttpClientFactory = _httpClientFactory.OrDefault(),
-			HttpClientName = _httpClientName.OrDefault(),
 			FacadeFactory = _facadeFactory.NotNullOrThrow(),
 			ConnectionBrokerProvider = _connectionBrokerProvider.NotNullOrThrow(),
 			CommandExecutionStrategy = _commandExecutionStrategy.OrElseValue(CommandExecutionStrategy.Default),
 			CommandExecutionListener = _commandExecutionListener.OrElseValue(null),
 			TransactionBrokerOptions = transactionBrokerOptions,
-			ConnectionCustomSettings = _connectionCustomSettings.OrElseValue(null),
-			ParametersInBody = _parametersInBody.OrDefault(),
 		};
-	}
-
-	private static string GetSessionConnectionString(string connectionString)
-	{
-		var connectionParameters = connectionString.GetConnectionStringParameters();
-
-		var parameterExists = connectionParameters.TryGetValue(UseSessionParameterName.ToLower(), out var value);
-
-		if (!parameterExists)
-		{
-			return $"{connectionString.TrimEnd(';')};{UseSessionParameterName}=True;";
-		}
-
-		if (value == null || !bool.Parse(value))
-		{
-			return connectionString.Replace(
-				$"{UseSessionParameterName}=False",
-				$"{UseSessionParameterName}=True",
-				StringComparison.InvariantCultureIgnoreCase);
-		}
-
-		return connectionString;
 	}
 }
