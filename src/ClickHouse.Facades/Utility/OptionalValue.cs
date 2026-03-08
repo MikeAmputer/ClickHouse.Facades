@@ -18,12 +18,12 @@ internal readonly struct OptionalValue<TValue>
 
 	internal TValue? OrElseValue(TValue? elseValue)
 	{
-		return OrElse(() => elseValue);
+		return HasValue ? Value : elseValue;
 	}
 
 	internal TValue? OrDefault()
 	{
-		return OrElse(() => default);
+		return OrElseValue(default);
 	}
 
 	internal TValue? OrThrow()
