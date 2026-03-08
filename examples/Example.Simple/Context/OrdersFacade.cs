@@ -118,16 +118,25 @@ select
 ";
 	#endregion
 
-	#region GetOrdersCount
+	#region GetOrders
 	public async Task<ulong> GetOrdersCount(CancellationToken cancellationToken = default)
 	{
 		var result = await ExecuteScalarAsync<ulong>(
-			GetOrdersCountSql,
+			"select count() from example_orders",
 				cancellationToken);
 
 		return result;
 	}
 
-	private const string GetOrdersCountSql = "select count() from example_orders";
+	public async Task<string> GetOrders(CancellationToken cancellationToken = default)
+	{
+		var rawData = await ExecuteRawResultAsync(
+			"select * from example_orders where user_id = 1 format csv",
+			cancellationToken);
+
+		var csv = await rawData.ReadAsStringAsync();
+
+		return csv;
+	}
 	#endregion
 }

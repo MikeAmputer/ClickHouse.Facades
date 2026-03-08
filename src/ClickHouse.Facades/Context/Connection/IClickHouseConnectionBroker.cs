@@ -25,6 +25,11 @@ internal interface IClickHouseConnectionBroker
 		Dictionary<string, object?>? parameters,
 		CancellationToken cancellationToken);
 
+	Task<ClickHouseRawResult> ExecuteRawResultAsync(
+		string query,
+		Dictionary<string, object?>? parameters,
+		CancellationToken cancellationToken);
+
 	DataTable ExecuteDataTable(
 		string query,
 		Dictionary<string, object?>? parameters,

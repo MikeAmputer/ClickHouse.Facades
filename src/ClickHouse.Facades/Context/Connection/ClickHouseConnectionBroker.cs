@@ -106,6 +106,25 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 		return result;
 	}
 
+	public async Task<ClickHouseRawResult> ExecuteRawResultAsync(
+		string query,
+		Dictionary<string, object?>? parameters,
+		CancellationToken cancellationToken)
+	{
+		cancellationToken.ThrowIfCancellationRequested();
+
+		await using var command = CreateCommand();
+		command.CommandText = query;
+		SetParameters(command, parameters);
+
+		var result = await _commandExecutionStrategy
+			.ExecuteRawResultAsync(_connection, command, cancellationToken);
+
+		await PublishExecutedCommand(command, cancellationToken);
+
+		return result;
+	}
+
 	public DataTable ExecuteDataTable(
 		string query,
 		Dictionary<string, object?>? parameters,
