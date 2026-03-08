@@ -79,6 +79,25 @@ internal class ClickHouseConnectionBrokerStub<TContext> : IClickHouseConnectionB
 		return Task.FromResult((DbDataReader) new DataTableReader(result));
 	}
 
+	public Task<ClickHouseRawResult> ExecuteRawResultAsync(
+		string query,
+		Dictionary<string, object?>? parameters,
+		CancellationToken cancellationToken)
+	{
+		var result = _responseProducer
+			.TryGetResponse(TestQueryType.ExecuteRawResult, query, out var response)
+			? (ClickHouseRawResult) response!
+			: ClickHouseRawResultFactory.FromBytes([]);
+
+		_tracker.Add(new ClickHouseTestResponse(
+			TestQueryType.ExecuteReader,
+			query,
+			parameters,
+			result));
+
+		return Task.FromResult(result);
+	}
+
 	public DataTable ExecuteDataTable(
 		string query,
 		Dictionary<string, object?>? parameters,

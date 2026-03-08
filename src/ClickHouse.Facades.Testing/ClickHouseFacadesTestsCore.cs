@@ -82,6 +82,42 @@ public class ClickHouseFacadesTestsCore
 			.Add(TestQueryType.ExecuteReader, sqlPredicate, () => dataTable);
 	}
 
+	protected void MockExecuteRawResult<TContext>(
+		Predicate<string> sqlPredicate,
+		string stringContent)
+		where TContext : ClickHouseContext<TContext>
+	{
+		GetService<ClickHouseConnectionResponseProducer<TContext>>()
+			.Add(
+				TestQueryType.ExecuteRawResult,
+				sqlPredicate,
+				() => ClickHouseRawResultFactory.FromString(stringContent));
+	}
+
+	protected void MockExecuteRawResult<TContext>(
+		Predicate<string> sqlPredicate,
+		byte[] byteArrayContent)
+		where TContext : ClickHouseContext<TContext>
+	{
+		GetService<ClickHouseConnectionResponseProducer<TContext>>()
+			.Add(
+				TestQueryType.ExecuteRawResult,
+				sqlPredicate,
+				() => ClickHouseRawResultFactory.FromBytes(byteArrayContent));
+	}
+
+	protected void MockExecuteRawResult<TContext>(
+		Predicate<string> sqlPredicate,
+		Stream streamContent)
+		where TContext : ClickHouseContext<TContext>
+	{
+		GetService<ClickHouseConnectionResponseProducer<TContext>>()
+			.Add(
+				TestQueryType.ExecuteRawResult,
+				sqlPredicate,
+				() => ClickHouseRawResultFactory.FromStream(streamContent));
+	}
+
 	protected IClickHouseConnectionTracker GetClickHouseConnectionTracker<TContext>()
 		where TContext : ClickHouseContext<TContext>
 	{

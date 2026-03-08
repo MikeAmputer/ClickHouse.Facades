@@ -5,6 +5,7 @@ public enum TestQueryType
 	ExecuteNonQuery = 1,
 	ExecuteScalar,
 	ExecuteReader,
+	ExecuteRawResult,
 }
 
 public class ClickHouseTestResponse
