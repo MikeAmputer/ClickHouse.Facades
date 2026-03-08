@@ -35,4 +35,14 @@ internal class DefaultCommandExecutionStrategy : ICommandExecutionStrategy
 
 		return command.ExecuteReaderAsync(cancellationToken);
 	}
+
+	public Task<ClickHouseRawResult> ExecuteRawResultAsync(
+		IClickHouseConnection connection,
+		ClickHouseCommand command,
+		CancellationToken cancellationToken)
+	{
+		cancellationToken.ThrowIfCancellationRequested();
+
+		return command.ExecuteRawResultAsync(cancellationToken);
+	}
 }

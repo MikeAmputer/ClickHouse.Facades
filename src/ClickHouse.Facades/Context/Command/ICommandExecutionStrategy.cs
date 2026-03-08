@@ -27,4 +27,9 @@ internal interface ICommandExecutionStrategy
 		IClickHouseConnection connection,
 		ClickHouseCommand command,
 		CancellationToken cancellationToken);
+
+	Task<ClickHouseRawResult> ExecuteRawResultAsync(
+		IClickHouseConnection connection,
+		ClickHouseCommand command,
+		CancellationToken cancellationToken);
 }

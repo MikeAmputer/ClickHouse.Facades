@@ -37,6 +37,16 @@ internal class CancelableCommandExecutionStrategy : ICommandExecutionStrategy
 			(cmd, ct) => cmd.ExecuteReaderAsync(ct),
 			cancellationToken);
 
+	public Task<ClickHouseRawResult> ExecuteRawResultAsync(
+		IClickHouseConnection connection,
+		ClickHouseCommand command,
+		CancellationToken cancellationToken) =>
+		Execute(
+			connection,
+			command,
+			(cmd, ct) => cmd.ExecuteRawResultAsync(ct),
+			cancellationToken);
+
 	private static Task<T> Execute<T>(
 		IClickHouseConnection connection,
 		ClickHouseCommand command,

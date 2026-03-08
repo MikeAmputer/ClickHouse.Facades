@@ -90,6 +90,21 @@ public abstract class ClickHouseFacade<TContext>
 		return _connectionBroker.ExecuteReaderAsync(query, parameters.DeconstructToDictionary(), cancellationToken);
 	}
 
+	protected Task<ClickHouseRawResult> ExecuteRawResultAsync(
+		string query,
+		CancellationToken cancellationToken = default)
+	{
+		return _connectionBroker.ExecuteRawResultAsync(query, null, cancellationToken);
+	}
+
+	protected Task<ClickHouseRawResult> ExecuteRawResultAsync(
+		string query,
+		object parameters,
+		CancellationToken cancellationToken = default)
+	{
+		return _connectionBroker.ExecuteRawResultAsync(query, parameters.DeconstructToDictionary(), cancellationToken);
+	}
+
 	protected async IAsyncEnumerable<T> ExecuteQueryAsync<T>(
 		string query,
 		Func<DbDataReader, T> rowSelector,
