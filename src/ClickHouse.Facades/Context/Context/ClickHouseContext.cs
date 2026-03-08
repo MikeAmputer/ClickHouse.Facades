@@ -77,7 +77,6 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 	{
 		ThrowIfNotInitialized();
 
-		_queryOptionsBuilder.AddCustomSettings(parameterName, value);
 		await _connectionBroker.SetSessionParameterAsync(parameterName, value);
 	}
 

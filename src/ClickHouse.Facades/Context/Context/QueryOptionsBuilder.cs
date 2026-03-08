@@ -6,7 +6,6 @@ namespace ClickHouse.Facades;
 public class QueryOptionsBuilder : Builder<QueryOptions, QueryOptionsBuilder>
 {
 	private OptionalValue<string> _database;
-	private Dictionary<string, object>? _customSettings;
 
 	public QueryOptionsBuilder WithDatabase(string database)
 	{
@@ -17,21 +16,11 @@ public class QueryOptionsBuilder : Builder<QueryOptions, QueryOptionsBuilder>
 			overrideAllowed: true);
 	}
 
-	public QueryOptionsBuilder AddCustomSettings(string parameterName, object value)
-	{
-		_customSettings ??= new();
-
-		_customSettings.Add(parameterName, value);
-
-		return this;
-	}
-
 	protected override QueryOptions BuildCore()
 	{
 		return new QueryOptions
 		{
 			Database = _database.OrElseValue(null),
-			CustomSettings = _customSettings,
 		};
 	}
 }
