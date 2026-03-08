@@ -77,7 +77,6 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 	{
 		ThrowIfNotInitialized();
 
-		_queryOptionsBuilder.AddCustomSettings(parameterName, value);
 		await _connectionBroker.SetSessionParameterAsync(parameterName, value);
 	}
 
@@ -100,6 +99,13 @@ public abstract class ClickHouseContext<TContext> : IAsyncDisposable
 		ThrowIfNotInitialized();
 
 		return _transactionBroker.RollbackAsync();
+	}
+
+	public Task<bool> PingAsync(CancellationToken cancellationToken = default)
+	{
+		ThrowIfNotInitialized();
+
+		return _client!.PingAsync(_queryOptionsBuilder.Build(), cancellationToken);
 	}
 
 	internal async Task Initialize(ClickHouseContextOptions<TContext> options)
