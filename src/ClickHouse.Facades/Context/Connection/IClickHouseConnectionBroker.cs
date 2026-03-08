@@ -2,7 +2,6 @@
 using System.Data.Common;
 using ClickHouse.Driver;
 using ClickHouse.Driver.ADO;
-using ClickHouse.Driver.Copy;
 
 namespace ClickHouse.Facades;
 
@@ -40,6 +39,14 @@ internal interface IClickHouseConnectionBroker
 		IEnumerable<string> columns,
 		IEnumerable<object[]> rows,
 		InsertOptions options,
+		CancellationToken cancellationToken);
+
+	Task<HttpResponseMessage> InsertRawStreamAsync(
+		string table,
+		Stream stream,
+		string format,
+		IEnumerable<string>? columns,
+		bool useCompression,
 		CancellationToken cancellationToken);
 
 	Task SetSessionParameterAsync(string parameterName, object value);

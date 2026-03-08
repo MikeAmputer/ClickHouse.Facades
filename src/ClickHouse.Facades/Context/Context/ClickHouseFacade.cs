@@ -163,6 +163,8 @@ public abstract class ClickHouseFacade<TContext>
 		int maxDegreeOfParallelism = 4,
 		CancellationToken cancellationToken = default)
 	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(destinationTable);
+
 		return _connectionBroker.BulkInsertAsync(
 			destinationTable,
 			columnNames,
@@ -183,6 +185,7 @@ public abstract class ClickHouseFacade<TContext>
 		CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(dataReader);
+		ArgumentException.ThrowIfNullOrWhiteSpace(destinationTable);
 
 		return _connectionBroker.BulkInsertAsync(
 			destinationTable,
@@ -204,6 +207,7 @@ public abstract class ClickHouseFacade<TContext>
 		CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(dataTable);
+		ArgumentException.ThrowIfNullOrWhiteSpace(destinationTable);
 
 		return _connectionBroker.BulkInsertAsync(
 			destinationTable,
@@ -219,6 +223,27 @@ public abstract class ClickHouseFacade<TContext>
 				BatchSize = batchSize,
 				MaxDegreeOfParallelism = maxDegreeOfParallelism,
 			},
+			cancellationToken);
+	}
+
+	protected Task<HttpResponseMessage> InsertRawStreamAsync(
+		string table,
+		Stream stream,
+		string format,
+		IEnumerable<string>? columns = null,
+		bool useCompression = true,
+		CancellationToken cancellationToken = default)
+	{
+		ArgumentNullException.ThrowIfNull(stream);
+		ArgumentException.ThrowIfNullOrWhiteSpace(table);
+		ArgumentException.ThrowIfNullOrWhiteSpace(format);
+
+		return _connectionBroker.InsertRawStreamAsync(
+			table,
+			stream,
+			format,
+			columns,
+			useCompression,
 			cancellationToken);
 	}
 }

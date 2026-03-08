@@ -161,6 +161,24 @@ internal class ClickHouseConnectionBroker : IClickHouseConnectionBroker
 			cancellationToken);
 	}
 
+	public Task<HttpResponseMessage> InsertRawStreamAsync(
+		string table,
+		Stream stream,
+		string format,
+		IEnumerable<string>? columns,
+		bool useCompression,
+		CancellationToken cancellationToken)
+	{
+		return _client.InsertRawStreamAsync(
+			table,
+			stream,
+			format,
+			columns,
+			useCompression,
+			_queryOptionsBuilder.Build(),
+			cancellationToken);
+	}
+
 	public Task SetSessionParameterAsync(string parameterName, object value)
 	{
 		if (!_sessionEnabled)

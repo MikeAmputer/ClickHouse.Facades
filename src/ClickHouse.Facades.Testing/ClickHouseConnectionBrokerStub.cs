@@ -2,7 +2,6 @@
 using System.Data.Common;
 using ClickHouse.Driver;
 using ClickHouse.Driver.ADO;
-using ClickHouse.Driver.Copy;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ClickHouse.Facades.Testing;
@@ -122,6 +121,17 @@ internal class ClickHouseConnectionBrokerStub<TContext> : IClickHouseConnectionB
 		IEnumerable<string> columns,
 		IEnumerable<object[]> rows,
 		InsertOptions options,
+		CancellationToken cancellationToken)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<HttpResponseMessage> InsertRawStreamAsync(
+		string table,
+		Stream stream,
+		string format,
+		IEnumerable<string>? columns,
+		bool useCompression,
 		CancellationToken cancellationToken)
 	{
 		throw new NotImplementedException();
