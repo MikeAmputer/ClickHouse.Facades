@@ -6,7 +6,7 @@ Dedicated testing toolkit tailored for unit testing components within the [Click
   a base class designed specifically for testing ClickHouse facades within MSTest v2 framework.
 - **Facilitated Mocking:** Seamlessly mock ClickHouse facades
   or specific requests to the ClickHouse database,
-  including operations like `ExecuteNonQuery`, `ExecuteScalar`, and `ExecuteReader`.
+  including operations like `ExecuteNonQuery`, `ExecuteScalar`, `ExecuteReader`, and `ExecuteRawResult`.
 - **Request Tracking:** Monitor requests made to the ClickHouse database, utilizing `IClickHouseConnectionTracker` interface.
 
 > [!NOTE]
@@ -51,11 +51,11 @@ public async Task My_Test()
 }
 ```
 #### Mock database requests
-You can only mock `ExecuteNonQuery`, `ExecuteScalar` and `ExecuteReader` (`ExecuteDataTable` can be mocked through mocking `ExecuteReader`).
+You can only mock `ExecuteNonQuery`, `ExecuteScalar`, `ExecuteReader`, and `ExecuteRawResult` (`ExecuteDataTable` can be mocked through mocking `ExecuteReader`).
 All calls of these methods are mocked to return default values by default.
 You can override return values of selected calls by sql string predicate.
 Database requests are tracked with `IClickHouseConnectionTracker` (`GetClickHouseConnectionTracker<TContext>`).
-`CreateCommand` and `BulkInsert` are throwing exceptions - use facade mock approach.
+`CreateCommand`, `BulkInsert`, and `InsertRawStreamAsync` are throwing exceptions - use facade mock approach.
 ```csharp
 [TestMethod]
 public async Task My_Test()
@@ -84,3 +84,4 @@ public async Task My_Test()
 
 > [!NOTE]
 > To test your code that uses facades, it is not necessary to inherit from the `ClickHouseFacadesTestsCore` class. It is sufficient to use facades through abstractions, register the context via `services.AddClickHouseTestContext`, and replace the facade abstraction in the service collection with a prepared mock, as done in `ClickHouseFacadesTestsCore.MockFacadeAbstraction`.
+
