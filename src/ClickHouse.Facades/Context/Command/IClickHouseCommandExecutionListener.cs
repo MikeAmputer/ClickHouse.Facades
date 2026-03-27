@@ -4,5 +4,5 @@ namespace ClickHouse.Facades;
 
 public interface IClickHouseCommandExecutionListener
 {
-	public Task ProcessExecutedCommand(ClickHouseCommand command, CancellationToken cancellationToken = default);
+	Task ProcessExecutedCommand(ClickHouseCommand command, CancellationToken cancellationToken = default);
 }

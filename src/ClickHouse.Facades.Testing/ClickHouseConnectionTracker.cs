@@ -6,11 +6,10 @@ internal class ClickHouseConnectionTracker<TContext> : IClickHouseConnectionTrac
 	where TContext : ClickHouseContext<TContext>
 {
 	private readonly Dictionary<int, ClickHouseTestResponse> _records = new();
-	private int _recordsCount = 0;
 
 	internal void Add(ClickHouseTestResponse record)
 	{
-		_records.Add(++_recordsCount, record);
+		_records.Add(++RecordsCount, record);
 	}
 
 	public IReadOnlyCollection<ClickHouseTestResponse> GetAllRecords()
@@ -32,5 +31,5 @@ internal class ClickHouseConnectionTracker<TContext> : IClickHouseConnectionTrac
 			.Where(r => regex.IsMatch(r.Sql));
 	}
 
-	public int RecordsCount => _recordsCount;
+	public int RecordsCount { get; private set; } = 0;
 }
