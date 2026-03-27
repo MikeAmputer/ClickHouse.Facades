@@ -3,7 +3,8 @@ using ClickHouse.Facades.Utility;
 
 namespace ClickHouse.Facades;
 
-internal class ClickHouseClientSettingsBuilder : Builder<ClickHouseClientSettings, ClickHouseClientSettingsBuilder>
+internal sealed class ClickHouseClientSettingsBuilder
+	: Builder<ClickHouseClientSettings, ClickHouseClientSettingsBuilder>
 {
 	private OptionalValue<ClickHouseClientSettings> _baseSettings;
 	private OptionalValue<string> _connectionString;

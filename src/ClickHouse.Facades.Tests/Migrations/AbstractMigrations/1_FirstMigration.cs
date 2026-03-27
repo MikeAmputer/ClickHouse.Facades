@@ -16,7 +16,7 @@ internal abstract class _1_FirstMigration : ClickHouseMigration
 
 	public static Mock<_1_FirstMigration> AsMock()
 	{
-		var mock =  new Mock<_1_FirstMigration>();
+		var mock = new Mock<_1_FirstMigration>();
 
 		mock.Setup(m => m.Index).Returns(MigrationIndex);
 		mock.Setup(m => m.Name).Returns(MigrationName);

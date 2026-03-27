@@ -16,7 +16,7 @@ internal abstract class _3_ThirdMigration : ClickHouseMigration
 
 	public static Mock<_3_ThirdMigration> AsMock()
 	{
-		var mock =  new Mock<_3_ThirdMigration>();
+		var mock = new Mock<_3_ThirdMigration>();
 
 		mock.Setup(m => m.Index).Returns(MigrationIndex);
 		mock.Setup(m => m.Name).Returns(MigrationName);

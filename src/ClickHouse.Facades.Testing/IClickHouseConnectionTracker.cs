@@ -6,7 +6,7 @@ public interface IClickHouseConnectionTracker
 
 	ClickHouseTestResponse GetRecord(int index);
 
-	public IEnumerable<ClickHouseTestResponse> GetRecordsBySql(string sqlRegexPattern);
+	IEnumerable<ClickHouseTestResponse> GetRecordsBySql(string sqlRegexPattern);
 
 	int RecordsCount { get; }
 }

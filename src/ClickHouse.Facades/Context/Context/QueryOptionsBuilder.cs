@@ -3,7 +3,7 @@ using ClickHouse.Facades.Utility;
 
 namespace ClickHouse.Facades;
 
-public class QueryOptionsBuilder : Builder<QueryOptions, QueryOptionsBuilder>
+public sealed class QueryOptionsBuilder : Builder<QueryOptions, QueryOptionsBuilder>
 {
 	private OptionalValue<string> _database;
 

@@ -4,11 +4,11 @@ public interface IClickHouseMigrationLog
 {
 	IReadOnlyList<IClickHouseMigrationLogEntry> Entries { get; }
 
-	public ulong? InitialMigrationIndex { get; }
-	public string? InitialMigrationName { get; }
+	ulong? InitialMigrationIndex { get; }
+	string? InitialMigrationName { get; }
 
-	public ulong? FinalMigrationIndex { get; }
-	public string? FinalMigrationName { get; }
+	ulong? FinalMigrationIndex { get; }
+	string? FinalMigrationName { get; }
 
 	bool Success { get; }
 }

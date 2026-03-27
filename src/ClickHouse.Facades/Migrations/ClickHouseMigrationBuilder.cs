@@ -4,10 +4,9 @@ namespace ClickHouse.Facades.Migrations;
 
 public sealed class ClickHouseMigrationBuilder : IVersionedClickHouseMigrationBuilder
 {
-	private readonly List<string> _statements = [];
 	private readonly ClickHouseVersion _clickHouseVersion;
 
-	internal List<string> Statements => _statements;
+	internal List<string> Statements { get; } = [];
 
 	internal static ClickHouseMigrationBuilder Create(string clickHouseVersion) => new(clickHouseVersion);
 
@@ -64,7 +63,7 @@ public sealed class ClickHouseMigrationBuilder : IVersionedClickHouseMigrationBu
 			throw new ArgumentException("Migration statement is null or empty.", nameof(sql));
 		}
 
-		_statements.Add(sql);
+		Statements.Add(sql);
 	}
 
 	public void AddSqlFileStatements(string filePath)

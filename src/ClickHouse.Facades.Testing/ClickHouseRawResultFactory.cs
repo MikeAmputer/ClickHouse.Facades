@@ -21,7 +21,7 @@ internal static class ClickHouseRawResultFactory
 			Content = new StringContent(content, Encoding.UTF8)
 		};
 
-		return (ClickHouseRawResult)Ctor.Invoke([response]);
+		return (ClickHouseRawResult) Ctor.Invoke([response]);
 	}
 
 	public static ClickHouseRawResult FromBytes(byte[] bytes)
@@ -31,7 +31,7 @@ internal static class ClickHouseRawResultFactory
 			Content = new ByteArrayContent(bytes)
 		};
 
-		return (ClickHouseRawResult)Ctor.Invoke([response]);
+		return (ClickHouseRawResult) Ctor.Invoke([response]);
 	}
 
 	public static ClickHouseRawResult FromStream(Stream stream)
@@ -41,6 +41,6 @@ internal static class ClickHouseRawResultFactory
 			Content = new StreamContent(stream)
 		};
 
-		return (ClickHouseRawResult)Ctor.Invoke([response]);
+		return (ClickHouseRawResult) Ctor.Invoke([response]);
 	}
 }

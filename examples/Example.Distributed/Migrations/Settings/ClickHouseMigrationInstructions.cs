@@ -5,9 +5,7 @@ namespace ClickHouse.Facades.Example;
 
 public class ClickHouseMigrationInstructions : IClickHouseMigrationInstructions
 {
-	private readonly string _connectionString;
-
-	public string ConnectionString => _connectionString;
+	public string ConnectionString { get; }
 
 	public string DatabaseName => "migrations";
 
@@ -15,6 +13,6 @@ public class ClickHouseMigrationInstructions : IClickHouseMigrationInstructions
 	{
 		ArgumentNullException.ThrowIfNull(config);
 
-		_connectionString = config.Value.ConnectionString;
+		ConnectionString = config.Value.ConnectionString;
 	}
 }

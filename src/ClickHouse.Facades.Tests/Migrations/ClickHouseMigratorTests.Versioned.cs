@@ -5,7 +5,7 @@ namespace ClickHouse.Facades.Tests;
 
 public partial class ClickHouseMigratorTests
 {
-		[TestMethod]
+	[TestMethod]
 	public async Task VersionedMigrationToApply_DatabaseVersionMeetsCriteria_MigrationApplied()
 	{
 		const string databaseName = "test";
