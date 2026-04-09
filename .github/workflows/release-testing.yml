@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Remove Reference
       run: dotnet remove src/ClickHouse.Facades.Testing/ClickHouse.Facades.Testing.csproj reference ../ClickHouse.Facades/ClickHouse.Facades.csproj
@@ -29,7 +29,7 @@ jobs:
       run: dotnet build src/ClickHouse.Facades.Testing/ClickHouse.Facades.Testing.csproj --configuration Release /p:Version=${{ github.event.inputs.version }} --no-restore
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: testing-package
         path: src/ClickHouse.Facades.Testing/bin/Release/ClickHouse.Facades.Testing.*nupkg
@@ -40,7 +40,7 @@ jobs:
     name: Push to NuGet.org
     steps:
     - name: Download Artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v6
       with:
         name: testing-package
       
