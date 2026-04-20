@@ -81,10 +81,20 @@ internal class MigrationsResolver
 
 	private void ValidateAppliedMigrations()
 	{
-		for (var i = 0; i < _appliedMigrations.Count(); i++)
+		var appliedList = _appliedMigrations.ToList();
+		var locatedList = _locatedMigrations.ToList();
+
+		if (appliedList.Count > locatedList.Count)
 		{
-			var applied = _appliedMigrations.ElementAt(i);
-			var located = _locatedMigrations.ElementAt(i);
+			throw new InvalidOperationException(
+				"Inconsistent schema. Database contains more applied migrations than located. " +
+				$"Applied: {appliedList.Count}; Located: {locatedList.Count}.");
+		}
+
+		for (var i = 0; i < appliedList.Count; i++)
+		{
+			var applied = appliedList[i];
+			var located = locatedList[i];
 
 			if (applied.Index != located.Index || applied.Name != located.Name)
 			{

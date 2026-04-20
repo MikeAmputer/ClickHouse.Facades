@@ -1,4 +1,5 @@
 using ClickHouse.Facades.Migrations;
+using Moq;
 
 namespace ClickHouse.Facades.Tests;
 
@@ -132,6 +133,41 @@ public class MigrationsResolverTests
 		var migrationsResolver = new MigrationsResolver(
 			appliedMigrations: new List<AppliedMigration> { _2_SecondMigration.AsApplied() },
 			locatedMigrations: new List<ClickHouseMigration> { firstMigrationMock.Object, secondMigrationMock.Object });
+
+		Assert.ThrowsExactly<InvalidOperationException>(() => migrationsResolver.GetMigrationsToApply());
+	}
+
+	[TestMethod]
+	public void AppliedMigrationsMoreThanLocated_GetMigrationsToApplyThrows()
+	{
+		var firstMigrationMock = _1_FirstMigration.AsMock();
+
+		var migrationsResolver = new MigrationsResolver(
+			appliedMigrations: new List<AppliedMigration>
+			{
+				_1_FirstMigration.AsApplied(),
+				_2_SecondMigration.AsApplied()
+			},
+			locatedMigrations: new List<ClickHouseMigration>
+			{
+				firstMigrationMock.Object
+			});
+
+		Assert.ThrowsExactly<InvalidOperationException>(() => migrationsResolver.GetMigrationsToApply());
+	}
+
+	[TestMethod]
+	public void SameIndexButDifferentName_GetMigrationsToApplyThrows()
+	{
+		var firstMigrationMock = _1_FirstMigration.AsMock();
+		var renamedMigrationMock = new Mock<_1_FirstMigration>();
+
+		renamedMigrationMock.Setup(m => m.Index).Returns(_1_FirstMigration.MigrationIndex);
+		renamedMigrationMock.Setup(m => m.Name).Returns(_1_FirstMigration.MigrationName + "different");
+
+		var migrationsResolver = new MigrationsResolver(
+			appliedMigrations: new List<AppliedMigration> { _1_FirstMigration.AsApplied() },
+			locatedMigrations: new List<ClickHouseMigration> { renamedMigrationMock.Object });
 
 		Assert.ThrowsExactly<InvalidOperationException>(() => migrationsResolver.GetMigrationsToApply());
 	}
