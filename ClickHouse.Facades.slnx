@@ -1,0 +1,12 @@
+﻿<Solution>
+  <Folder Name="/Examples/">
+    <Project Path="examples\Example.Dapper\Example.Dapper.csproj" Type="Classic C#" />
+    <Project Path="examples\Example.Distributed\Example.Distributed.csproj" Type="Classic C#" />
+    <Project Path="examples\Example.Keeper\Example.Keeper.csproj" Type="Classic C#" />
+    <Project Path="examples\Example.Simple\Example.Simple.csproj" Type="Classic C#" />
+  </Folder>
+  <Project Path="src\ClickHouse.Facades.Templates\ClickHouse.Facades.Templates.csproj" Type="Classic C#" />
+  <Project Path="src\ClickHouse.Facades.Testing\ClickHouse.Facades.Testing.csproj" Type="Classic C#" />
+  <Project Path="src\ClickHouse.Facades.Tests\ClickHouse.Facades.Tests.csproj" Type="Classic C#" />
+  <Project Path="src\ClickHouse.Facades\ClickHouse.Facades.csproj" Type="Classic C#" />
+</Solution>
