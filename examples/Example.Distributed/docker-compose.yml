@@ -2,7 +2,7 @@ name: clickhouse-facades-example-distributed
 
 services:
   clickhouse-01:
-    image: clickhouse/clickhouse-server:latest
+    image: clickhouse/clickhouse-server:26.7
     platform: linux/amd64
     container_name: distributed-example-clickhouse-01
     restart: unless-stopped
@@ -15,7 +15,7 @@ services:
       - ./keeper-config-01.xml:/etc/clickhouse-server/config.d/keeper-config.xml
 
   clickhouse-02:
-    image: clickhouse/clickhouse-server:latest
+    image: clickhouse/clickhouse-server:26.7
     platform: linux/amd64
     container_name: distributed-example-clickhouse-02
     restart: unless-stopped
@@ -28,7 +28,7 @@ services:
       - ./keeper-config-02.xml:/etc/clickhouse-server/config.d/keeper-config.xml
 
   clickhouse-03:
-    image: clickhouse/clickhouse-server:latest
+    image: clickhouse/clickhouse-server:26.7
     platform: linux/amd64
     container_name: distributed-example-clickhouse-03
     restart: unless-stopped

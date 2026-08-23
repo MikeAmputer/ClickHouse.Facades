@@ -2,7 +2,7 @@ name: clickhouse-facades-example-keeper
 
 services:
   clickhouse:
-    image: clickhouse/clickhouse-server:latest
+    image: clickhouse/clickhouse-server:26.7
     platform: linux/amd64
     container_name: keeper-example-clickhouse
     restart: unless-stopped
